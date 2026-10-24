@@ -61,6 +61,8 @@ def validate_document(document):
         names = [a['name'] for a in entity['attributes']]
         if len(names) != len(set(names)):
             fail('attribute_duplicate', entity['id'])
+        if set(entity.get('display_attributes', []))-set(names):
+            fail('display_attribute', entity['id'])
         for key in [entity['primary_key'], *entity['unique_keys']]:
             if set(key)-set(names):
                 fail('key_attribute', entity['id'])

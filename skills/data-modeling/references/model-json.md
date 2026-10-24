@@ -23,6 +23,8 @@
 
 이 조각은 구성 안내이며 완성된 입력이 아니다. 예제를 복사해 실제 요구·모델·샘플을 바꾼다. 엔터티 정의에 행을 넣거나 화면 배치·선택 상태를 저장하지 않는다. 확인하지 않은 결과는 작성하지 않는다.
 
+샘플에서 ID의 뜻을 알아보기 어려우면 엔터티에 `display_attributes: ["market", "seller_key"]`처럼 업무 식별 속성을 지정한다. 반드시 해당 엔터티에 있는 서로 다른 속성이어야 한다. 옵션에는 `["product_id", "name"]`을 지정하면 정확히 연결된 상품 이름과 옵션 이름을 함께 읽을 수 있다. 원래 ID나 데이터 값은 바꾸지 않는다. 이 선택 속성은 JSON 2.0에서 뷰어 2.1.0·생성기 3.1.0부터 지원하며, 없는 문서도 그대로 읽는다.
+
 ```bash
 python scripts/validate_model.py source.json
 python scripts/build_model.py source.json --output cases/example.model.json

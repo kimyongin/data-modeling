@@ -273,6 +273,9 @@
             "required": true,
             "description": "분류 이름"
           }
+        ],
+        "display_attributes": [
+          "name"
         ]
       },
       {
@@ -326,6 +329,9 @@
             "required": true,
             "description": "분류 번호"
           }
+        ],
+        "display_attributes": [
+          "name"
         ]
       }
     ],

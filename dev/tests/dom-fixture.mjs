@@ -38,6 +38,12 @@ class Element {
   get firstChild() {
     return this.children[0] || null;
   }
+  get id() {
+    return this.attributes.id || "";
+  }
+  set id(value) {
+    this.attributes.id = String(value);
+  }
   get parentElement() {
     return this.parentNode || null;
   }
@@ -78,9 +84,22 @@ class Element {
     }, { once: true });
   }
   click() {
-    for (const fn of this.listeners.click || []) fn({ target: this, preventDefault() {
-    }, stopPropagation() {
-    } });
+    this.emit("click");
+  }
+  emit(type, values = {}) {
+    const event = { target: this, preventDefault() { this.defaultPrevented = true; }, stopPropagation() { this.propagationStopped = true; }, ...values };
+    for (const fn of this.listeners[type] || []) fn(event);
+    this["on" + type]?.(event);
+    return event;
+  }
+  cloneNode(deep = false) {
+    const clone = new Element(this.tagName);
+    clone.attributes = { ...this.attributes };
+    clone.dataset = { ...this.dataset };
+    clone.className = this.className;
+    clone._text = this._text;
+    if (deep) clone.append(...this.children.map((c) => c.cloneNode(true)));
+    return clone;
   }
   focus() {
     globalThis.document.activeElement = this;
@@ -139,23 +158,24 @@ class Element {
 function installDOM() {
   globalThis.Node = Element;
   const body = new Element("body");
-  globalThis.document = { body, activeElement: null, createElement: (tag) => new Element(tag), createElementNS: (_, tag) => new Element(tag) };
-  let activeObservers = 0;
+  globalThis.document = { body, activeElement: null, getElementById: (id) => body.querySelectorAll("[id]").find((n) => n.id === id), createElement: (tag) => new Element(tag), createElementNS: (_, tag) => new Element(tag) };
+  const observers = new Set();
   globalThis.ResizeObserver = class {
+    constructor(callback) { this.callback = callback; }
     observe() {
       if (!this.active) {
         this.active = true;
-        activeObservers++;
+        observers.add(this);
       }
     }
     disconnect() {
       if (this.active) {
-        activeObservers--;
+        observers.delete(this);
         this.active = false;
       }
     }
   };
-  return { body, observers: () => activeObservers };
+  return { body, observers: () => observers.size, resize: () => [...observers].forEach((o) => o.callback([])) };
 }
 export {
   Element,

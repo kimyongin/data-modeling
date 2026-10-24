@@ -1,7 +1,7 @@
-import { el, add, p, section, facts, bullets, references, sourceLink, table, text } from "./dom.js";
+import { el, add, p, section, facts, bullets, references, sourceLink, table } from "./dom.js";
 import { specData, scenarioData, entityData, statusLabels } from "./view-data.js";
 import { quote } from "./layout.js";
-import { key } from "./fingerprint.js";
+import { sampleValue, referenceRow, sampleLabel } from "./samples.js";
 const methodLabels = { sample: "샘플 대조", simulation: "가정 시뮬레이션", implementation: "대상 구현 확인", manual: "수동 검토" };
 function decisionCard(decision) {
   const card = el("article", null, "decision-card");
@@ -92,7 +92,7 @@ function renderReference(doc, id, index) {
     return body;
   }
   if (id === "@glossary") {
-    add(body, el("h2", "용어 안내"), table(["용어", "뜻"], [["모델·엔터티", "같은 종류의 정보를 관리하는 묶음입니다."], ["속성 / 행", "기록할 항목 / 실제 기록 한 건입니다."], ["PK / FK", "한 건을 구분하는 값 / 다른 정보와 연결하는 값입니다."], ["설계 반영 / 합의", "모델에 표현했는지 / 업무 담당자가 동의했는지입니다. 서로 다릅니다."], ["샘플 확인 / 구현 확인", "합성 예시의 확인 / 실제 구현 환경에서 확인한 결과입니다."], ["미확인", "결과를 기록하지 않았습니다. 실패를 뜻하지 않습니다."]]));
+    add(body, el("h2", "용어 안내"), table(["용어", "뜻"], [["모델·엔터티", "같은 종류의 정보를 관리하는 묶음입니다."], ["속성 / 행", "기록할 항목 / 실제 기록 한 건입니다."], ["PK / FK", "한 건을 구분하는 값 / 다른 정보와 연결하는 값입니다."], ["유일 조합 / UQ", "여러 항목을 함께 보았을 때 같은 값이 중복될 수 없는 범위입니다."], ["1 / 0..1 / 0..N / 1..N", "반드시 한 건 / 없거나 한 건 / 없거나 여러 건 / 한 건 이상이 연결된다는 뜻입니다."], ["연결 대상", "선택한 업무를 이해하기 위해 함께 보여주는 다른 영역의 모델입니다."], ["미제공 / 빈 문자열 / NULL", "항목 자체가 없음 / 길이가 0인 글자 값 / 명시적으로 비어 있는 값입니다. 서로 구별합니다."], ["설계 반영 / 합의", "모델에 표현했는지 / 업무 담당자가 동의했는지입니다. 서로 다릅니다."], ["샘플 확인 / 구현 확인", "합성 예시의 확인 / 실제 구현 환경에서 확인한 결과입니다."], ["미확인", "결과를 기록하지 않았습니다. 실패를 뜻하지 않습니다."]]));
     return body;
   }
   const source = doc.sources.find((s) => s.id === id);
@@ -162,8 +162,11 @@ function renderSamples(doc, entityId, scenarioId) {
   const body = el("div", null, "sample-content");
   if (!entity) return body;
   add(body, p(dataset.title + " · " + entity.name + " · " + (dataset.rows[entityId]?.length || 0) + "행", "caption"));
-  const grid = table(entity.attributes.map((a) => a.label + "\n" + a.name), (dataset.rows[entityId] || []).map((row) => entity.attributes.map((a) => row[a.name])));
+  const grid = table(entity.attributes.map((a) => a.label + "\n" + a.name), (dataset.rows[entityId] || []).map((row) => entity.attributes.map((a) => sampleValue(row[a.name]))));
   grid.classList.add("sample-grid");
+  grid.tabIndex = 0;
+  grid.setAttribute("role", "region");
+  grid.setAttribute("aria-label", entity.name + " 전체 샘플 데이터. 위아래 및 좌우로 스크롤");
   const refs = scenario?.sample_refs.filter((r) => r.entity_id === entityId) || [];
   if (refs.length) {
     const rows = grid.querySelectorAll("tbody tr");
@@ -175,14 +178,12 @@ function renderSamples(doc, entityId, scenarioId) {
     const row = dataset.rows[entityId]?.[i];
     if (!row) continue;
     for (const relationship of doc.model.relationships.filter((r) => r.foreign_key && r.from.entity_id === entityId)) {
-      const from = relationship.from, to = relationship.to;
-      if (from.attributes.some((a) => row[a] == null)) continue;
-      const parents = (dataset.rows[to.entity_id] || []).filter((parent) => key(from.attributes.map((a) => row[a])) === key(to.attributes.map((a) => parent[a])));
-      if (parents.length !== 1) continue;
-      const parentEntity = doc.model.entities.find((e) => e.id === to.entity_id), labelAttribute = parentEntity.attributes.find((a) => !parentEntity.primary_key.includes(a.name) && /name|title|label|이름|명칭|제목/i.test(a.name + " " + a.label));
-      if (!labelAttribute || parents[0][labelAttribute.name] == null) continue;
-      const columnIndex = entity.attributes.findIndex((a) => a.name === from.attributes[0]), cell = tr.children[columnIndex];
-      if (cell) cell.append(p(parentEntity.name + " · " + text(parents[0][labelAttribute.name]), "sample-reference"));
+      const target = referenceRow(doc, dataset, relationship, row);
+      if (!target) continue;
+      const label = sampleLabel(doc, dataset, target.entity, target.row);
+      if (!label) continue;
+      const columnIndex = entity.attributes.findIndex((a) => a.name === relationship.from.attributes[0]), cell = tr.children[columnIndex];
+      if (cell) cell.append(p(target.entity.name + " · " + label, "sample-reference"));
     }
   }
   add(body, grid);

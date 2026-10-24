@@ -60,6 +60,7 @@ async function validateDocument(document) {
   for (const e of entities.values()) {
     const names = e.attributes.map((a) => a.name);
     if (new Set(names).size !== names.length) fail("attribute_duplicate", e.id);
+    if ((e.display_attributes || []).some((name) => !names.includes(name))) fail("display_attribute", e.id);
     for (const fields of [e.primary_key, ...e.unique_keys]) if (fields.some((f) => !names.includes(f))) fail("key_attribute", e.id);
     if (new Set(e.unique_keys.map(key)).size !== e.unique_keys.length) fail("unique_duplicate", e.id);
   }

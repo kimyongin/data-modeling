@@ -1512,6 +1512,9 @@
             "required": true,
             "description": "사람이 화면에서 읽는 이름입니다. 이름이 같다는 이유로 같은 상품이라고 판단하지는 않습니다."
           }
+        ],
+        "display_attributes": [
+          "name"
         ]
       },
       {
@@ -1562,6 +1565,10 @@
             "required": true,
             "description": "사람이 화면에서 읽는 이름입니다. 이름이 같다는 이유로 같은 상품이라고 판단하지는 않습니다."
           }
+        ],
+        "display_attributes": [
+          "product_id",
+          "name"
         ]
       },
       {
@@ -1628,6 +1635,10 @@
             "required": true,
             "description": "ORDER와 CLAIM을 각각 수집해야 한다는 내부 설정입니다. 각 마켓에서 이 자료를 제공하는 실제 API와 조건은 확인 후 연결합니다."
           }
+        ],
+        "display_attributes": [
+          "market",
+          "seller_key"
         ]
       },
       {
@@ -1700,6 +1711,10 @@
             "required": true,
             "description": "마켓에서 어느 판매 항목인지 찾는 값입니다. 어떤 상품·옵션 번호를 묶어 사용할지는 각 마켓의 실제 응답으로 확인해야 합니다."
           }
+        ],
+        "display_attributes": [
+          "market",
+          "external_key"
         ]
       },
       {
@@ -1783,6 +1798,10 @@
             "required": true,
             "description": "마켓에서 한 개를 팔 때 우리 품목이 몇 개 들어 있는지입니다. 같은 품목 2개 묶음이면 2입니다. 서로 다른 품목 세트의 금액 배분까지 처리하지는 않습니다."
           }
+        ],
+        "display_attributes": [
+          "sku_id",
+          "valid_from"
         ]
       },
       {
@@ -1887,6 +1906,10 @@
             "required": true,
             "description": "마켓 판매 항목을 주문한 수량입니다. 같은 품목 2개 묶음을 3개 주문했다면 이 값은 3이고 실제 품목 수는 6개입니다."
           }
+        ],
+        "display_attributes": [
+          "market",
+          "source_key"
         ]
       },
       {
@@ -2635,6 +2658,9 @@
             "required": true,
             "description": "합의 상태"
           }
+        ],
+        "display_attributes": [
+          "name"
         ]
       },
       {

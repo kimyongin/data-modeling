@@ -1,15 +1,18 @@
 /* Shared pointer and keyboard resize behavior for both sidebars and sample drawer. */
-function resizer(handle, { axis, bounds, get, set, reset, direction = 1, signal, label }) {
+function resizer(handle, { axis, bounds, get, set, reset, direction = 1, signal, label, controls }) {
   handle.tabIndex = 0;
   handle.setAttribute("role", "separator");
   handle.setAttribute("aria-label", label);
   handle.setAttribute("aria-orientation", axis === "x" ? "vertical" : "horizontal");
+  if (controls) handle.setAttribute("aria-controls", controls);
+  handle.title = "드래그·방향키로 조절 · Home/End로 최소/최대 · Enter 또는 두 번 클릭으로 기본 크기";
   let drag = null;
   const sync = () => {
     const { min, max } = bounds();
     handle.setAttribute("aria-valuemin", Math.round(min));
     handle.setAttribute("aria-valuemax", Math.round(max));
     handle.setAttribute("aria-valuenow", Math.round(get()));
+    handle.setAttribute("aria-valuetext", label + " " + Math.round(get()) + "픽셀");
   };
   const apply = (value) => {
     const { min, max } = bounds();

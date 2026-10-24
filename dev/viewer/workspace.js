@@ -45,10 +45,17 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
     }, { signal });
   }
   listKeys(navList);
+  workspace.id = "report-panel";
+  workspace.setAttribute("role", "tabpanel");
+  navigator.id = "model-navigator";
+  inspector.id = "model-inspector";
+  navList.id = "model-navigation-panel";
+  navList.setAttribute("role", "tabpanel");
   navigator.setAttribute("aria-label", "업무 영역과 확인 사항");
   add(navigator, navTabs, navList);
   const toolbar = el("div", null, "diagram-toolbar"), graphTitle = el("h2"), tools = el("div", null, "tools");
   let active = false, relationshipId = null, lastRecord = null, drawerOpen = false, leftWidth = 220, rightWidth = 400, drawerHeight = 340;
+  let preferredLeft = 220, preferredRight = 400, preferredDrawer = null, resetExplanation = false, inspectorVisible = false, samplesVisible = false;
   const graph = createGraph({ engine, signal, onEntity: (id) => {
     relationshipId = null;
     state.update({ entityId: id, detail: "attributes" });
@@ -78,12 +85,12 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
   function syncSizes() {
     if (!active || state.get().tab !== "model") return;
     const budget = Math.max(800, workspace.clientWidth) - 340 - 20;
-    leftWidth = Math.max(180, Math.min(leftWidth, budget - 300));
-    rightWidth = Math.max(300, Math.min(rightWidth, budget - leftWidth));
+    leftWidth = Math.max(180, Math.min(preferredLeft, budget - 300));
+    rightWidth = Math.max(300, Math.min(preferredRight, budget - leftWidth));
     workspace.style.setProperty("--left-width", leftWidth + "px");
     workspace.style.setProperty("--right-width", rightWidth + "px");
     const bounds = drawerBounds();
-    drawerHeight = Math.max(bounds.min, Math.min(bounds.max, drawerHeight));
+    drawerHeight = Math.max(bounds.min, Math.min(bounds.max, preferredDrawer ?? Math.min(340, graph.canvas.clientHeight * 0.48)));
     drawer.style.height = drawerHeight + "px";
     leftResize.sync();
     rightResize.sync();
@@ -93,30 +100,31 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
   function drawerBounds() {
     return { min: Math.min(150, Math.max(80, graph.canvas.clientHeight - 80)), max: Math.max(80, graph.canvas.clientHeight - 80) };
   }
-  const leftResize = resizer(leftHandle, { axis: "x", signal, label: "왼쪽 패널 너비 조절", bounds: () => scopeBounds("left"), get: () => leftWidth, set: (v) => {
-    leftWidth = v;
+  const leftResize = resizer(leftHandle, { axis: "x", signal, controls: navigator.id, label: "왼쪽 패널 너비 조절", bounds: () => scopeBounds("left"), get: () => leftWidth, set: (v) => {
+    preferredLeft = v;
     syncSizes();
   }, reset: () => {
-    leftWidth = 220;
+    preferredLeft = 220;
     syncSizes();
   } });
-  const rightResize = resizer(rightHandle, { axis: "x", direction: -1, signal, label: "오른쪽 패널 너비 조절", bounds: () => scopeBounds("right"), get: () => rightWidth, set: (v) => {
-    rightWidth = v;
+  const rightResize = resizer(rightHandle, { axis: "x", direction: -1, signal, controls: inspector.id, label: "오른쪽 패널 너비 조절", bounds: () => scopeBounds("right"), get: () => rightWidth, set: (v) => {
+    preferredRight = v;
     syncSizes();
   }, reset: () => {
-    rightWidth = 400;
+    preferredRight = 400;
     syncSizes();
   } });
-  const sampleResize = resizer(drawerHandle, { axis: "y", direction: -1, signal, label: "샘플 데이터 높이 조절", bounds: drawerBounds, get: () => drawerHeight, set: (v) => {
-    drawerHeight = v;
+  const sampleResize = resizer(drawerHandle, { axis: "y", direction: -1, signal, controls: drawer.id, label: "샘플 데이터 높이 조절", bounds: drawerBounds, get: () => drawerHeight, set: (v) => {
+    preferredDrawer = v;
     syncSizes();
   }, reset: () => {
-    drawerHeight = Math.min(340, graph.canvas.clientHeight * 0.48);
+    preferredDrawer = null;
     syncSizes();
   } });
   function setDrawer(open) {
     if (!open) saveSamples();
     drawerOpen = open;
+    if (!open) samplesVisible = false;
     drawer.hidden = !open;
     sampleToggle.textContent = open ? "샘플 데이터 닫기" : "샘플 데이터 보기";
     sampleToggle.setAttribute("aria-expanded", String(open));
@@ -134,13 +142,14 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
   const sampleScroll = /* @__PURE__ */ new Map(), detailScroll = /* @__PURE__ */ new Map(), recordScroll = /* @__PURE__ */ new Map(), queries = { spec: "", sources: "" }, recordListScroll = { spec: 0, sources: 0 }, navScroll = { domains: 0, checks: 0 };
   function saveSamples() {
     const grid = sampleBody.querySelector(".sample-grid");
-    if (grid && drawerOpen && state.get().tab === "model") sampleScroll.set(sampleBody.dataset.key, [grid.scrollLeft, grid.scrollTop]);
+    if (grid && samplesVisible && drawerOpen && state.get().tab === "model") sampleScroll.set(sampleBody.dataset.key, [grid.scrollLeft, grid.scrollTop]);
   }
   function drawSamples(save = true) {
-    const s = state.get(), key = s.entityId + "/" + (s.scope.kind === "scenario" ? s.scope.id : "base"), old = sampleBody.querySelector(".sample-grid");
+    const s = state.get(), key = s.entityId + "/" + (s.scope.kind === "scenario" ? s.scope.id : "base");
     if (save) saveSamples();
     sampleBody.dataset.key = key;
     sampleBody.replaceChildren(renderSamples(doc, s.entityId, s.scope.kind === "scenario" ? s.scope.id : null));
+    samplesVisible = drawerOpen && s.tab === "model";
     const grid = sampleBody.querySelector(".sample-grid"), position = sampleScroll.get(key);
     if (grid && position) {
       grid.scrollLeft = position[0];
@@ -151,6 +160,7 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
   function chooseScope(selection) {
     relationshipId = null;
     const scope = graphScope(doc, selection), s = state.get();
+    resetExplanation = selection.kind === "scenario" && (s.scope.kind !== "scenario" || s.scope.id !== selection.id);
     state.update({ scope: selection, entityId: scope.focus.has(s.entityId) ? s.entityId : scope.entities.find((e) => scope.focus.has(e.id))?.id || scope.entities[0]?.id, detail: selection.kind === "scenario" ? "explanation" : s.detail });
   }
   function drawNav() {
@@ -160,7 +170,8 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
       navScroll[s.nav] = navList.scrollTop;
       state.update({ nav: id });
       navList.scrollTop = navScroll[id];
-    }, "모델 탐색 방식"));
+    }, "모델 탐색 방식", { prefix: "model-navigation", panelId: navList.id }));
+    navList.setAttribute("aria-labelledby", "model-navigation-" + s.nav);
     navList.replaceChildren();
     const items = s.nav === "domains" ? [{ id: "all", name: "전체 보기", description: "통합·전용 모델을 모두 봅니다." }, ...doc.model.domains] : doc.samples.scenarios;
     for (const item of items) {
@@ -178,16 +189,25 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
     navList.scrollTop = scroll;
     if (focused) navList.querySelector(`[data-item="${focused}"]`)?.focus({ preventScroll: true });
   }
+  function saveInspector() {
+    const previous = inspector.querySelector(".inspector-body");
+    if (inspectorVisible && previous) detailScroll.set(inspector.dataset.key, previous.scrollTop);
+  }
   function drawInspector(scope) {
-    const s = state.get(), previous = inspector.querySelector(".inspector-body");
-    if (previous) detailScroll.set(inspector.dataset.key, previous.scrollTop);
-    inspector.dataset.key = s.entityId + "/" + s.detail;
+    const s = state.get();
+    saveInspector();
+    inspector.dataset.key = s.entityId + "/" + s.detail + (s.detail === "explanation" && scope.scenario ? "/" + scope.scenario.id : "");
     const heading = add(el("div", null, "inspector-heading"), p("선택한 모델", "caption"), el("h2", index.get(s.entityId)?.name || ""), p(s.entityId, "code"));
-    const subtabs = tabs([["attributes", "속성"], ["explanation", "설명"]], s.detail, (id) => state.update({ detail: id }), "모델 상세 범주");
+    const subtabs = tabs([["attributes", "속성"], ["explanation", "설명"]], s.detail, (id) => state.update({ detail: id }), "모델 상세 범주", { prefix: "model-detail", panelId: "model-detail-panel" });
     const body = renderInspector(doc, s.entityId, s.detail, scope, index, relationshipId);
+    body.id = "model-detail-panel";
+    body.setAttribute("role", "tabpanel");
+    body.setAttribute("aria-labelledby", "model-detail-" + s.detail);
     body.tabIndex = 0;
     inspector.replaceChildren(heading, subtabs, body);
-    body.scrollTop = detailScroll.get(inspector.dataset.key) || 0;
+    inspectorVisible = true;
+    body.scrollTop = resetExplanation ? 0 : detailScroll.get(inspector.dataset.key) || 0;
+    resetExplanation = false;
     if (relationshipId) {
       const card = body.querySelector(`[data-relationship="${relationshipId}"]`);
       if (card) body.scrollTop = card.offsetTop - body.offsetTop;
@@ -207,7 +227,7 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
       return;
     }
     const items = s.tab === "spec" ? [{ id: "@scope", title: "범위와 전제" }, { id: "@common", title: "공통 설계 판단" }, ...doc.requirements] : [...doc.sources, { id: "@process", title: "제작 과정" }, { id: "@glossary", title: "용어 안내" }];
-    const key = s.tab + ":" + (s.recordId || items[0].id);
+    const key = s.tab + ":" + (tabRecords[s.tab] || s.recordId || items[0].id);
     if (lastRecord === key) return;
     lastRecord = key;
     const list = el("aside", null, "record-list"), search = el("input"), itemsHost = el("div", null, "record-items"), detail = el("div", null, "record-detail");
@@ -218,50 +238,73 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
     search.setAttribute("aria-label", "목록 제목과 내용 검색");
     add(list, search, itemsHost);
     listKeys(itemsHost);
-    const selected = items.find((i) => i.id === s.recordId) || items[0];
+    let selected = null;
+    // Search the same readable content shown in the detail pane, including linked judgments.
+    const bodies = new Map(items.map((item) => [item.id, s.tab === "spec" ? renderSpec(doc, item.id, index) : renderReference(doc, item.id, index)]));
+    const selectRecord = (item) => {
+      if (selected?.id === item?.id) return;
+      if (selected && lastRecord) recordScroll.set(lastRecord, detail.scrollTop);
+      selected = item;
+      lastRecord = item ? s.tab + ":" + item.id : null;
+      for (const b of itemsHost.querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.record === item?.id));
+      if (item) {
+        tabRecords[s.tab] = item.id;
+        detail.replaceChildren(bodies.get(item.id));
+        detail.scrollTop = recordScroll.get(lastRecord) || 0;
+      } else {
+        detail.replaceChildren(p("검색 결과가 없습니다.", "empty"));
+        detail.scrollTop = 0;
+      }
+    };
     for (const item of items) {
       const b = button(["@scope", "@common", "@process", "@glossary"].includes(item.id) ? item.title : index.label(item.id), () => {
-        recordScroll.set(key, detail.scrollTop);
         recordListScroll[s.tab] = itemsHost.scrollTop;
-        state.update({ recordId: item.id });
-        collection.querySelector(`[data-record="${item.id}"]`)?.focus({ preventScroll: true });
+        selectRecord(item);
       }, "navigation-item");
       b.dataset.record = item.id;
-      b.dataset.search = JSON.stringify(item).toLocaleLowerCase();
-      b.setAttribute("aria-pressed", String(item === selected));
+      b.dataset.search = (b.textContent + " " + bodies.get(item.id).textContent).toLocaleLowerCase();
+      b.setAttribute("aria-pressed", "false");
       itemsHost.append(b);
     }
     const filter = () => {
       queries[s.tab] = search.value;
       const query = search.value.toLocaleLowerCase();
-      for (const b of itemsHost.querySelectorAll("button")) {
-        const metadata = b.dataset.record === "@process" ? JSON.stringify(doc.document.process) : b.dataset.record === "@glossary" ? "용어 안내 PK FK 모델 속성 관계" : "";
-        b.hidden = !(b.dataset.search + metadata.toLocaleLowerCase()).includes(query);
-      }
+      const buttons = [...itemsHost.querySelectorAll("button")];
+      for (const b of buttons) b.hidden = !b.dataset.search.includes(query);
+      const visible = buttons.filter((b) => !b.hidden).map((b) => items.find((item) => item.id === b.dataset.record));
+      const chosen = visible.find((item) => item.id === (selected?.id || tabRecords[s.tab] || s.recordId)) || visible[0] || null;
+      if (!chosen && !selected) {
+        lastRecord = null;
+        detail.replaceChildren(p("검색 결과가 없습니다.", "empty"));
+      } else selectRecord(chosen);
     };
     search.addEventListener("input", filter, { signal });
     filter();
     itemsHost.addEventListener("scroll", () => {
       recordListScroll[s.tab] = itemsHost.scrollTop;
     }, { signal });
-    detail.append(s.tab === "spec" ? renderSpec(doc, selected.id, index) : renderReference(doc, selected.id, index));
     collection.replaceChildren(list, detail);
     itemsHost.scrollTop = recordListScroll[s.tab];
-    detail.scrollTop = recordScroll.get(key) || 0;
   }
   function render() {
     if (!active) return;
     const s = state.get();
     root.dataset.tab = s.tab;
+    workspace.setAttribute("aria-labelledby", "report-tab-" + s.tab);
     guide.textContent = tabDefs.find((t) => t[0] === s.tab)[1] + " - " + guides[s.tab];
     topTabs.replaceChildren(tabs(tabDefs, s.tab, (id) => {
       if (id !== s.tab) {
         saveCollection();
-        if (s.tab !== "model" && s.tab !== "overview") tabRecords[s.tab] = s.recordId;
+        if (s.tab === "model") {
+          saveSamples();
+          samplesVisible = false;
+          saveInspector();
+          inspectorVisible = false;
+        }
         lastRecord = null;
         state.update({ tab: id, recordId: tabRecords[id] || null });
       }
-    }, "보고서 범주"));
+    }, "보고서 범주", { prefix: "report-tab", panelId: workspace.id }));
     if (s.tab === "model") {
       const scope = graphScope(doc, s.scope);
       drawNav();

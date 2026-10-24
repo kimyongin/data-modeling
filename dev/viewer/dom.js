@@ -53,7 +53,7 @@ function table(headers, rows) {
   grid.append(t);
   return grid;
 }
-function tabs(items, current, select, label) {
+function tabs(items, current, select, label, { prefix, panelId } = {}) {
   const nav = el("nav", null, "tabs");
   nav.setAttribute("role", "tablist");
   nav.setAttribute("aria-label", label);
@@ -62,6 +62,8 @@ function tabs(items, current, select, label) {
     b.dataset.tab = id;
     b.setAttribute("role", "tab");
     b.setAttribute("aria-selected", String(id === current));
+    if (prefix) b.id = prefix + "-" + id;
+    if (panelId) b.setAttribute("aria-controls", panelId);
     b.tabIndex = id === current ? 0 : -1;
     b.addEventListener("keydown", (event) => {
       if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;

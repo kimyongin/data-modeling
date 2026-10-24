@@ -27,6 +27,9 @@ def cases():
     mutate('unknown requirement reference',lambda d:d['model']['entities'][0]['requirement_ids'].append('R-MISSING'),'reference')
     mutate('attribute name duplicate',lambda d:d['model']['entities'][0]['attributes'].append(copy.deepcopy(d['model']['entities'][0]['attributes'][0])),'attribute_duplicate')
     mutate('primary key must name an attribute',lambda d:d['model']['entities'][0].update(primary_key=['missing']),'key_attribute')
+    mutate('display labels can combine existing attributes',lambda d:d['model']['entities'][0].update(display_attributes=['name']),None)
+    mutate('display label attributes must exist',lambda d:d['model']['entities'][0].update(display_attributes=['missing']),'display_attribute')
+    mutate('display label attributes cannot repeat',lambda d:d['model']['entities'][0].update(display_attributes=['name','name']),'schema')
     mutate('duplicate unique tuples rejected',lambda d:d['model']['entities'][0]['unique_keys'].append(d['model']['entities'][0]['unique_keys'][0].copy()),'unique_duplicate')
     mutate('FK target must declare uniqueness',lambda d:(d['model']['relationships'][0]['to'].update(attributes=['name']),d['model']['entities'][0].update(unique_keys=[])),'foreign_key_unique')
     def duplicate(d):

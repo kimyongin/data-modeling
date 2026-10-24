@@ -10,16 +10,20 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
   canvas.tabIndex = 0;
   canvas.setAttribute("aria-label", "ERD. 드래그로 이동, 휠로 확대와 축소, 방향키로 이동");
   const stage = el("div", null, "graph-stage"), hint = p("상자 선택 · 드래그로 이동 · 휠로 확대/축소", "canvas-hint");
+  const legend = p("PK: 한 건을 구분 · FK: 다른 정보와 연결 · 1: 한 건 · 0..1: 없거나 한 건 · 0..N: 없거나 여러 건 · 1..N: 한 건 이상", "graph-legend");
   const minimap = el("aside", null, "minimap"), miniButton = button("미니맵 열기", () => toggleMini()), surface = el("div", null, "minimap-surface");
   surface.hidden = true;
   surface.tabIndex = 0;
   surface.setAttribute("role", "button");
+  surface.id = "model-minimap";
+  miniButton.setAttribute("aria-controls", surface.id);
+  miniButton.setAttribute("aria-expanded", "false");
   surface.setAttribute("aria-label", "미니맵. 클릭한 위치로 이동, Enter로 중앙 이동");
   const miniSvg = svgNode("svg", { "aria-hidden": "true" }), miniContent = svgNode("g"), viewport = svgNode("rect", { "class": "minimap-viewport" });
   miniSvg.append(miniContent, viewport);
   surface.append(miniSvg);
   add(minimap, miniButton, surface);
-  add(canvas, stage, hint, minimap);
+  add(canvas, stage, hint, legend, minimap);
   const zoomLabel = el("span", "100%", "zoom-label");
   let scope = null, active = null, view = null, miniOpen = false, drag = null, suppress = false, sequence = 0;
   const cache = /* @__PURE__ */ new Map(), views = /* @__PURE__ */ new Map();
@@ -157,6 +161,12 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
     for (const n of active.querySelectorAll(".node")) {
       n.classList.toggle("selected", n.dataset.entity === id);
       n.classList.toggle("evidence", evidence.includes(n.dataset.entity));
+      n.setAttribute("aria-pressed", String(n.dataset.entity === id));
+    }
+    for (const edge of active.querySelectorAll(".edge")) {
+      const r = scope.relationships.find((r) => "edge-" + r.id === edge.id);
+      edge.classList.toggle("active", !!r && [r.from.entity_id, r.to.entity_id].includes(id));
+      edge.classList.toggle("evidence", !!r && evidence.includes(r.from.entity_id) && evidence.includes(r.to.entity_id));
     }
   }
   async function show(next, selected) {
@@ -186,9 +196,12 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
     views.set(next.key, view);
     for (const n of svg.querySelectorAll(".node")) {
       const id = n.querySelector("title")?.textContent;
+      const entity = next.entities.find((e) => e.id === id);
+      if (!entity) continue;
       n.dataset.entity = id;
       n.setAttribute("role", "button");
       n.setAttribute("tabindex", "0");
+      n.setAttribute("aria-label", entity.name + " 선택. Enter 또는 Space로 속성 확인");
       n.onclick = () => {
         if (!suppress) onEntity(id);
       };

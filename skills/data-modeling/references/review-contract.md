@@ -28,6 +28,8 @@
 
 `primary_key: ["organization_id", "id"]`, `unique_keys: [["organization_id", "code"]]`처럼 열 조합을 명시한다. PK/FK 문자열이나 타입 설명에서 키를 추측하지 않는다. 추가 constraints와 indexes는 설명 문자열 배열이다.
 
+샘플의 업무 식별 설명은 선택적인 `display_attributes`에 속성 조합으로 선언한다. 예: 계정 `["market", "seller_key"]`, 옵션 `["product_id", "name"]`. 비어 있지 않은 고유 속성명 목록이며 모두 해당 엔터티의 attributes에 있어야 한다. 키·제약·행의 의미를 바꾸는 값이나 UI 선택 상태가 아니다. 생략하면 뷰어는 이름 속성 하나를 보조 표시할 수 있지만 계정·주문 등에는 명시하는 편이 정확하다. 전체 FK 조합이 같은 데이터셋의 한 행에 정확히 대응할 때만 연결된 설명을 붙이고, 원래 ID와 미제공·빈 문자열·NULL을 보존한다.
+
 관계는 from/to의 entity_id/attributes/cardinality, foreign_key, description(연결 이유), rule(지킬 조건), enforcement(보장 위치)을 정의한다. physical FK는 양끝 속성의 수·순서를 맞추고 대상 PK 또는 유일 조합을 선언한다. 논리 관계는 foreign_key:false이며 DB FK처럼 검사하지 않는다. domains는 name/description/entity_ids로 업무 범위를 정의한다.
 
 ## 데이터셋과 시나리오

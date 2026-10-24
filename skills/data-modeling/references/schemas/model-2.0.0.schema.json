@@ -660,6 +660,17 @@
                 "minItems": 0,
                 "uniqueItems": true
               },
+              "display_attributes": {
+                "description": "샘플의 연결 대상 설명에 사용할 업무 식별 속성 조합. 원래 ID를 대신하지 않는다.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
               "unique_keys": {
                 "type": "array",
                 "items": {

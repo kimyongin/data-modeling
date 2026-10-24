@@ -693,6 +693,9 @@
             "required": true,
             "description": "본사, 연구소처럼 화면에 보여 줄 이름입니다."
           }
+        ],
+        "display_attributes": [
+          "name"
         ]
       },
       {
@@ -750,6 +753,10 @@
             "required": true,
             "description": "방에 들어갈 수 있는 인원입니다. 이 예시는 양수인지 확인하지만 예약 인원 초과까지 막지는 않습니다."
           }
+        ],
+        "display_attributes": [
+          "campus_id",
+          "code"
         ]
       },
       {
@@ -787,6 +794,9 @@
             "required": true,
             "description": "화면에 보여 줄 이름입니다. 이름이 같다고 같은 회원으로 합치지 않습니다."
           }
+        ],
+        "display_attributes": [
+          "name"
         ]
       },
       {
@@ -862,6 +872,10 @@
             "required": false,
             "description": "준비 사항 등을 적습니다. 없으면 비워 둘 수 있습니다."
           }
+        ],
+        "display_attributes": [
+          "room_id",
+          "starts_at"
         ]
       },
       {
@@ -908,6 +922,9 @@
             "required": true,
             "description": "참석하는 회원입니다. 같은 예약과 회원의 조합은 한 번만 등록합니다."
           }
+        ],
+        "display_attributes": [
+          "member_id"
         ]
       },
       {
@@ -945,6 +962,9 @@
             "required": true,
             "description": "모니터, 화이트보드처럼 예약자가 읽을 이름입니다."
           }
+        ],
+        "display_attributes": [
+          "name"
         ]
       },
       {
@@ -985,6 +1005,10 @@
             "required": true,
             "description": "그 방에 어떤 종류의 설비가 있는지 나타냅니다. 같은 방에 같은 종류는 한 번만 연결합니다."
           }
+        ],
+        "display_attributes": [
+          "room_id",
+          "amenity_id"
         ]
       }
     ],
