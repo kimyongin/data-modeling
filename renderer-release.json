@@ -1,7 +1,7 @@
 {
-  "renderer_version": "1.1.0",
+  "renderer_version": "1.1.1",
   "schema_version": "1.0.0",
-  "notes": "모델 JSON 1.1: 내용에 연결한 확인 결과, 전체 샘플 PK·필수 값·유일 조합·FK 검사, Python/뷰어 검사 일치, 간결한 설명, 원자 규칙·선택지·모델 역할·구체 변경 기록. 새 사례는 JSON만 생성.",
+  "notes": "스펙 본문을 모델 설명과 같은 구획으로 나누고 규칙·사용 예·설계 근거·선택 이유·대안의 이점/대가를 구분합니다. JSON 계약과 사례 데이터는 유지합니다.",
   "dependencies": {
     "jsonschema": "4.26.0",
     "attrs": "26.1.0",
@@ -14,9 +14,9 @@
     "assets/model-integrity.js": "5f614ad9515f9773eda8b2804516cff756ba5e79ba3edd20e7fe79ddd49ac380",
     "assets/review-logic.js": "3edc084fc62c386516d1e14c2257dda500950993a6d9e254364d0532df7dcf79",
     "assets/review-transfer.js": "7b225a9121407b9f88d4d94264d43fe54c02d93508d1fc28c7213f585ddce4a8",
-    "assets/review.css": "0faa8bfc98e40ce2fcc856547e9dbe0412e72c0447a14d8272db6b8da0098e5f",
-    "assets/review.js": "f412e1a61ca8747329abb0da28891ecf7b0872c7bc5b824cbe2d99372a574ae7",
-    "assets/share-compatibility.json": "fbe9578a133bed89cf16d53b24d7b567ee604c334f4cba5eaca3fb04410edb3a",
+    "assets/review.css": "a03cd94066174cc77728145a088ecb22996603e9d0c785dc788cf48a9d71a3ba",
+    "assets/review.js": "3ec3e16042f65b11f972364feba83eed83f0d3862f69e3047e8e440804ee48e7",
+    "assets/share-compatibility.json": "59384b3fd65ca5ac87f254e82f99107a92208c202015e48cf855ae42be3e8096",
     "assets/vendor/AJV-LICENSE.txt": "a05350a88e318e4f5f2c2a1ff1e2e88daa4dd38e6e78b71cccae422bdc762cc3",
     "assets/vendor/EXPAT-LICENSE.txt": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87",
     "assets/vendor/GRAPHVIZ-LICENSE.txt": "0becf16567beb77fa252b7664631dd177c8f9a1889e48995b45379c7130e5303",
