@@ -6,6 +6,7 @@
 .head-actions { display: flex; gap: 7px; flex-shrink: 0; }
 .transfer-notice { position: absolute; z-index: 30; right: 16px; top: calc(100% + 6px); max-width: min(680px, 90vw); padding: 14px; background: #fff; border: 1px solid #adc7df; border-radius: 8px; box-shadow: 0 6px 25px #18365022; }
 .transfer-notice[data-error=true] { border-color: #c77c80; }
+.transfer-notice { max-height: min(360px, 60vh); overflow: auto; overscroll-behavior: contain; }
 .transfer-notice button { margin-top: 10px; }
 .workspace { --left-width: 220px; --right-width: 400px; min-width: 0; min-height: 0; overflow: hidden; }
 .app[data-tab=model] .workspace { display: grid; grid-template-columns: var(--left-width) 10px minmax(320px, 1fr) 10px var(--right-width); }

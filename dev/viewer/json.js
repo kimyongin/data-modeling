@@ -1,5 +1,5 @@
-const fail = (message) => {
-  throw new Error(message);
+const fail = (message, code = "json_syntax") => {
+  throw Object.assign(new Error(message), { code });
 };
 const MAX_BYTES = 20 * 1024 * 1024;
 function parse(source) {
@@ -20,7 +20,7 @@ function parse(source) {
     fail("문자열이 끝나지 않은 JSON입니다.");
   }
   function value(depth) {
-    if (depth > 80) fail("데이터가 너무 깊게 중첩되어 있습니다.");
+    if (depth > 80) fail("데이터가 너무 깊게 중첩되어 있습니다.", "depth");
     ws();
     const ch = source[at];
     if (ch === '"') return string();
@@ -72,7 +72,7 @@ function parse(source) {
     if (match) {
       at += match[0].length;
       const n = Number(match[0]);
-      if (!Number.isFinite(n) || Number.isInteger(n) && !Number.isSafeInteger(n)) fail("정확하게 표시할 수 없는 숫자입니다. 큰 식별자는 문자열로 저장해 주세요.");
+      if (!Number.isFinite(n) || Number.isInteger(n) && !Number.isSafeInteger(n)) fail("정확하게 표시할 수 없는 숫자입니다. 큰 식별자는 문자열로 저장해 주세요.", "unsafe_number");
       return n;
     }
     fail("올바른 JSON 파일이 아닙니다.");

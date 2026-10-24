@@ -35,7 +35,7 @@ function graphScope(document, selection) {
     relationships: document.model.relationships.filter((r) => visible.has(r.from.entity_id) && visible.has(r.to.entity_id))
   };
 }
-function createImporter({ load, prepare, commit, notify }) {
+function createImporter({ load, prepare, commit, notify, describeError = (error) => error.message }) {
   let sequence = 0;
   return async (source) => {
     const token = ++sequence;
@@ -53,7 +53,7 @@ function createImporter({ load, prepare, commit, notify }) {
       notify("가져왔습니다. 확인 결과는 파일에 기록된 내용이며 여기서 새로 실행한 결과가 아닙니다.");
     } catch (error) {
       candidate?.dispose();
-      if (token === sequence) notify("가져오지 못했습니다. " + error.message + " 현재 화면은 유지됩니다.", true);
+      if (token === sequence) notify("가져오지 못했습니다. " + describeError(error) + " 현재 화면은 유지됩니다.", true);
     }
   };
 }

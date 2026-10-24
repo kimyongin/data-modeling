@@ -1,8 +1,8 @@
 import { validateModel } from "./vendor/schema.js";
 import { typed, key, fingerprint } from "./fingerprint.js";
 import { MAX_BYTES } from "./json.js";
-const fail = (code, path = "") => {
-  throw new Error(code + ": " + path);
+const fail = (code, path = "", details = {}) => {
+  throw Object.assign(new Error(code + ": " + path), { code, path, details });
 };
 const topics = ["identity", "ownership", "lifecycle", "time", "aggregation", "concurrency", "integration", "access", "retention"];
 const areas = ["writes", "reads", "contracts", "existing_data", "history", "rollout", "rollback"];
@@ -32,8 +32,11 @@ async function observationFingerprint(document, scenarioId, method) {
   return fingerprint(observationInput(document, scenarioId, method));
 }
 async function validateDocument(document) {
-  if (!document || document.version !== "2.0.0") fail("version", "Only model document 2.0.0 is supported");
-  if (!validateModel(document)) fail("schema", validateModel.errors?.[0]?.instancePath || "/");
+  if (!document || document.version !== "2.0.0") fail("version", "Only model document 2.0.0 is supported", { actual: document?.version });
+  if (!validateModel(document)) {
+    const error = validateModel.errors?.[0] || {};
+    fail("schema", error.instancePath || "/", { keyword: error.keyword, params: error.params });
+  }
   function depth(value, level = 0) {
     if (level > 80) fail("depth", "Maximum nesting is 80");
     if (value && typeof value === "object") for (const child of Object.values(value)) depth(child, level + 1);

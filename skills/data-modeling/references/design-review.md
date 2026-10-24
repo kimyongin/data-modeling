@@ -37,6 +37,8 @@ modeled는 관련 요구·모델·시나리오에 반영했다는 뜻이며 실�
 
 changes는 entity/attribute/relationship별 added/modified/removed를 기록한다. 대상 ID, before/after, reason, requirement_ids를 작성한다. after는 현재 정의와 일치해야 한다. added.before와 removed.after는 null이다. 미확인 전후 차이를 지어내지 않는다.
 
+before/after는 확인한 필드만 기록한 부분 비교일 수 있다. 생략한 필드는 미기록이며 null·빈 문자열·false·0과 다르다. 한쪽에서 생략한 필드를 추가·삭제로 해석하지 않는다. 실제 DB 전체 비교와 문서에 적은 변경 항목의 범위를 구분한다. 제외 대상은 현재 모델에 없어도 이전 name/title/label 등 확인 가능한 식별 설명을 남긴다.
+
 areas는 writes/reads/contracts/existing_data/history/rollout/rollback의 관련 영향을 기록한다. note_id로 assumptions/limitations/issues의 원문에 연결한다. unknown은 issue_ids, affected는 구체 entity_ids를 필요로 한다. 기준이 unknown일 때 unaffected로 단정하지 않는다. 새 설계에는 존재하지 않는 이관을 만들지 않고 중요한 정책이 달라질 때 무엇이 바뀌는지 설명한다.
 
 검사기는 연결·대응을 확인하고 복합 사례의 빠진 topic, 기존 변경의 빠진 영향 영역을 경고한다. 경고 0개를 업무 규칙의 완전성이나 배포 준비 점수로 사용하지 않는다.

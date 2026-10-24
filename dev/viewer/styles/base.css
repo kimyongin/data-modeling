@@ -52,3 +52,10 @@ tr.evidence td { background: #fff6da; }
 
 .sample-reference { display: block; color: var(--muted); font-size: 11px; margin-top: 5px; }
 .panel-resizer, .drawer-resizer { user-select: none; -webkit-user-select: none; }
+.change-card, .impact-group { margin-top: 18px; padding: 16px 0; border-bottom: 1px dashed var(--line); }
+.change-card > h4, .impact-group > h4 { margin-bottom: 8px; }
+.change-card .table-scroll { margin-top: 12px; }
+.impact-area { margin-top: 12px; padding: 12px 14px; background: #f7f9fc; }
+.impact-area > .badge { margin-left: 10px; }
+.impact-area[data-status=unknown] > .badge { background: #fff2d8; color: #805b1c; }
+.impact-area[data-status=affected] > .badge { background: #e8f1fb; color: #205b8e; }

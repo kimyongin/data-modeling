@@ -33,6 +33,10 @@ python dev/tools/check.py --node node --development --output /tmp/data-modeling-
 
 `exploratory-regressions.mjs`도 같은 관문에서 실행한다. 세 예제의 빠른 범위 왕복과 오류 복구, 현재 선택을 보존하는 확인 사항 검색, 설명의 관련성 및 스펙의 전체 대안을 확인한다. 다중 데이터셋의 영역/전체 보기 전환과 명시적 선택, 드로어가 차지한 영역을 뺀 맞춤·미니맵 좌표도 검사한다. 이는 DOM 상태·좌표 계산 검사이며 실제 화면의 픽셀 배치 검사는 아니다.
 
+`review-regressions.mjs`는 변경 전후의 부분 기록과 값 구분, 영역별 영향 상태·대상·쟁점, 공통 근거의 중복 제거, 세 목록의 다중 단어 검색과 선택 보존, 오류의 정확한 누락 필드·업무 이름·수정 안내를 확인한다. 검색은 `search.js` 하나를 공유하며 오류 설명은 검사기의 코드·구조 정보와 `errors.js`의 화면 문구를 분리한다. 문서 계약과 Python/JS 판정은 유지한다.
+
+`check_bundle.mjs`는 `app-regressions.mjs`에서 최종 HTML의 전체 앱 진입 코드를 최소 DOM에서 실행한다. 빈 화면·세 예제 파일 가져오기·검색·샘플·실제 Blob 내보내기, 취소·문법·누락 필드·지원하지 않는 버전·파일 읽기 실패·용량 초과·동시 가져오기를 확인한다. 원본 함수만 호출하는 검사와 별도로 파일 이벤트 경로도 검사하며 패키징에서 필수 실행한다. 이때 Graphviz는 대기 상태로 두고, 같은 명령의 별도 검사에서 실제 엔진으로 모든 예제의 ERD 범위를 그린다. 실제 브라우저 CSS·포인터 검사로 보고하지 않는다.
+
 `check_examples.py`는 비품·예약·오픈마켓의 명시한 합성 샘플만 대조한다. 실제 결과를 다시 기록할 때만 `--record-observations`를 명시한다. 스키마 통과나 화면 작동을 실제 API/DB/동시성 검증으로 기록하지 않는다.
 
 브라우저가 허용된 환경에서는 [UI 계약](viewer/UI.md)의 데스크톱 배치·오버플로·패널 드래그·미니맵 클릭·표 스크롤을 별도로 확인한다. Node와 최소 DOM fixture는 실제 CSS 배치 검사가 아니다. 브라우저 접근 정책을 다른 API나 localhost로 우회하지 않는다.
@@ -48,7 +52,7 @@ python dev/tools/check.py --node node --development --output /tmp/data-modeling-
 소스·스키마 검사기·개발 검사를 갱신한 뒤 새 뷰어 버전을 봉인한다. 봉인한 명세를 덮어쓰지 않는다.
 
 ```bash
-python dev/tools/release_viewer.py --version 2.2.0 --notes '변경 이유'
+python dev/tools/release_viewer.py --version 2.3.0 --notes '변경 이유'
 python dev/tools/build_viewer.py --node node
 python dev/tools/check.py --node node --output /tmp/data-modeling-release-check
 python dev/tools/package_skill.py --node node --output /tmp/data-modeling.zip --release

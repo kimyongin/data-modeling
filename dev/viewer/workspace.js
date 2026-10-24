@@ -4,6 +4,7 @@ import { createGraph } from "./graph.js";
 import { resizer } from "./resize.js";
 import { renderOverview, renderSpec, renderReference, renderInspector, renderSamples } from "./content.js";
 import { checkMatches } from "./view-data.js";
+import { matchesQuery } from "./search.js";
 const tabDefs = [["overview", "개요"], ["spec", "스펙"], ["model", "모델"], ["sources", "참조"]];
 const guides = { overview: "해결할 문제와 정보가 연결되는 큰 그림을 살펴봅니다.", spec: "요구사항별 규칙·설계 선택과 남은 결정을 읽습니다.", model: "ERD·속성·설명·샘플을 연결해 업무 동작을 검토합니다.", sources: "설계 근거와 한계, 제작 과정, 용어를 확인합니다." };
 function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersion, filename }) {
@@ -320,15 +321,15 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
         selectRecord(item);
       }, "navigation-item");
       b.dataset.record = item.id;
-      b.dataset.search = (b.textContent + " " + bodies.get(item.id).textContent).toLocaleLowerCase();
+      b.dataset.search = b.textContent + " " + bodies.get(item.id).textContent;
       b.setAttribute("aria-pressed", "false");
       itemsHost.append(b);
     }
     const filter = () => {
       queries[s.tab] = search.value;
-      const query = search.value.toLocaleLowerCase();
+      const query = search.value;
       const buttons = [...itemsHost.querySelectorAll("button")];
-      for (const b of buttons) b.hidden = !b.dataset.search.includes(query);
+      for (const b of buttons) b.hidden = !matchesQuery(b.dataset.search, query);
       const visible = buttons.filter((b) => !b.hidden).map((b) => items.find((item) => item.id === b.dataset.record));
       const chosen = visible.find((item) => item.id === (selected?.id || tabRecords[s.tab] || s.recordId)) || visible[0] || null;
       if (!chosen && !selected) {

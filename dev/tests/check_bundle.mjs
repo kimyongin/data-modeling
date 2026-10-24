@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import { webcrypto } from "node:crypto";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
+import { runAppRegressions } from "./app-regressions.mjs";
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const [htmlFile, manifestFile, output] = process.argv.slice(2);
 const html = fs.readFileSync(htmlFile, "utf8");
@@ -57,7 +58,8 @@ for (const item of manifest) {
     });
   }
 }
-const report = { scope: "Embedded validator, scoped observations and all ERD scopes in Node; not browser visual QA", passed: checks.filter((c) => c.status === "pass").length, failed: checks.filter((c) => c.status === "fail").length, checks };
+await runAppRegressions(check, html, manifest);
+const report = { scope: "Embedded validator, all ERD scopes and whole-app file events/Blob export in Node with minimal DOM; not browser visual QA", passed: checks.filter((c) => c.status === "pass").length, failed: checks.filter((c) => c.status === "fail").length, checks };
 if (output) {
   fs.mkdirSync(path.dirname(output), { recursive: true });
   fs.writeFileSync(output, JSON.stringify(report, null, 2) + "\n");

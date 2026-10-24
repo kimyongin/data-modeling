@@ -1,4 +1,5 @@
 /* Query the canonical document. UI projections contain no second copy of authored prose. */
+import { matchesQuery } from "./search.js";
 function specData(document, requirementId) {
   const requirement = document.requirements.find((r) => r.id === requirementId);
   const applies = (item) => requirementId ? (item.requirement_ids || []).includes(requirementId) : (item.requirement_ids || []).length !== 1;
@@ -22,8 +23,8 @@ function entityData(document, entityId) {
 }
 function checkMatches(scenario, observation, query, status) {
   if (status === "recorded" && !observation || status === "unconfirmed" && observation) return false;
-  const content = [scenario.id, scenario.title, scenario.situation, scenario.expected_behavior, scenario.why_it_matters, scenario.sample_note || ""].join(" ").toLocaleLowerCase();
-  return query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean).every((word) => content.includes(word));
+  const content = [scenario.id, scenario.title, scenario.situation, scenario.expected_behavior, scenario.why_it_matters, scenario.sample_note || ""].join(" ");
+  return matchesQuery(content, query);
 }
 const statusLabels = { modeled: "설계에 반영", unmodeled: "아직 미반영", excluded: "범위 제외", not_applicable: "해당 없음", proposed: "제안", agreed: "합의", open: "미결", pass: "확인", fail: "예상과 다름" };
 export {

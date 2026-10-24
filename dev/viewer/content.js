@@ -2,6 +2,7 @@ import { el, add, p, section, facts, bullets, references, sourceLink, table } fr
 import { specData, scenarioData, entityData, statusLabels } from "./view-data.js";
 import { quote } from "./layout.js";
 import { sampleValue, referenceRow, sampleLabel } from "./samples.js";
+import { renderImpact } from "./impact.js";
 const methodLabels = { sample: "샘플 대조", simulation: "가정 시뮬레이션", implementation: "대상 구현 확인", manual: "수동 검토" };
 function decisionCard(decision, compact = false) {
   const card = el("article", null, "decision-card");
@@ -42,13 +43,7 @@ function renderSpec(doc, id, index) {
       for (const item of items) add(block2, el("h4", item.id + ": " + item.title), p(item.description), item.impact ? p(item.impact) : null);
       body.append(block2);
     }
-    const impact = doc.change_impact, block = section("변경 영향", facts([["비교 기준", impact.baseline.kind], ["기준의 범위", impact.baseline.description]]));
-    for (const c of impact.changes) add(block, el("h4", c.id + ": " + { added: "추가", modified: "변경", removed: "제외" }[c.change]), p((c.relationship_id || c.entity_id + (c.attribute_name ? "." + c.attribute_name : "")) + " · " + c.reason));
-    for (const area of impact.areas) {
-      const note = index.get(area.note_id);
-      add(block, el("h4", { writes: "등록·수정", reads: "조회", contracts: "외부 계약", existing_data: "기존 자료", history: "과거 이력", rollout: "전환", rollback: "복구" }[area.area]), p(note?.description || note?.impact || note?.question || area.note_id));
-    }
-    body.append(block);
+    body.append(renderImpact(doc.change_impact, index));
     return body;
   }
   const data = specData(doc, id === "@common" ? null : id), requirement = data.requirement;
