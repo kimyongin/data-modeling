@@ -1,0 +1,26 @@
+{
+  "kind": "empty-viewer",
+  "schema_version": "1.0.0",
+  "renderer_version": "1.0.5",
+  "share_format_version": "1.0.0",
+  "compatible_releases": {
+    "1.0.1": "d1b38c6b328601c38136391969db16afd06218e68465a8e14b7c681e4f7408f2",
+    "1.0.2": "9e315d0e2dc40d538e81745141b59d1b8f7ec362dd770adca293b93a50d8880c",
+    "1.0.3": "4a824a37eee882725402d2afb667a7fbba094d75424db70f5299476323a9e07e",
+    "1.0.4": "2d9ed3f697f8d9b5eedcc750db674e6848db9d83d14af1c859a8ac70cd55acfb",
+    "1.0.5": "e618dcc67312de6187a8fa8ae7e4c8be31a44c3f21f33d0b50c96dae5d6c566a"
+  },
+  "input_sha256": null,
+  "verification_sha256": null,
+  "renderer_release_sha256": "e618dcc67312de6187a8fa8ae7e4c8be31a44c3f21f33d0b50c96dae5d6c566a",
+  "output_sha256": "5d24c6ec8363bf494124a23ec0d2f66dad981720d2a280291c597bc579955314",
+  "python_version": "3.12.14",
+  "dependencies": {
+    "jsonschema": "4.26.0",
+    "attrs": "26.1.0",
+    "jsonschema-specifications": "2025.9.1",
+    "referencing": "0.37.0",
+    "rpds-py": "2026.9.1",
+    "typing-extensions": "4.16.0"
+  }
+}

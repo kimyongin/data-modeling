@@ -1,0 +1,40 @@
+{
+  "renderer_version": "1.0.4",
+  "schema_version": "1.0.0",
+  "notes": "Workflow audit: remove residual case-HTML instructions, require explicit HTML mode, share one JSON builder across both entry points and preserve authored inputs/receipts.",
+  "dependencies": {
+    "jsonschema": "4.26.0",
+    "attrs": "26.1.0",
+    "jsonschema-specifications": "2025.9.1",
+    "referencing": "0.37.0",
+    "rpds-py": "2026.9.1",
+    "typing-extensions": "4.16.0"
+  },
+  "files": {
+    "assets/review-logic.js": "3edc084fc62c386516d1e14c2257dda500950993a6d9e254364d0532df7dcf79",
+    "assets/review-transfer.js": "86e1f8da7a01348d5911d0f2908d18728cd7cc67dbda86566c82a8a4e63becc7",
+    "assets/review.css": "0faa8bfc98e40ce2fcc856547e9dbe0412e72c0447a14d8272db6b8da0098e5f",
+    "assets/review.js": "cab9e3b57924a922295521b7a0e48dc5d68e55714dc1e829e15c8a106c8089a8",
+    "assets/share-compatibility.json": "13b9fc7b77eff4303eae8b35625edc9c4d56d9ff4eaaa47c20c8cd217079a4c6",
+    "assets/vendor/AJV-LICENSE.txt": "a05350a88e318e4f5f2c2a1ff1e2e88daa4dd38e6e78b71cccae422bdc762cc3",
+    "assets/vendor/EXPAT-LICENSE.txt": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87",
+    "assets/vendor/GRAPHVIZ-LICENSE.txt": "0becf16567beb77fa252b7664631dd177c8f9a1889e48995b45379c7130e5303",
+    "assets/vendor/NOTICE.txt": "e488578fac099f28e45981ef203eb2b186428f3e24c5ea78604de559bdea093e",
+    "assets/vendor/VIZ-LICENSE.txt": "f1fb91bf7cbcb42b2af56949e4fa909e1979d5b57c2826cabacdb4b631457720",
+    "assets/vendor/share-validator.js": "9516f248dca90be6a01ce370d4c2c1015ad5c17a75112576dc918d8bf84171b6",
+    "assets/vendor/viz-global.js": "2e4fe91072268d06387a7b91d7ba11db9a235280df764d49399519faa5f5368d",
+    "requirements.txt": "3d616c7255154f3170ad2b08e46a56d9c93e89f64df30e7d791ebec11766454a",
+    "schemas/model-1.0.0.schema.json": "90f0de1ca012755b55bf283c512e6eca25fd8971467b48f33eb517aec8853c42",
+    "schemas/review-1.0.0.schema.json": "faac7af276f7d2513cd9d7c06df62516857726e75d2d9237f418c0251df105d2",
+    "schemas/share-1.0.0.schema.json": "964f457f3e6e0c6860ad74b726034634281b1f234c53caa57e718f2fc58eaeef",
+    "scripts/build_model.py": "3bd0a76ecc965ed7411484b4e9c38ecc7a1068a7206d0a10c6c241df39488bd7",
+    "scripts/render_review.py": "fbefdefaf809c380e51cb12daf97ba05a76470c081a12836bc07e917d335f742",
+    "scripts/review_contract.py": "af7692c0f0d960d247f990b7acec81892a6486a3dd281cbc489558bbeea995bc",
+    "scripts/validate_review.py": "238196a8467ef1accb350c5d5b4c033bd794d08d7e74224dba1b229e60d53c42",
+    "scripts/verify_sqlite.py": "38e25d8bfbf15a28fb503e2875b5e8feeb0a3174b9dd0f478a317f0b2bc2b09d",
+    "tools/build-transfer-validator.cjs": "2e6482fca8774f1c189eb7c8e418651d9c961e40c744b89a250bd6ad8cf8c0db",
+    "tools/create_share_schema.py": "a52ae94e93330433498244d634d567b944e251bd30e68a610952b39a043e98a0",
+    "tools/package-lock.json": "87291c9d30d89bd6d41d41216bee61be4521e847a5f6af69eb10ea464563e6f2",
+    "tools/package.json": "85f0548c6327435f6f8c979d1966c52384cabca5f79deb6d2e567e845be6717d"
+  }
+}

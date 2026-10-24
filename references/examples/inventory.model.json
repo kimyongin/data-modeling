@@ -1,0 +1,445 @@
+{
+  "format": "data-modeling-model",
+  "format_version": "1.0.0",
+  "review": {
+    "schema_version": "1.0.0",
+    "review_profile": "standard",
+    "title": "비품 분류 목록 — 단순 설계 검토",
+    "summary": "비품마다 관리번호와 분류를 기록하고 분류별 목록을 확인합니다.",
+    "scope": "한 조직의 현재 비품 목록. 대여·재고·감가상각·권한·이력은 포함하지 않습니다.",
+    "level": "논리 모델",
+    "process": {
+      "skill": "data-modeling",
+      "steps": [
+        "합성 업무 요구와 범위를 작성했습니다.",
+        "분류를 별도 관리하는 대안과 삭제 규칙을 검토했습니다.",
+        "서로 연결된 분류·비품 샘플과 확인할 상황을 작성했습니다."
+      ],
+      "scope": "실제 조직 조사나 DB 실행 없이 JSON과 검토 연결을 검사합니다."
+    },
+    "requirements": [
+      {
+        "id": "R-01",
+        "title": "비품 식별",
+        "text": "관리번호는 조직 안에서 중복하지 않습니다.",
+        "design_points": [
+          "비품마다 고정된 관리번호를 기록하고 중복을 막습니다."
+        ],
+        "example": "IT-001은 노트북 한 대만 가리킵니다."
+      },
+      {
+        "id": "R-02",
+        "title": "분류별 목록",
+        "text": "비품은 한 분류에 속하며 사용 중인 분류를 삭제하지 않습니다.",
+        "design_points": [
+          "분류를 별도로 등록하고 비품에 연결합니다.",
+          "분류 이름을 바꾸면 연결은 유지합니다.",
+          "비품이 연결된 분류의 삭제를 막습니다."
+        ],
+        "example": "컴퓨터를 전산장비로 바꿔도 IT-001의 분류 연결은 유지합니다."
+      }
+    ],
+    "sources": [
+      {
+        "id": "E-SYN",
+        "title": "비품 분류 요구와 합성 예시",
+        "location": "이 사례의 요구사항 및 샘플",
+        "kind": "사용자가 제시한 것으로 가정한 합성 요구",
+        "checked_at": "2026-10-24",
+        "claim": "분류와 관리번호를 유지하고 분류별 비품 목록을 조회합니다.",
+        "limitation": "실제 조직의 자산·회계·권한 정책을 조사한 결과가 아닙니다.",
+        "reading_note": "범위를 목록 관리로 제한한 예시입니다."
+      }
+    ],
+    "decisions": [
+      {
+        "id": "D-01",
+        "title": "분류를 목록으로 따로 관리",
+        "rationale": "같은 분류의 이름을 한 곳에서 바꾸고 비품의 연결은 유지합니다. 분류 등록과 연결 관리가 추가됩니다.",
+        "alternatives": "비품마다 분류 이름을 직접 쓰면 등록은 간단하지만 이름 변경과 오타 정리가 여러 행에 걸립니다. 이름 변경의 일관성을 우선해 분류 목록을 선택합니다.",
+        "requirements": [
+          "R-02"
+        ],
+        "sources": [
+          "E-SYN"
+        ]
+      }
+    ],
+    "review_points": [
+      {
+        "id": "Q-SCOPE",
+        "title": "이번 범위에서 제외한 정보",
+        "kind": "scope",
+        "question": "앞으로 과거 분류명이나 소모품 수량까지 관리할 계획이 있나요?",
+        "options": [
+          "현재 비품 목록만 유지",
+          "이력 또는 소모품 관리를 별도 설계"
+        ],
+        "recommendation": "이번 사례는 현재 비품 분류 목록으로 한정합니다.",
+        "impact": "범위를 확장하면 분류 이력 또는 품목·수량 기록이 추가로 필요합니다.",
+        "summary": "현재 분류명과 개별 비품 목록만 관리합니다. 과거 분류명 재현과 소모품 수량은 범위 밖이며, 필요해지면 각각 이력과 수량 기록을 추가합니다.",
+        "entities": [
+          "category",
+          "item"
+        ],
+        "requirements": [
+          "R-01",
+          "R-02"
+        ]
+      }
+    ],
+    "assumptions": [
+      {
+        "id": "A-01",
+        "title": "새 목록 설계",
+        "detail": "기존 시스템을 대체하거나 과거 자산 데이터를 옮기는 작업은 없습니다."
+      }
+    ],
+    "limitations": [
+      "이 모델은 현재 비품의 분류 목록만 다룹니다. 대여·재고·회계·권한 정책은 포함하지 않습니다."
+    ],
+    "overview": {
+      "goal": "비품을 중복 없이 구분하고 분류별로 찾습니다.",
+      "connection": "분류 하나에 여러 비품을 연결합니다. 이름이 바뀌어도 연결은 유지합니다.",
+      "example": {
+        "situation": "컴퓨터 분류를 전산장비로 바꿉니다.",
+        "outcome": "IT-001의 분류도 같은 연결을 따라 표시됩니다."
+      },
+      "pending": "이 예시 범위에서 미결 정책은 없으며 실제 도입 시 비품 식별과 제외 범위를 확인해야 합니다.",
+      "diagram": {
+        "nodes": [
+          {
+            "id": "category",
+            "title": "분류",
+            "description": "비품을 찾는 공통 기준"
+          },
+          {
+            "id": "item",
+            "title": "비품",
+            "description": "관리번호로 구분하는 물건"
+          }
+        ],
+        "links": [
+          {
+            "from": "category",
+            "to": "item",
+            "label": "같은 분류로 묶음"
+          }
+        ]
+      }
+    },
+    "entities": [
+      {
+        "id": "category",
+        "name": "분류",
+        "grain": "분류 기준 한 개",
+        "description": "비품을 묶는 분류 이름을 관리합니다.",
+        "short_description": "비품을 묶는 분류 이름을 관리합니다.",
+        "columns": [
+          {
+            "name": "id",
+            "label": "분류 번호",
+            "type": "TEXT",
+            "key": "PK",
+            "nullable": false,
+            "description": "분류 번호"
+          },
+          {
+            "name": "name",
+            "label": "분류 이름",
+            "type": "TEXT",
+            "key": "UQ",
+            "nullable": false,
+            "description": "분류 이름"
+          }
+        ],
+        "rows": [
+          {
+            "id": "C1",
+            "name": "컴퓨터"
+          },
+          {
+            "id": "C2",
+            "name": "가구"
+          }
+        ],
+        "requirements": [
+          "R-02"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "example": "C1은 컴퓨터 분류입니다.",
+        "review_question": "현재 이름만 보아도 충분한가요?",
+        "insights": {
+          "purpose": "이름을 바꾸는 기준을 한 곳에서 관리합니다.",
+          "tradeoff": "별도 분류를 먼저 등록해야 합니다.",
+          "risk": "현재 이름만 남기므로 과거 분류명을 재현하지 않습니다.",
+          "decision_ids": [
+            "D-01"
+          ],
+          "source_ids": [
+            "E-SYN"
+          ],
+          "scenario_ids": [
+            "S-01"
+          ]
+        }
+      },
+      {
+        "id": "item",
+        "name": "비품",
+        "grain": "비품 한 개",
+        "description": "관리번호로 비품을 구분하고 분류에 연결합니다.",
+        "short_description": "관리번호로 비품을 구분하고 분류에 연결합니다.",
+        "columns": [
+          {
+            "name": "id",
+            "label": "비품 번호",
+            "type": "TEXT",
+            "key": "PK",
+            "nullable": false,
+            "description": "비품 번호"
+          },
+          {
+            "name": "asset_code",
+            "label": "관리번호",
+            "type": "TEXT",
+            "key": "UQ",
+            "nullable": false,
+            "description": "관리번호"
+          },
+          {
+            "name": "name",
+            "label": "비품명",
+            "type": "TEXT",
+            "key": "",
+            "nullable": false,
+            "description": "비품명"
+          },
+          {
+            "name": "category_id",
+            "label": "분류 번호",
+            "type": "TEXT",
+            "key": "FK",
+            "nullable": false,
+            "description": "분류 번호"
+          }
+        ],
+        "rows": [
+          {
+            "id": "I1",
+            "asset_code": "IT-001",
+            "name": "노트북",
+            "category_id": "C1"
+          },
+          {
+            "id": "I2",
+            "asset_code": "FU-001",
+            "name": "책상",
+            "category_id": "C2"
+          }
+        ],
+        "requirements": [
+          "R-01",
+          "R-02"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "example": "IT-001 노트북은 C1 컴퓨터 분류에 속합니다.",
+        "review_question": "모든 대상 비품에 고유 관리번호가 있나요?",
+        "insights": {
+          "purpose": "같은 이름의 물건도 관리번호로 구별합니다.",
+          "tradeoff": "수량 합계 대신 물건별로 등록합니다.",
+          "risk": "개별 물건으로 구분하지 않는 소모품은 이 예시에서 다루지 않습니다.",
+          "decision_ids": [
+            "D-01"
+          ],
+          "source_ids": [
+            "E-SYN"
+          ],
+          "scenario_ids": [
+            "S-01"
+          ]
+        }
+      }
+    ],
+    "relationships": [
+      {
+        "id": "REL-01",
+        "name": "비품의 분류",
+        "rationale": "이름 변경과 무관하게 같은 분류로 묶인 비품을 찾기 위해 연결합니다.",
+        "foreign_key": true,
+        "rule": "비품은 실제 분류 하나에 속하고 분류가 사용 중이면 삭제를 막습니다.",
+        "enforcement": "분류 참조 키와 삭제 제한으로 검사합니다.",
+        "requirements": [
+          "R-02"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "from": {
+          "entity": "item",
+          "columns": [
+            "category_id"
+          ],
+          "cardinality": "0..N"
+        },
+        "to": {
+          "entity": "category",
+          "columns": [
+            "id"
+          ],
+          "cardinality": "1"
+        }
+      }
+    ],
+    "scenarios": [
+      {
+        "id": "S-01",
+        "title": "분류 이름을 바꿔도 비품 연결 유지",
+        "requirements": [
+          "R-02"
+        ],
+        "entities": [
+          "category",
+          "item"
+        ],
+        "explanation": {
+          "situation": "C1 이름을 전산장비로 바꿉니다.",
+          "expected_behavior": "IT-001의 category_id는 C1을 유지하고 새 이름을 표시합니다.",
+          "why_it_matters": "분류명을 여러 비품에서 각각 수정하지 않아도 됩니다."
+        },
+        "sample_refs": [
+          {
+            "entity": "category",
+            "key": {
+              "id": "C1"
+            }
+          },
+          {
+            "entity": "item",
+            "key": {
+              "id": "I1"
+            }
+          }
+        ]
+      },
+      {
+        "id": "S-02",
+        "title": "중복 관리번호와 사용 중 분류 삭제 거절",
+        "requirements": [
+          "R-01",
+          "R-02"
+        ],
+        "entities": [
+          "category",
+          "item"
+        ],
+        "explanation": {
+          "situation": "IT-001을 다시 등록하거나 비품이 있는 C1을 삭제하려 합니다.",
+          "expected_behavior": "중복 등록과 사용 중 분류 삭제를 각각 거절해야 합니다.",
+          "why_it_matters": "물건의 식별과 분류 연결이 유지되어야 합니다."
+        },
+        "sample_refs": [
+          {
+            "entity": "category",
+            "key": {
+              "id": "C1"
+            }
+          },
+          {
+            "entity": "item",
+            "key": {
+              "id": "I1"
+            }
+          }
+        ]
+      }
+    ],
+    "domains": [
+      {
+        "id": "inventory",
+        "name": "비품 분류",
+        "description": "비품 식별과 분류 연결",
+        "entities": [
+          "category",
+          "item"
+        ]
+      }
+    ],
+    "extensions": {
+      "modeling_review": {
+        "version": "1.0.0",
+        "complexity": {
+          "level": "simple",
+          "reason": "단일 조직의 현재 분류 목록이며 외부 통합·이력·기존 전환이 없습니다."
+        },
+        "alternatives": {
+          "reviews": [
+            {
+              "decision_id": "D-01",
+              "criteria": [
+                "이름 변경의 일관성",
+                "분류 등록의 수고"
+              ],
+              "revisit_when": "다른 시스템과 분류 코드를 통합하거나 과거 분류명을 재현해야 할 때"
+            }
+          ]
+        },
+        "rules": [
+          {
+            "topic": "identity",
+            "status": "addressed",
+            "reason": "중복 관리번호를 막습니다.",
+            "requirements": [
+              "R-01"
+            ],
+            "scenarios": [
+              "S-02"
+            ],
+            "review_points": []
+          },
+          {
+            "topic": "lifecycle",
+            "status": "addressed",
+            "reason": "사용 중 분류 삭제를 막습니다.",
+            "requirements": [
+              "R-02"
+            ],
+            "scenarios": [
+              "S-02"
+            ],
+            "review_points": []
+          },
+          {
+            "topic": "integration",
+            "status": "not_applicable",
+            "reason": "외부 원천과 통합하지 않는 합성 목록입니다.",
+            "requirements": [],
+            "scenarios": [],
+            "review_points": []
+          },
+          {
+            "topic": "time",
+            "status": "excluded",
+            "reason": "현재 분류 이름만 유지하고 과거 이름 재현은 제외합니다.",
+            "requirements": [
+              "R-02"
+            ],
+            "scenarios": [],
+            "review_points": [
+              "Q-SCOPE"
+            ]
+          }
+        ],
+        "change_impact": {
+          "baseline": "new",
+          "baseline_note": "새 목록의 논리 모델이며 기존 DB 교체나 데이터 전환은 없습니다.",
+          "items": []
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1760 @@
+{
+  "format": "data-modeling-model",
+  "format_version": "1.0.0",
+  "review": {
+    "title": "회의실 예약 — 기존 시스템 변경 영향 검토 (합성)",
+    "summary": "회의실을 이중으로 예약하지 않게 하고, 예약·참석 인원·설비를 각각 정확히 관리하는 방법을 검토합니다. 실제 회사 자료가 아니라 설명을 위해 만든 예시입니다.",
+    "scope": "회의실·설비·예약·참석자를 어떻게 기록하고 연결할지 다룹니다. 실제 예약 서비스를 만들거나 운영 환경에 적용하는 일은 포함하지 않습니다.",
+    "level": "기존 구조를 가정한 논리 모델",
+    "review_status": "합성 테스트 · 업무 승인 아님",
+    "requirements": [
+      {
+        "id": "R-01",
+        "title": "방 구분",
+        "text": "같은 사업장 안에서 방 번호는 중복하지 않습니다. 다른 사업장은 같은 번호를 쓸 수 있습니다.",
+        "example": "본사 101호와 연구소 101호는 서로 다른 회의실입니다.",
+        "design_points": [
+          "회의실마다 소속 사업장을 연결합니다.",
+          "같은 사업장 안에서는 방 번호가 겹치지 않게 합니다.",
+          "사업장이 다르면 같은 번호의 방도 서로 다른 회의실로 관리합니다."
+        ]
+      },
+      {
+        "id": "R-02",
+        "title": "예약 시간",
+        "text": "확정 예약의 사용 시간이 겹치면 막습니다. 10시~11시 예약이 끝나면 11시부터 다음 예약을 허용하고 취소한 예약은 시간을 막지 않습니다.",
+        "example": "예약 B01을 취소하면 같은 방의 같은 시간대를 다시 예약할 수 있습니다.",
+        "design_points": [
+          "예약에 회의실·시작 시각·종료 시각·현재 상태를 기록합니다.",
+          "새 예약을 확정할 때 같은 방의 확정 예약과 시간을 비교합니다.",
+          "취소한 예약은 시간 비교에서 제외하되, 취소됐다는 기록은 남깁니다."
+        ]
+      },
+      {
+        "id": "R-03",
+        "title": "참석자",
+        "text": "같은 예약에 같은 회원을 두 번 등록하지 않고 실제로 있는 예약과 회원만 연결합니다.",
+        "example": "한 사람이 서로 다른 회의에는 참여할 수 있지만, 같은 회의의 참석 목록에 두 번 등록될 수는 없습니다.",
+        "design_points": [
+          "참석자 한 명을 예약과 회원의 연결 한 건으로 저장합니다.",
+          "같은 예약·회원 조합을 중복 등록하지 못하게 합니다.",
+          "연결할 예약과 회원이 실제로 존재하는지 확인합니다."
+        ]
+      },
+      {
+        "id": "R-04",
+        "title": "예약과 인원 조회",
+        "text": "설비가 여러 개여도 참석자 수를 정확히 세고, 예약이 없는 방도 0건으로 보여줍니다.",
+        "example": "참석자 2명과 설비 2개가 있는 B01 예약은 참석자 2명으로 표시합니다. 설비와 사람의 조합 4개를 인원으로 세지 않습니다.",
+        "design_points": [
+          "참석자와 설비를 서로 다른 목록으로 관리하고 각각 셉니다.",
+          "각각 계산한 수를 예약 화면에서 함께 보여줍니다.",
+          "회의실 목록을 기준으로 조회해 예약이 없는 방도 빠지지 않게 합니다."
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "E-SYN",
+        "title": "설명을 위해 정한 가상의 업무 규칙",
+        "kind": "예시 가정",
+        "location": "skill-check/build_audit_cases.py",
+        "checked_at": "2026-10-24",
+        "claim": "이 파일에 명시한 요구사항만 검증 입력으로 사용한다.",
+        "limitation": "실제 조직의 업무·외부 서비스 명세를 조사한 결과가 아니다.",
+        "reading_note": "이 예시는 실제 회사의 예약 규정을 조사한 결과가 아닙니다. 여기서 정한 예약 규칙으로 설계를 이해하고 시험해 보는 자료입니다. 우리 회사 규칙과 같은지는 별도로 확인해야 합니다."
+      }
+    ],
+    "process": {
+      "skill": "data-modeling",
+      "steps": [
+        "기존 회의실 예약 합성 모델의 요구와 관계를 재검토했습니다.",
+        "준비 시간과 집계 대안을 비교하고 누락될 정책을 미결 사항에 연결했습니다.",
+        "기존 시스템 변경을 가정한 영향 범위를 검토했습니다. 실제 운영 자료나 전환을 확인한 결과가 아닙니다."
+      ],
+      "scope": "새 실행 검증 없이 기존 샘플과 정책·변경 영향을 검토합니다."
+    },
+    "assumptions": [
+      "날짜/시각은 테스트 안에서 동일한 형식과 시간대를 사용한다.",
+      {
+        "id": "A-BASE",
+        "title": "변경 영향의 합성 기준",
+        "detail": "현재 시스템이 이 예시와 같은 방·예약·참석 목록을 저장한다고 가정합니다. 실제 DB·소비자·기존 데이터는 제공되지 않았습니다."
+      }
+    ],
+    "limitations": [
+      "동시성·접근권한·운영 DB·성능은 이 테스트의 검증 범위가 아니다."
+    ],
+    "entities": [
+      {
+        "id": "campus",
+        "name": "사업장",
+        "grain": "사업장 한 곳",
+        "group": "공간",
+        "description": "회의실이 어느 사업장에 있는지 관리합니다. 방 번호가 같아도 사업장이 다르면 서로 다른 회의실로 구분하기 위해 필요합니다.",
+        "columns": [
+          {
+            "name": "id",
+            "type": "TEXT",
+            "key": "PK",
+            "nullable": false,
+            "description": "C1처럼 사업장을 구분하기 위해 부여한 값입니다. 이름이 바뀌어도 이 값으로 같은 사업장을 찾습니다.",
+            "label": "사업장 관리 번호"
+          },
+          {
+            "name": "name",
+            "type": "TEXT",
+            "key": "",
+            "nullable": false,
+            "description": "본사, 연구소처럼 화면에 보여 줄 이름입니다.",
+            "label": "사업장 이름"
+          }
+        ],
+        "rows": [
+          {
+            "id": "C1",
+            "name": "본사"
+          },
+          {
+            "id": "C2",
+            "name": "연구소"
+          }
+        ],
+        "requirements": [
+          "R-01"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "insights": {
+          "purpose": "사업장을 구분하지 않으면 본사 101호와 연구소 101호의 예약이 섞일 수 있습니다.",
+          "tradeoff": "사업장 이름을 한곳에서 관리할 수 있습니다. 대신 방을 등록할 때 소속 사업장을 반드시 골라야 합니다.",
+          "risk": "사업장별 영업시간이나 휴일은 이 예시에서 다루지 않았습니다.",
+          "decision_ids": [],
+          "source_ids": [
+            "E-SYN"
+          ],
+          "scenario_ids": [
+            "S-01",
+            "S-02"
+          ]
+        },
+        "example": "본사(C1)의 101호와 연구소(C2)의 101호는 번호만 같을 뿐 서로 다른 방입니다. 회의실을 찾을 때 사업장도 함께 확인합니다.",
+        "review_question": "본사와 다른 사업장에서 같은 방 번호를 써도 구분할 수 있나요?",
+        "short_description": "회의실이 속한 본사·연구소 등의 사업장을 관리합니다.",
+        "sample_label_columns": [
+          "name"
+        ]
+      },
+      {
+        "id": "room",
+        "name": "회의실",
+        "grain": "한 사업장에 있는 방 하나",
+        "group": "공간",
+        "description": "예약할 수 있는 회의실 자체를 관리합니다. 예약이 한 건도 없는 방도 이 목록에 남아 있어야 합니다.",
+        "columns": [
+          {
+            "name": "id",
+            "type": "TEXT",
+            "key": "PK",
+            "nullable": false,
+            "description": "방 번호와 별도로 부여하는 관리 값입니다. A는 본사 101호를 가리킵니다.",
+            "label": "회의실 관리 번호"
+          },
+          {
+            "name": "campus_id",
+            "type": "TEXT",
+            "key": "FK",
+            "nullable": false,
+            "description": "이 방이 있는 사업장의 관리 번호입니다. C1이면 본사입니다.",
+            "label": "소속 사업장"
+          },
+          {
+            "name": "code",
+            "type": "TEXT",
+            "key": "UQ",
+            "nullable": false,
+            "description": "101처럼 사람이 사용하는 방 번호입니다. 같은 사업장에서는 중복할 수 없습니다.",
+            "label": "사업장 안의 방 번호"
+          },
+          {
+            "name": "capacity",
+            "type": "INTEGER",
+            "key": "",
+            "nullable": false,
+            "description": "방에 들어갈 수 있는 인원입니다. 이 예시는 양수인지 확인하지만 예약 인원 초과까지 막지는 않습니다.",
+            "label": "수용 인원"
+          }
+        ],
+        "rows": [
+          {
+            "id": "A",
+            "campus_id": "C1",
+            "code": "101",
+            "capacity": 8
+          },
+          {
+            "id": "B",
+            "campus_id": "C1",
+            "code": "102",
+            "capacity": 4
+          },
+          {
+            "id": "C",
+            "campus_id": "C2",
+            "code": "101",
+            "capacity": 6
+          }
+        ],
+        "requirements": [
+          "R-01",
+          "R-04"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "insights": {
+          "purpose": "예약 기록만 있으면 한 번도 쓰지 않은 회의실을 관리할 수 없습니다.",
+          "tradeoff": "공간 정보와 예약 내역을 따로 관리하므로 예약이 없어도 방을 찾고 수정할 수 있습니다.",
+          "risk": "정원을 넘는 참석자를 막을지, 일부 예외를 허용할지는 추가 결정이 필요합니다.",
+          "decision_ids": [],
+          "source_ids": [
+            "E-SYN"
+          ],
+          "scenario_ids": [
+            "S-01",
+            "S-02"
+          ]
+        },
+        "example": "회의실 A는 본사 101호이며 정원은 8명입니다. 연구소 101호인 회의실 C와는 다른 방입니다.",
+        "review_question": "같은 사업장 안에 101호가 중복 등록되지 않나요? 예약이 없는 방도 찾을 수 있나요?",
+        "short_description": "소속 사업장·방 번호·정원을 관리합니다.",
+        "sample_label_columns": [
+          "campus_id",
+          "code"
+        ]
+      },
+      {
+        "id": "member",
+        "name": "회원",
+        "grain": "회원 하나",
+        "group": "회원",
+        "description": "예약을 만든 사람과 참석하는 사람의 기준 목록입니다. 이름이 같은 사람도 관리 번호로 구분합니다.",
+        "columns": [
+          {
+            "name": "id",
+            "type": "TEXT",
+            "key": "PK",
+            "nullable": false,
+            "description": "같은 이름의 사람도 구분하기 위한 값입니다. 예약과 참석 기록이 이 값을 함께 사용합니다.",
+            "label": "회원 관리 번호"
+          },
+          {
+            "name": "name",
+            "type": "TEXT",
+            "key": "",
+            "nullable": false,
+            "description": "화면에 보여 줄 이름입니다. 이름이 같다고 같은 회원으로 합치지 않습니다.",
+            "label": "회원 이름"
+          }
+        ],
+        "rows": [
+          {
+            "id": "M1",
+            "name": "기획 담당"
+          },
+          {
+            "id": "M2",
+            "name": "개발 담당"
+          }
+        ],
+        "requirements": [
+          "R-03"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "insights": {
+          "purpose": "예약자와 참석자를 글자로만 적으면 동명이인이나 이름 변경 때 혼동할 수 있습니다.",
+          "tradeoff": "이름을 한곳에서 수정하면 연결된 기록에서도 같은 사람을 찾을 수 있습니다.",
+          "risk": "누가 어떤 예약을 볼 수 있는지, 탈퇴자의 정보를 언제 지울지는 별도 검토가 필요합니다.",
+          "decision_ids": [],
+          "source_ids": [
+            "E-SYN"
+          ],
+          "scenario_ids": [
+            "S-06",
+            "S-07"
+          ]
+        },
+        "example": "회원 M1은 기획 담당자이고 M2는 개발 담당자입니다. M1이 예약을 만들고 두 사람이 함께 참석할 수 있습니다.",
+        "review_question": "이름이 바뀌거나 같은 이름의 사람이 있어도 예약자를 정확히 구분할 수 있나요?",
+        "short_description": "예약자와 참석자가 될 사람의 정보를 관리합니다.",
+        "sample_label_columns": [
+          "name"
+        ]
+      },
+      {
+        "id": "booking",
+        "name": "예약",
+        "grain": "방 하나의 시간 구간 예약 한 건",
+        "group": "예약",
+        "description": "누가 어느 방을 언제 사용하는지 기록합니다. 취소한 내역도 남기되 다른 사람이 같은 시간을 다시 예약할 수 있게 합니다.",
+        "columns": [
+          {
+            "name": "id",
+            "type": "TEXT",
+            "key": "PK",
+            "nullable": false,
+            "description": "예약 한 건을 구분하는 값입니다. B01의 참석자와 취소 내역을 찾을 때 사용합니다.",
+            "label": "예약 관리 번호"
+          },
+          {
+            "name": "room_id",
+            "type": "TEXT",
+            "key": "FK",
+            "nullable": false,
+            "description": "예약할 방의 관리 번호입니다. 실제 회의실 목록에 있는 방만 연결합니다.",
+            "label": "예약한 회의실"
+          },
+          {
+            "name": "organizer_id",
+            "type": "TEXT",
+            "key": "FK",
+            "nullable": false,
+            "description": "예약을 만든 회원의 관리 번호입니다.",
+            "label": "예약한 회원"
+          },
+          {
+            "name": "starts_at",
+            "type": "TEXT",
+            "key": "",
+            "nullable": false,
+            "description": "방 사용이 시작되는 시각입니다. 10시~11시 예약은 10시부터 방을 사용합니다.",
+            "label": "사용 시작 시각"
+          },
+          {
+            "name": "ends_at",
+            "type": "TEXT",
+            "key": "",
+            "nullable": false,
+            "description": "이 시각부터는 다음 예약이 시작할 수 있습니다. 11시에 끝나면 11시 시작 예약은 겹치지 않습니다.",
+            "label": "사용 종료 시각"
+          },
+          {
+            "name": "status",
+            "type": "TEXT",
+            "key": "",
+            "nullable": false,
+            "description": "BOOKED는 사용 예정인 예약, CANCELLED는 취소한 예약입니다. 취소한 예약은 시간을 차지하지 않습니다.",
+            "label": "예약 상태"
+          },
+          {
+            "name": "note",
+            "type": "TEXT",
+            "key": "",
+            "nullable": true,
+            "description": "준비 사항 등을 적습니다. 없으면 비워 둘 수 있습니다.",
+            "label": "예약 메모"
+          }
+        ],
+        "rows": [
+          {
+            "id": "B01",
+            "room_id": "A",
+            "organizer_id": "M1",
+            "starts_at": "2026-10-01T10:00",
+            "ends_at": "2026-10-01T11:00",
+            "status": "BOOKED",
+            "note": "회의 준비: 모니터 사용"
+          },
+          {
+            "id": "B02",
+            "room_id": "A",
+            "organizer_id": "M1",
+            "starts_at": "2026-10-02T10:00",
+            "ends_at": "2026-10-02T11:00",
+            "status": "BOOKED",
+            "note": null
+          },
+          {
+            "id": "CANCEL",
+            "room_id": "B",
+            "organizer_id": "M2",
+            "starts_at": "2026-10-01T10:00",
+            "ends_at": "2026-10-01T11:00",
+            "status": "CANCELLED",
+            "note": "취소 내역"
+          }
+        ],
+        "requirements": [
+          "R-02",
+          "R-04"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "insights": {
+          "purpose": "방과 시간만 적어 두고 겹침을 확인하지 않으면 같은 방을 두 팀이 동시에 사용할 수 있습니다.",
+          "tradeoff": "취소한 예약을 삭제하지 않아 취소 상태를 확인할 수 있습니다. 취소 사유·시각·변경자나 변경 전 상태를 추적하는 기능은 포함하지 않습니다.",
+          "risk": "두 사람이 동시에 예약하는 상황은 아직 확인하지 않았습니다. 예시 검사를 통과해도 실제 서비스에서 별도 시험해야 합니다.",
+          "decision_ids": [
+            "D-01"
+          ],
+          "source_ids": [
+            "E-SYN"
+          ],
+          "scenario_ids": [
+            "S-03",
+            "S-04"
+          ]
+        },
+        "example": "B01은 10월 1일 회의실 A의 10시~11시 예약입니다. 10시 30분 시작은 겹치므로 막고, 11시 시작은 허용합니다.",
+        "review_question": "종료 직후의 다음 예약은 가능한가요? 취소한 시간은 다시 예약할 수 있나요?",
+        "short_description": "누가 어느 방을 언제 쓰는지와 현재 예약 상태를 기록합니다.",
+        "sample_label_columns": [
+          "room_id",
+          "starts_at"
+        ]
+      },
+      {
+        "id": "attendance",
+        "name": "참석 등록",
+        "grain": "한 예약의 회원 참석 한 건",
+        "group": "예약",
+        "description": "한 예약에 누가 참석하는지 한 사람씩 기록합니다. 같은 사람을 두 번 넣어 참석 인원이 부풀지 않게 합니다.",
+        "columns": [
+          {
+            "name": "booking_id",
+            "type": "TEXT",
+            "key": "PK/FK",
+            "nullable": false,
+            "description": "어느 예약에 참석하는지 나타냅니다.",
+            "label": "참석할 예약"
+          },
+          {
+            "name": "member_id",
+            "type": "TEXT",
+            "key": "PK/FK",
+            "nullable": false,
+            "description": "참석하는 회원입니다. 같은 예약과 회원의 조합은 한 번만 등록합니다.",
+            "label": "참석 회원"
+          }
+        ],
+        "rows": [
+          {
+            "booking_id": "B01",
+            "member_id": "M1"
+          },
+          {
+            "booking_id": "B01",
+            "member_id": "M2"
+          }
+        ],
+        "requirements": [
+          "R-03",
+          "R-04"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "insights": {
+          "purpose": "참석자를 예약 안에 한 문자열로 넣으면 한 사람의 중복 등록을 구별하기 어렵습니다.",
+          "tradeoff": "사람별로 기록해 인원을 정확히 셉니다. 대신 예약과 회원을 연결하는 목록을 별도로 관리합니다.",
+          "risk": "초대만 받은 사람과 실제 참석한 사람을 구분하는 기능은 이 예시에서 다루지 않았습니다.",
+          "decision_ids": [
+            "D-02"
+          ],
+          "source_ids": [
+            "E-SYN"
+          ],
+          "scenario_ids": [
+            "S-06",
+            "S-07"
+          ]
+        },
+        "example": "예약 B01에는 회원 M1과 M2가 한 줄씩 등록되어 총 2명입니다. M1을 B01에 다시 등록하면 막아야 합니다.",
+        "review_question": "중복 참석자를 막나요? 회의실 설비가 여러 개여도 참석자는 2명으로 나오나요?",
+        "short_description": "한 예약에 참석하는 회원을 한 사람씩 기록합니다.",
+        "sample_label_columns": [
+          "member_id"
+        ]
+      },
+      {
+        "id": "amenity",
+        "name": "설비 종류",
+        "grain": "재사용 가능한 설비 종류 하나",
+        "group": "공간",
+        "description": "모니터, 화이트보드처럼 여러 회의실에서 사용하는 설비의 종류를 관리합니다.",
+        "columns": [
+          {
+            "name": "id",
+            "type": "TEXT",
+            "key": "PK",
+            "nullable": false,
+            "description": "TV, WB처럼 종류를 구분하는 값입니다.",
+            "label": "설비 종류 관리 번호"
+          },
+          {
+            "name": "name",
+            "type": "TEXT",
+            "key": "",
+            "nullable": false,
+            "description": "모니터, 화이트보드처럼 예약자가 읽을 이름입니다.",
+            "label": "설비 이름"
+          }
+        ],
+        "rows": [
+          {
+            "id": "TV",
+            "name": "모니터"
+          },
+          {
+            "id": "WB",
+            "name": "화이트보드"
+          }
+        ],
+        "requirements": [
+          "R-04"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "insights": {
+          "purpose": "방마다 설비 이름을 직접 입력하면 모니터와 화면처럼 같은 설비를 다르게 기록할 수 있습니다.",
+          "tradeoff": "설비 이름을 한곳에서 정할 수 있습니다. 개별 기기의 수량과 고장 이력까지 관리하는 구조는 아닙니다.",
+          "risk": "목록에 모니터가 있다고 해서 지금 고장 없이 쓸 수 있다고 보장하지는 않습니다.",
+          "decision_ids": [],
+          "source_ids": [
+            "E-SYN"
+          ],
+          "scenario_ids": [
+            "S-08",
+            "S-09"
+          ]
+        },
+        "example": "TV라는 관리 값은 모니터라는 설비 종류를 뜻합니다. 특정 모니터 기기 한 대를 구분하는 번호는 아닙니다.",
+        "review_question": "설비 종류만 관리하면 충분한가요, 아니면 실제 기기의 고장이나 수량도 알아야 하나요?",
+        "short_description": "모니터·화이트보드 같은 설비 종류를 관리합니다.",
+        "sample_label_columns": [
+          "name"
+        ]
+      },
+      {
+        "id": "room_amenity",
+        "name": "회의실 설비",
+        "grain": "방과 설비 종류의 연결 하나",
+        "group": "공간",
+        "description": "어느 회의실에 어떤 설비가 있는지 연결합니다. 방 한 곳에 여러 설비를 등록할 수 있습니다.",
+        "columns": [
+          {
+            "name": "room_id",
+            "type": "TEXT",
+            "key": "PK/FK",
+            "nullable": false,
+            "description": "어느 방의 설비인지 나타냅니다.",
+            "label": "설비가 있는 회의실"
+          },
+          {
+            "name": "amenity_id",
+            "type": "TEXT",
+            "key": "PK/FK",
+            "nullable": false,
+            "description": "그 방에 어떤 종류의 설비가 있는지 나타냅니다. 같은 방에 같은 종류는 한 번만 연결합니다.",
+            "label": "갖추고 있는 설비 종류"
+          }
+        ],
+        "rows": [
+          {
+            "room_id": "A",
+            "amenity_id": "TV"
+          },
+          {
+            "room_id": "A",
+            "amenity_id": "WB"
+          }
+        ],
+        "requirements": [
+          "R-04"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "insights": {
+          "purpose": "방 하나에 설비 여러 개를 기록하고 같은 설비를 다른 방에도 연결하려면 별도의 연결 목록이 필요합니다.",
+          "tradeoff": "방과 설비 종류를 조합해 중복을 막습니다. 같은 종류의 장비가 여러 대 있는지는 별도 수량 항목이 필요합니다.",
+          "risk": "설비 목록과 참석자 목록을 한꺼번에 펼쳐 세면 참석자 2명이 4명처럼 보일 수 있습니다. 각각 따로 세어야 합니다.",
+          "decision_ids": [
+            "D-02"
+          ],
+          "source_ids": [
+            "E-SYN"
+          ],
+          "scenario_ids": [
+            "S-08",
+            "S-09"
+          ]
+        },
+        "example": "회의실 A에는 모니터와 화이트보드가 있어 연결 기록이 2줄입니다. 설비가 2개라고 예약 참석자까지 2배로 세면 안 됩니다.",
+        "review_question": "방의 설비가 늘어나도 예약 건수나 참석 인원이 부풀지 않나요?",
+        "short_description": "각 회의실이 갖춘 설비 종류를 연결합니다.",
+        "sample_label_columns": [
+          "room_id",
+          "amenity_id"
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "id": "REL-01",
+        "name": "방의 소속 사업장",
+        "foreign_key": true,
+        "from": {
+          "entity": "room",
+          "columns": [
+            "campus_id"
+          ],
+          "cardinality": "0..N"
+        },
+        "to": {
+          "entity": "campus",
+          "columns": [
+            "id"
+          ],
+          "cardinality": "1"
+        },
+        "rule": "존재하는 부모만 참조하며 삭제는 NO ACTION으로 제한",
+        "enforcement": "SQLite FK · 합성 예시",
+        "requirements": [
+          "R-01"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "explanation": "방 번호가 같아도 사업장이 다르면 다른 회의실입니다. 이 연결로 본사 101호와 연구소 101호를 구별합니다.",
+        "title": "사업장별 회의실 구분",
+        "rationale": "본사와 연구소의 같은 방 번호가 섞이지 않도록 회의실을 소속 사업장에 연결합니다. 사업장 정보는 한곳에서 관리하고 각 방은 그 소속을 참조합니다."
+      },
+      {
+        "id": "REL-02",
+        "name": "예약한 방",
+        "foreign_key": true,
+        "from": {
+          "entity": "booking",
+          "columns": [
+            "room_id"
+          ],
+          "cardinality": "0..N"
+        },
+        "to": {
+          "entity": "room",
+          "columns": [
+            "id"
+          ],
+          "cardinality": "1"
+        },
+        "rule": "존재하는 부모만 참조하며 삭제는 NO ACTION으로 제한",
+        "enforcement": "SQLite FK · 합성 예시",
+        "requirements": [
+          "R-01"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "explanation": "예약 B01이 실제 어느 방의 시간을 사용하는지 찾습니다. 방이 없으면 예약도 만들 수 없습니다.",
+        "title": "방별 예약 충돌 확인",
+        "rationale": "예약이 어느 방을 사용하는지 알아야 같은 방의 시간 충돌을 검사할 수 있습니다. 예약이 없어도 방 자체는 남아 있어야 하므로 방과 예약을 나눠 연결합니다."
+      },
+      {
+        "id": "REL-03",
+        "name": "예약 주최자",
+        "foreign_key": true,
+        "from": {
+          "entity": "booking",
+          "columns": [
+            "organizer_id"
+          ],
+          "cardinality": "0..N"
+        },
+        "to": {
+          "entity": "member",
+          "columns": [
+            "id"
+          ],
+          "cardinality": "1"
+        },
+        "rule": "존재하는 부모만 참조하며 삭제는 NO ACTION으로 제한",
+        "enforcement": "SQLite FK · 합성 예시",
+        "requirements": [
+          "R-01"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "explanation": "예약을 만든 회원을 찾습니다. 참석자 전체가 아니라 예약 책임자를 나타내는 연결입니다.",
+        "title": "예약 주최자 확인",
+        "rationale": "누가 예약했는지 회원 정보와 연결해 확인하기 위해 필요합니다. 주최자와 참석자는 다를 수 있으므로 예약한 사람을 참석 목록으로 대신하지 않습니다."
+      },
+      {
+        "id": "REL-04",
+        "name": "참석 예약",
+        "foreign_key": true,
+        "from": {
+          "entity": "attendance",
+          "columns": [
+            "booking_id"
+          ],
+          "cardinality": "0..N"
+        },
+        "to": {
+          "entity": "booking",
+          "columns": [
+            "id"
+          ],
+          "cardinality": "1"
+        },
+        "rule": "존재하는 부모만 참조하며 삭제는 NO ACTION으로 제한",
+        "enforcement": "SQLite FK · 합성 예시",
+        "requirements": [
+          "R-01"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "explanation": "B01에 등록한 참석자를 모아 예약의 인원을 셉니다. 존재하지 않는 예약에 참석자만 남길 수 없습니다.",
+        "title": "회의별 참석 목록 관리",
+        "rationale": "참석자가 어느 회의에 참여하는지 구분하기 위해 예약과 연결합니다. 예약과 참석을 나누면 회의마다 다른 참석 목록을 관리할 수 있습니다."
+      },
+      {
+        "id": "REL-05",
+        "name": "참석 회원",
+        "foreign_key": true,
+        "from": {
+          "entity": "attendance",
+          "columns": [
+            "member_id"
+          ],
+          "cardinality": "0..N"
+        },
+        "to": {
+          "entity": "member",
+          "columns": [
+            "id"
+          ],
+          "cardinality": "1"
+        },
+        "rule": "존재하는 부모만 참조하며 삭제는 NO ACTION으로 제한",
+        "enforcement": "SQLite FK · 합성 예시",
+        "requirements": [
+          "R-01"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "explanation": "누가 참석하는지 회원 목록에서 찾습니다. 같은 예약과 같은 회원은 한 번만 연결합니다.",
+        "title": "같은 사람의 중복 참석 등록 방지",
+        "rationale": "참석 기록을 회원에 연결해야 같은 사람인지 구분하고 중복 등록을 막을 수 있습니다. 표시 이름만으로 사람을 구분하지 않습니다."
+      },
+      {
+        "id": "REL-06",
+        "name": "설비 보유 방",
+        "foreign_key": true,
+        "from": {
+          "entity": "room_amenity",
+          "columns": [
+            "room_id"
+          ],
+          "cardinality": "0..N"
+        },
+        "to": {
+          "entity": "room",
+          "columns": [
+            "id"
+          ],
+          "cardinality": "1"
+        },
+        "rule": "존재하는 부모만 참조하며 삭제는 NO ACTION으로 제한",
+        "enforcement": "SQLite FK · 합성 예시",
+        "requirements": [
+          "R-01"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "explanation": "모니터가 회의실 A에 있다는 식으로 설비가 있는 방을 찾습니다.",
+        "title": "방별 설비 구성 관리",
+        "rationale": "모니터·화이트보드 같은 설비가 어느 회의실에 있는지 관리하기 위해 연결합니다. 설비 종류와 방의 조합을 별도 기록해 방마다 다른 구성을 둘 수 있습니다."
+      },
+      {
+        "id": "REL-07",
+        "name": "연결한 설비 종류",
+        "foreign_key": true,
+        "from": {
+          "entity": "room_amenity",
+          "columns": [
+            "amenity_id"
+          ],
+          "cardinality": "0..N"
+        },
+        "to": {
+          "entity": "amenity",
+          "columns": [
+            "id"
+          ],
+          "cardinality": "1"
+        },
+        "rule": "존재하는 부모만 참조하며 삭제는 NO ACTION으로 제한",
+        "enforcement": "SQLite FK · 합성 예시",
+        "requirements": [
+          "R-01"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "explanation": "방에 연결한 설비가 모니터인지 화이트보드인지 종류 목록에서 확인합니다.",
+        "title": "설비 이름의 중복 관리 방지",
+        "rationale": "같은 설비 종류를 여러 회의실에서 사용하더라도 이름과 종류 정의는 한곳에서 관리하기 위해 연결합니다."
+      }
+    ],
+    "decisions": [
+      {
+        "id": "D-01",
+        "title": "예약이 끝나는 시각부터 다음 예약을 허용합니다",
+        "rationale": "10시~11시 예약이 있으면 10시 30분 예약은 겹칩니다. 하지만 11시부터는 다음 사람이 쓸 수 있게 합니다. 취소된 예약은 기록으로 남기되 그 시간을 막지 않습니다.",
+        "alternatives": "끝나는 시각까지 막으면 11시 시작 예약도 거절됩니다. 취소한 행을 삭제하면 어느 예약이 취소됐는지 확인할 수 없어 상태를 남깁니다. 변경 전후의 이력은 별도 기능입니다.",
+        "requirements": [
+          "R-02"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "example": "B01을 취소하면 같은 방의 10시~11시를 다른 사람이 다시 예약할 수 있습니다.",
+        "review_question": "회의 사이에 준비 시간이 필요한가요? 필요하다면 이 예시와 달리 추가 간격 규칙을 정해야 합니다."
+      },
+      {
+        "id": "D-02",
+        "title": "참석자 수와 설비 수를 각각 따로 셉니다",
+        "rationale": "참석자 2명과 설비 2개를 한꺼번에 펼치면 조합이 4줄이 됩니다. 줄 수를 그대로 사람 수로 세면 4명으로 잘못 표시됩니다. 참석자와 설비를 각각 센 다음 예약 화면에 보여줍니다.",
+        "requirements": [
+          "R-04"
+        ],
+        "sources": [
+          "E-SYN"
+        ],
+        "alternatives": "한번에 합친 목록의 줄 수를 세는 방식은 구현하기 쉬워 보여도 숫자가 부풀 수 있습니다.",
+        "example": "B01의 올바른 결과는 참석자 2명, 설비 2개입니다.",
+        "review_question": "설비를 하나 더 등록해도 참석자 수는 그대로인가요?"
+      }
+    ],
+    "domains": [
+      {
+        "id": "domain-facilities",
+        "name": "공간·설비",
+        "entities": [
+          "campus",
+          "room",
+          "amenity",
+          "room_amenity"
+        ],
+        "description": "어느 사업장에 어떤 방과 설비가 있는지"
+      },
+      {
+        "id": "domain-bookings",
+        "name": "예약·참석",
+        "entities": [
+          "booking",
+          "attendance"
+        ],
+        "description": "누가 어느 방을 쓰고 누가 참석하는지"
+      },
+      {
+        "id": "domain-members",
+        "name": "회원",
+        "entities": [
+          "member"
+        ],
+        "description": "예약자와 참석자가 누구인지"
+      }
+    ],
+    "reading_guide": "스펙에서 예약 시간 규칙과 아직 정할 정책을 읽고, 모델의 예약·참석 영역에서 정보가 어떻게 연결되는지 확인하세요.",
+    "initial_entity": "booking",
+    "design_summary": [
+      "사업장과 방 번호를 함께 확인해 본사 101호와 연구소 101호를 구분합니다.",
+      "예약 시간이 겹치면 막고 종료 시각부터 다음 예약을 허용합니다. 취소한 예약의 상태는 남기지만 변경 사유·시각 이력까지 관리하는 설계는 아닙니다.",
+      "참석자와 설비를 각각 따로 세어 인원이 부풀지 않게 합니다."
+    ],
+    "review_points": [
+      {
+        "id": "Q-01",
+        "title": "회의 사이에 준비 시간을 둘까요?",
+        "kind": "decision",
+        "question": "11시에 끝난 뒤 바로 11시 예약을 받아도 되나요?",
+        "options": [
+          "바로 허용",
+          "준비 간격을 추가"
+        ],
+        "recommendation": "현재 예시는 바로 허용합니다. 실제 운영의 준비 시간 필요 여부를 먼저 확인하세요.",
+        "impact": "간격을 두면 예약 겹침 검사에 준비 시간을 포함해야 합니다.",
+        "entities": [
+          "booking"
+        ],
+        "requirements": [
+          "R-02"
+        ],
+        "summary": "현재는 회의가 끝나는 시각부터 다음 예약을 허용합니다. 준비 시간이 필요하다면 간격을 정하고, 예약 겹침 검사에도 그 시간을 포함해야 합니다."
+      },
+      {
+        "id": "Q-02",
+        "title": "정원보다 많은 참석자를 허용할까요?",
+        "kind": "decision",
+        "question": "회의실 정원보다 참석자가 많으면 어떻게 처리하나요?",
+        "options": [
+          "등록 차단",
+          "경고만 표시",
+          "별도 승인 후 허용"
+        ],
+        "recommendation": "일반 예약은 차단하는 안을 우선 검토하되 운영 규칙을 확인해야 합니다. 현재 예시는 차단하지 않습니다.",
+        "impact": "참석자 등록·방 변경 시 인원 검사와 예외 승인 기록이 필요해집니다.",
+        "entities": [
+          "room",
+          "attendance"
+        ],
+        "requirements": [
+          "R-03"
+        ],
+        "summary": "현재 모델은 정원을 초과한 참석자 등록을 막지 않습니다. 차단·경고·승인 중 처리 방식을 정하면 참석자 등록과 방 변경 시 인원 검사를 추가해야 합니다."
+      },
+      {
+        "id": "Q-03",
+        "title": "취소 변경 이력까지 관리할까요?",
+        "kind": "scope",
+        "question": "누가 언제 왜 취소했는지까지 남겨야 하나요?",
+        "options": [
+          "현재 취소 상태만 보존",
+          "취소 사유·시각·변경자와 이력 추가"
+        ],
+        "recommendation": "이번 초안은 현재 상태만 보존합니다. 이력 추적이 필요하면 범위를 확장하세요.",
+        "impact": "취소 기록 또는 변경 이력 정보와 기록하는 처리 절차를 추가해야 합니다.",
+        "entities": [
+          "booking"
+        ],
+        "requirements": [
+          "R-02"
+        ],
+        "summary": "현재는 취소 상태만 남깁니다. 취소한 사람·시각·사유까지 필요하면 이를 기록할 항목과 변경 이력을 추가해야 합니다."
+      },
+      {
+        "id": "Q-04",
+        "title": "영업시간과 휴일을 적용할까요?",
+        "kind": "scope",
+        "question": "사업장별로 예약할 수 없는 시간이나 휴일이 있나요?",
+        "options": [
+          "이번 범위에서 제외",
+          "운영 일정과 예외일 추가"
+        ],
+        "recommendation": "현재는 제외했습니다. 운영에 적용하기 전 예약 가능 시간을 확인하세요.",
+        "impact": "사업장별 운영 일정과 예약 가능 여부 검사 모델이 필요합니다.",
+        "entities": [
+          "campus"
+        ],
+        "requirements": [
+          "R-01",
+          "R-02"
+        ],
+        "summary": "현재는 영업시간과 휴일을 검사하지 않습니다. 사업장별 예약 가능 시간을 적용하려면 운영 일정과 예외일, 예약 가능 여부 검사가 필요합니다."
+      },
+      {
+        "id": "Q-05",
+        "title": "설비 종류 외에 수량·고장도 관리할까요?",
+        "kind": "scope",
+        "question": "모니터가 있다는 정보만 있으면 되나요?",
+        "options": [
+          "종류만 관리",
+          "기기별 수량·고장·사용 가능 상태 관리"
+        ],
+        "recommendation": "이번 초안은 종류만 관리합니다. 실제 기기 운영을 다룬다고 해석하지 마세요.",
+        "impact": "기기 식별·수량·상태·수리 기록이 추가로 필요합니다.",
+        "entities": [
+          "amenity",
+          "room_amenity"
+        ],
+        "requirements": [
+          "R-04"
+        ],
+        "summary": "현재는 회의실에 어떤 종류의 설비가 있는지만 관리합니다. 기기 수량·고장·수리까지 관리하려면 기기별 식별과 상태 기록을 추가해야 합니다."
+      },
+      {
+        "id": "Q-06",
+        "title": "회원 탈퇴 후 기록은 어떻게 남길까요?",
+        "kind": "decision",
+        "question": "탈퇴자 이름과 과거 참석 기록을 어떻게 처리하나요?",
+        "options": [
+          "기록 보관 기간을 정해 보존",
+          "식별 정보를 제거하고 업무 기록 보존"
+        ],
+        "recommendation": "보관 기간과 접근 권한을 먼저 정하고 그에 맞게 설계해야 합니다.",
+        "impact": "회원 정보 삭제·가림 처리와 과거 기록 연결 정책을 정해야 합니다.",
+        "entities": [
+          "member"
+        ],
+        "requirements": [
+          "R-03"
+        ],
+        "summary": "탈퇴한 회원의 이름과 과거 참석 기록을 얼마나 남길지 정해야 합니다. 이에 따라 개인정보 삭제·가림 처리와 과거 기록의 연결 방식을 설계해야 합니다."
+      },
+      {
+        "id": "Q-07",
+        "title": "운영 DB에서도 규칙이 지켜지나요?",
+        "kind": "verification",
+        "question": "동시 예약과 실제 운영 조회·성능은 아직 시험하지 않았습니다.",
+        "options": [
+          "대상 운영 DB에서 동시 요청 시험",
+          "현재 예시 검증만으로 운영 적용 보류"
+        ],
+        "recommendation": "운영 DB를 정한 후 겹치는 동시 요청과 주요 집계를 다시 시험해야 합니다.",
+        "impact": "예약 확정과 충돌 처리 방법, 조회를 위한 제약·인덱스가 달라질 수 있습니다.",
+        "entities": [
+          "booking",
+          "room_amenity"
+        ],
+        "requirements": [
+          "R-02"
+        ],
+        "summary": "실제 운영 환경의 동시 예약과 조회 성능은 아직 확인하지 않았습니다. 운영 DB를 정한 뒤 겹치는 동시 요청과 주요 집계를 시험하고 충돌 처리·조회 방식을 보완해야 합니다."
+      },
+      {
+        "id": "Q-08",
+        "title": "초대와 실제 참석을 구분할까요?",
+        "kind": "scope",
+        "question": "참석 목록이 초대된 사람인지 실제로 참석한 사람인지 구분해야 하나요?",
+        "options": [
+          "현재처럼 참석 대상 목록만 관리",
+          "초대·수락·실제 참석 상태와 변경 기록 추가"
+        ],
+        "recommendation": "이번 초안은 목록만 관리합니다. 실제 출석이나 초대 응답을 확인한 것으로 해석하지 마세요.",
+        "impact": "참석 상태와 변경 시각·응답 또는 출석을 기록하는 절차가 필요합니다.",
+        "entities": [
+          "attendance"
+        ],
+        "requirements": [
+          "R-03"
+        ],
+        "summary": "현재 참석 목록은 초대 응답이나 실제 출석을 구분하지 않습니다. 구분이 필요하면 초대·수락·출석 상태와 변경 기록을 추가해야 합니다."
+      },
+      {
+        "id": "Q-CHANGE",
+        "title": "실제 기존 데이터와 전환 경로를 확인해야 합니다",
+        "kind": "scope",
+        "question": "실제 쓰기·조회·API 소비자와 기존 데이터의 형식은 무엇인가요?",
+        "options": [
+          "자료를 확보해 전환과 복구를 설계",
+          "논리 검토 범위를 유지"
+        ],
+        "recommendation": "실제 DB·API·운영 자료를 확보한 뒤 정리·공존·대조·복구 절차를 정합니다.",
+        "impact": "운영 데이터 전환·호환 기간·API 소비자·이력 보완·되돌림 가능 범위는 현재 확인할 수 없습니다.",
+        "summary": "기존 시스템 변경을 가정한 검토입니다. 실제 자료가 없어 API 계약·데이터 정리·전환·복구 영향은 미확인이며, 자료 확보 후 구체화해야 합니다.",
+        "entities": [
+          "booking",
+          "room",
+          "attendance"
+        ],
+        "requirements": [
+          "R-01",
+          "R-02",
+          "R-03",
+          "R-04"
+        ]
+      }
+    ],
+    "overview": {
+      "goal": "같은 회의실의 중복 예약을 막고, 예약·참석자·설비를 서로 섞지 않고 관리합니다.",
+      "connection": "예약을 중심으로 방과 회원을 연결합니다. 설비는 방에, 참석자는 예약에 연결해 각각 따로 셉니다.",
+      "example": {
+        "situation": "10시~11시 예약에 참석자 2명이 있고, 방에는 설비가 2종 있습니다.",
+        "outcome": "겹치는 예약은 막고 11시 다음 예약은 허용합니다. 설비가 늘어도 참석자는 2명으로 셉니다."
+      },
+      "pending": "회의 사이 준비 시간이 필요한지, 참석 정원을 넘겼을 때 막을지 정해야 합니다.",
+      "scope": "이번 범위는 정보 구조입니다. 실제 운영 환경의 동시 예약은 별도 확인이 필요합니다.",
+      "diagram": {
+        "nodes": [
+          {
+            "id": "space",
+            "title": "회의실",
+            "description": "사업장마다 방을 구분"
+          },
+          {
+            "id": "booking",
+            "title": "예약",
+            "description": "사용 시간과 상태"
+          },
+          {
+            "id": "member",
+            "title": "회원",
+            "description": "예약자와 참석자"
+          },
+          {
+            "id": "attendance",
+            "title": "참석 목록",
+            "description": "예약별로 사람을 기록"
+          },
+          {
+            "id": "amenity",
+            "title": "설비",
+            "description": "방에서 쓸 수 있는 것"
+          }
+        ],
+        "links": [
+          {
+            "from": "space",
+            "to": "booking",
+            "label": "어떤 방인지"
+          },
+          {
+            "from": "member",
+            "to": "booking",
+            "label": "예약한 사람"
+          },
+          {
+            "from": "booking",
+            "to": "attendance",
+            "label": "누가 참석하는지"
+          },
+          {
+            "from": "member",
+            "to": "attendance",
+            "label": "참석하는 사람"
+          },
+          {
+            "from": "space",
+            "to": "amenity",
+            "label": "방마다 보유"
+          }
+        ]
+      }
+    },
+    "schema_version": "1.0.0",
+    "review_profile": "standard",
+    "scenarios": [
+      {
+        "id": "S-01",
+        "title": "사업장이 다르면 같은 101호 번호를 쓸 수 있습니다",
+        "requirements": [
+          "R-01"
+        ],
+        "explanation": {
+          "situation": "본사와 연구소에 각각 101호를 등록했습니다.",
+          "expected_behavior": "사업장이 다르므로 두 방을 모두 허용합니다. 표에 C1·101과 C2·101이 각각 나와야 합니다.",
+          "why_it_matters": "같은 방 번호를 쓴다는 이유로 다른 사업장의 방이 막히거나 합쳐지면 안 됩니다."
+        },
+        "entities": [
+          "campus",
+          "room"
+        ],
+        "sample_refs": [
+          {
+            "entity": "room",
+            "key": {
+              "id": "A"
+            }
+          },
+          {
+            "entity": "room",
+            "key": {
+              "id": "C"
+            }
+          },
+          {
+            "entity": "campus",
+            "key": {
+              "id": "C1"
+            }
+          },
+          {
+            "entity": "campus",
+            "key": {
+              "id": "C2"
+            }
+          }
+        ]
+      },
+      {
+        "id": "S-02",
+        "title": "같은 사업장의 101호를 두 번 등록하면 막습니다",
+        "requirements": [
+          "R-01"
+        ],
+        "explanation": {
+          "situation": "본사에 이미 101호가 있는데 같은 사업장에 101호를 하나 더 등록합니다.",
+          "expected_behavior": "두 번째 등록을 거절해야 합니다.",
+          "why_it_matters": "같은 사업장에서 어느 방을 예약한 것인지 모호해지는 일을 막습니다."
+        },
+        "entities": [
+          "campus",
+          "room"
+        ],
+        "sample_refs": [
+          {
+            "entity": "room",
+            "key": {
+              "id": "A"
+            }
+          },
+          {
+            "entity": "campus",
+            "key": {
+              "id": "C1"
+            }
+          }
+        ],
+        "sample_note": "표는 실행 전의 기본 샘플입니다. 시험 중 추가·변경한 입력은 위 상황에 설명했습니다."
+      },
+      {
+        "id": "S-03",
+        "title": "10시 예약이 있을 때 10시 30분 예약은 막습니다",
+        "requirements": [
+          "R-02"
+        ],
+        "explanation": {
+          "situation": "10시~11시 예약이 있는 방에 10시 30분~11시 30분 예약을 추가합니다.",
+          "expected_behavior": "사용 시간이 겹치므로 새 예약을 거절해야 합니다.",
+          "why_it_matters": "같은 방을 두 팀에게 동시에 배정하지 않기 위해서입니다."
+        },
+        "entities": [
+          "booking",
+          "room"
+        ],
+        "sample_refs": [
+          {
+            "entity": "booking",
+            "key": {
+              "id": "B01"
+            }
+          },
+          {
+            "entity": "room",
+            "key": {
+              "id": "A"
+            }
+          }
+        ],
+        "sample_note": "표는 실행 전의 기본 샘플입니다. 시험 중 추가·변경한 입력은 위 상황에 설명했습니다."
+      },
+      {
+        "id": "S-04",
+        "title": "11시에 끝난 뒤 11시부터 다음 예약을 허용합니다",
+        "requirements": [
+          "R-02"
+        ],
+        "explanation": {
+          "situation": "10시~11시 예약 뒤에 11시~12시 예약을 추가합니다.",
+          "expected_behavior": "시간이 겹치지 않아 추가해야 합니다. 기존 예약 2건에 새 예약 1건을 더해 방 A의 전체 예약은 3건입니다.",
+          "why_it_matters": "끝나는 시각과 다음 시작 시각이 같다는 이유로 정상 예약을 막지 않게 합니다."
+        },
+        "entities": [
+          "booking",
+          "room"
+        ],
+        "sample_refs": [
+          {
+            "entity": "booking",
+            "key": {
+              "id": "B01"
+            }
+          },
+          {
+            "entity": "booking",
+            "key": {
+              "id": "B02"
+            }
+          },
+          {
+            "entity": "room",
+            "key": {
+              "id": "A"
+            }
+          }
+        ],
+        "sample_note": "표는 실행 전의 기본 샘플입니다. 시험 중 추가·변경한 입력은 위 상황에 설명했습니다."
+      },
+      {
+        "id": "S-05",
+        "title": "취소한 시간에 새 예약을 허용합니다",
+        "requirements": [
+          "R-02"
+        ],
+        "explanation": {
+          "situation": "회의실 B의 10시~11시 예약은 취소된 상태입니다. 같은 시간의 새 예약을 만듭니다.",
+          "expected_behavior": "취소한 기록은 남고 새 사용 예정 예약 1건을 허용해야 합니다.",
+          "why_it_matters": "취소된 내역이 방을 계속 막지 않게 합니다."
+        },
+        "entities": [
+          "booking",
+          "room"
+        ],
+        "sample_refs": [
+          {
+            "entity": "booking",
+            "key": {
+              "id": "CANCEL"
+            }
+          },
+          {
+            "entity": "room",
+            "key": {
+              "id": "B"
+            }
+          }
+        ],
+        "sample_note": "표는 실행 전의 기본 샘플입니다. 시험 중 추가·변경한 입력은 위 상황에 설명했습니다."
+      },
+      {
+        "id": "S-06",
+        "title": "같은 참석자를 두 번 등록하면 막습니다",
+        "requirements": [
+          "R-03"
+        ],
+        "explanation": {
+          "situation": "B01에 이미 참석한 회원 M1을 같은 예약에 다시 등록합니다.",
+          "expected_behavior": "중복 등록을 거절해야 합니다.",
+          "why_it_matters": "참석 인원이 실제보다 많아 보이는 것을 막습니다."
+        },
+        "entities": [
+          "attendance",
+          "booking",
+          "member"
+        ],
+        "sample_refs": [
+          {
+            "entity": "attendance",
+            "key": {
+              "booking_id": "B01",
+              "member_id": "M1"
+            }
+          },
+          {
+            "entity": "booking",
+            "key": {
+              "id": "B01"
+            }
+          },
+          {
+            "entity": "member",
+            "key": {
+              "id": "M1"
+            }
+          }
+        ],
+        "sample_note": "표는 실행 전의 기본 샘플입니다. 시험 중 추가·변경한 입력은 위 상황에 설명했습니다."
+      },
+      {
+        "id": "S-07",
+        "title": "없는 예약에 참석자를 등록하면 막습니다",
+        "requirements": [
+          "R-03"
+        ],
+        "explanation": {
+          "situation": "존재하지 않는 예약 MISSING에 회원을 참석자로 등록합니다.",
+          "expected_behavior": "등록을 거절해야 합니다.",
+          "why_it_matters": "어느 예약의 참석자인지 알 수 없는 기록이 생기면 안 됩니다."
+        },
+        "entities": [
+          "attendance",
+          "booking",
+          "member"
+        ],
+        "sample_refs": [
+          {
+            "entity": "member",
+            "key": {
+              "id": "M1"
+            }
+          }
+        ],
+        "sample_note": "표는 실행 전의 기본 샘플입니다. 시험 중 추가·변경한 입력은 위 상황에 설명했습니다."
+      },
+      {
+        "id": "S-08",
+        "title": "설비가 2개여도 참석자는 2명으로 셉니다",
+        "requirements": [
+          "R-04"
+        ],
+        "explanation": {
+          "situation": "B01은 참석자 2명이고 예약한 방에는 설비가 2개 있습니다.",
+          "expected_behavior": "결과는 참석자 2명, 설비 2개여야 합니다. 참석자를 4명으로 세면 안 됩니다.",
+          "why_it_matters": "여러 목록을 합쳐 볼 때 숫자가 부풀지 않는지 확인합니다."
+        },
+        "entities": [
+          "booking",
+          "attendance",
+          "room_amenity",
+          "room"
+        ],
+        "sample_refs": [
+          {
+            "entity": "booking",
+            "key": {
+              "id": "B01"
+            }
+          },
+          {
+            "entity": "attendance",
+            "key": {
+              "booking_id": "B01",
+              "member_id": "M1"
+            }
+          },
+          {
+            "entity": "attendance",
+            "key": {
+              "booking_id": "B01",
+              "member_id": "M2"
+            }
+          },
+          {
+            "entity": "room_amenity",
+            "key": {
+              "room_id": "A",
+              "amenity_id": "TV"
+            }
+          },
+          {
+            "entity": "room_amenity",
+            "key": {
+              "room_id": "A",
+              "amenity_id": "WB"
+            }
+          },
+          {
+            "entity": "room",
+            "key": {
+              "id": "A"
+            }
+          }
+        ]
+      },
+      {
+        "id": "S-09",
+        "title": "예약이 없는 방도 0건으로 보여줍니다",
+        "requirements": [
+          "R-04"
+        ],
+        "explanation": {
+          "situation": "방 A에는 사용 예정 예약이 2건 있고 B와 C에는 없습니다.",
+          "expected_behavior": "A는 2건, B와 C는 각각 0건으로 모두 나와야 합니다.",
+          "why_it_matters": "예약이 없는 방을 누락하지 않고 운영자가 빈 방을 찾을 수 있게 합니다."
+        },
+        "entities": [
+          "room",
+          "booking"
+        ],
+        "sample_refs": [
+          {
+            "entity": "room",
+            "key": {
+              "id": "A"
+            }
+          },
+          {
+            "entity": "room",
+            "key": {
+              "id": "B"
+            }
+          },
+          {
+            "entity": "room",
+            "key": {
+              "id": "C"
+            }
+          },
+          {
+            "entity": "booking",
+            "key": {
+              "id": "B01"
+            }
+          },
+          {
+            "entity": "booking",
+            "key": {
+              "id": "B02"
+            }
+          },
+          {
+            "entity": "booking",
+            "key": {
+              "id": "CANCEL"
+            }
+          }
+        ]
+      },
+      {
+        "id": "S-10",
+        "title": "예약을 취소하면 그 시간을 다시 예약할 수 있습니다",
+        "requirements": [
+          "R-02"
+        ],
+        "explanation": {
+          "situation": "기존 B01을 취소한 뒤 같은 방과 시간에 새 예약을 넣습니다.",
+          "expected_behavior": "그 시간의 사용 예정 예약이 새 예약 1건이어야 합니다.",
+          "why_it_matters": "취소 이후에 자리가 실제로 다시 열리는지 확인합니다."
+        },
+        "entities": [
+          "booking",
+          "room"
+        ],
+        "sample_refs": [
+          {
+            "entity": "booking",
+            "key": {
+              "id": "B01"
+            }
+          },
+          {
+            "entity": "room",
+            "key": {
+              "id": "A"
+            }
+          }
+        ],
+        "sample_note": "표는 실행 전의 기본 샘플입니다. 시험 중 추가·변경한 입력은 위 상황에 설명했습니다."
+      }
+    ],
+    "extensions": {
+      "modeling_review": {
+        "version": "1.0.0",
+        "complexity": {
+          "level": "complex",
+          "reason": "예약 시간 충돌과 미결 정책이 기존 쓰기·조회·개인정보·전환에 영향을 줄 수 있습니다. 실제 자료가 없어 영향의 확정은 보류합니다."
+        },
+        "alternatives": {
+          "reviews": [
+            {
+              "decision_id": "D-01",
+              "criteria": [
+                "연속 예약 가능 여부",
+                "취소 상태 보존"
+              ],
+              "revisit_when": "준비 시간이나 취소 이력 추적을 도입할 때"
+            },
+            {
+              "decision_id": "D-02",
+              "criteria": [
+                "집계의 정확성",
+                "조회 구현 비용"
+              ],
+              "revisit_when": "설비·참석 조건을 함께 집계하는 조회를 추가할 때"
+            }
+          ]
+        },
+        "rules": [
+          {
+            "topic": "identity",
+            "status": "addressed",
+            "reason": "사업장 내 방 번호와 참석 연결의 중복을 구분합니다.",
+            "requirements": [
+              "R-01",
+              "R-03"
+            ],
+            "scenarios": [
+              "S-01",
+              "S-06"
+            ],
+            "review_points": []
+          },
+          {
+            "topic": "ownership",
+            "status": "addressed",
+            "reason": "방은 사업장에 속하고 참석 대상은 예약에 연결됩니다.",
+            "requirements": [
+              "R-01",
+              "R-03"
+            ],
+            "scenarios": [
+              "S-01",
+              "S-06"
+            ],
+            "review_points": []
+          },
+          {
+            "topic": "lifecycle",
+            "status": "excluded",
+            "reason": "취소 상태만 보존하며 누가 언제 왜 바꿨는지는 범위 밖입니다.",
+            "requirements": [
+              "R-02"
+            ],
+            "scenarios": [],
+            "review_points": [
+              "Q-03"
+            ]
+          },
+          {
+            "topic": "time",
+            "status": "open",
+            "reason": "연속 예약 사이 준비 시간을 아직 정하지 않았습니다.",
+            "requirements": [
+              "R-02"
+            ],
+            "scenarios": [],
+            "review_points": [
+              "Q-01"
+            ]
+          },
+          {
+            "topic": "aggregation",
+            "status": "addressed",
+            "reason": "설비로 인한 참석자 중복 집계를 방지합니다.",
+            "requirements": [
+              "R-04"
+            ],
+            "scenarios": [
+              "S-08"
+            ],
+            "review_points": []
+          },
+          {
+            "topic": "concurrency",
+            "status": "open",
+            "reason": "동시 확정의 충돌 정책과 실제 구현 계층을 아직 정하지 않았습니다.",
+            "requirements": [
+              "R-02"
+            ],
+            "scenarios": [],
+            "review_points": [
+              "Q-CHANGE"
+            ]
+          },
+          {
+            "topic": "integration",
+            "status": "open",
+            "reason": "실제 API 소비자와 외부 계약 자료가 없습니다.",
+            "requirements": [],
+            "scenarios": [],
+            "review_points": [
+              "Q-CHANGE"
+            ]
+          },
+          {
+            "topic": "access",
+            "status": "open",
+            "reason": "권한 자료가 없어 접근 경계와 탈퇴 처리를 확정하지 않습니다.",
+            "requirements": [
+              "R-03"
+            ],
+            "scenarios": [],
+            "review_points": [
+              "Q-06"
+            ]
+          },
+          {
+            "topic": "retention",
+            "status": "open",
+            "reason": "탈퇴 후 개인정보 보존 기간이 미결입니다.",
+            "requirements": [
+              "R-03"
+            ],
+            "scenarios": [],
+            "review_points": [
+              "Q-06"
+            ]
+          }
+        ],
+        "change_impact": {
+          "baseline": "unknown",
+          "baseline_note": "기존 시스템 변경을 가정하지만 실제 DB·소비자·데이터가 없어 기준 상태는 미확인입니다.",
+          "items": [
+            {
+              "area": "writes",
+              "status": "unknown",
+              "note_ref": "Q-CHANGE",
+              "entities": [
+                "booking",
+                "room",
+                "attendance"
+              ],
+              "review_points": [
+                "Q-CHANGE"
+              ]
+            },
+            {
+              "area": "reads",
+              "status": "unknown",
+              "note_ref": "Q-CHANGE",
+              "entities": [
+                "booking",
+                "room",
+                "attendance"
+              ],
+              "review_points": [
+                "Q-CHANGE"
+              ]
+            },
+            {
+              "area": "contracts",
+              "status": "unknown",
+              "note_ref": "Q-CHANGE",
+              "entities": [
+                "booking",
+                "room",
+                "attendance"
+              ],
+              "review_points": [
+                "Q-CHANGE"
+              ]
+            },
+            {
+              "area": "existing_data",
+              "status": "unknown",
+              "note_ref": "Q-CHANGE",
+              "entities": [
+                "booking",
+                "room",
+                "attendance"
+              ],
+              "review_points": [
+                "Q-CHANGE"
+              ]
+            },
+            {
+              "area": "history",
+              "status": "unknown",
+              "note_ref": "Q-CHANGE",
+              "entities": [
+                "booking",
+                "room",
+                "attendance"
+              ],
+              "review_points": [
+                "Q-CHANGE"
+              ]
+            },
+            {
+              "area": "rollout",
+              "status": "unknown",
+              "note_ref": "Q-CHANGE",
+              "entities": [
+                "booking",
+                "room",
+                "attendance"
+              ],
+              "review_points": [
+                "Q-CHANGE"
+              ]
+            },
+            {
+              "area": "rollback",
+              "status": "unknown",
+              "note_ref": "Q-CHANGE",
+              "entities": [
+                "booking",
+                "room",
+                "attendance"
+              ],
+              "review_points": [
+                "Q-CHANGE"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}

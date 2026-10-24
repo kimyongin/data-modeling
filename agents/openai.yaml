@@ -1,0 +1,3 @@
+interface:
+  display_name: "데이터 모델링"
+  short_description: "업무 요구를 모델링하고 직접 작성·생성한 JSON을 공통 뷰어로 검토"

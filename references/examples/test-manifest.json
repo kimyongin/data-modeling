@@ -1,0 +1,12 @@
+[
+  {
+    "name": "inventory",
+    "input": "references/examples/inventory.model.json",
+    "model": "references/examples/inventory.model.json"
+  },
+  {
+    "name": "booking-change",
+    "input": "references/examples/booking-change.model.json",
+    "model": "references/examples/booking-change.model.json"
+  }
+]

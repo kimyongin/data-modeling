@@ -1,0 +1,29 @@
+{
+  "renderer_version": "1.0.0",
+  "schema_version": "1.0.0",
+  "notes": "Initial fixed renderer with JSON Schema 1.0.0, strict standard data, explicit compatibility, build receipts and reproducible release hashes.",
+  "dependencies": {
+    "jsonschema": "4.26.0",
+    "attrs": "26.1.0",
+    "jsonschema-specifications": "2025.9.1",
+    "referencing": "0.37.0",
+    "rpds-py": "2026.9.1",
+    "typing-extensions": "4.16.0"
+  },
+  "files": {
+    "assets/review-logic.js": "3edc084fc62c386516d1e14c2257dda500950993a6d9e254364d0532df7dcf79",
+    "assets/review.css": "4bcba4e434a8111d4ed40e9e80354e6589a688044a68440206b8341f2d76acf7",
+    "assets/review.js": "2294fc4934a9db5579d6aaf1754b6f9fa83fa7e538d0d16f9ce717dc37e8a13b",
+    "assets/vendor/EXPAT-LICENSE.txt": "31b15de82aa19a845156169a17a5488bf597e561b2c318d159ed583139b25e87",
+    "assets/vendor/GRAPHVIZ-LICENSE.txt": "0becf16567beb77fa252b7664631dd177c8f9a1889e48995b45379c7130e5303",
+    "assets/vendor/NOTICE.txt": "5b57ab558ae0e08b9a64393f5bb0ffde69e576a0b82b1e1b024893e1494b4cd6",
+    "assets/vendor/VIZ-LICENSE.txt": "f1fb91bf7cbcb42b2af56949e4fa909e1979d5b57c2826cabacdb4b631457720",
+    "assets/vendor/viz-global.js": "2e4fe91072268d06387a7b91d7ba11db9a235280df764d49399519faa5f5368d",
+    "requirements.txt": "3d616c7255154f3170ad2b08e46a56d9c93e89f64df30e7d791ebec11766454a",
+    "schemas/review-1.0.0.schema.json": "faac7af276f7d2513cd9d7c06df62516857726e75d2d9237f418c0251df105d2",
+    "scripts/render_review.py": "c3a55d51d1151f5c0a12df1a68ab2f817c27eca2f90f3c98295eeae1c1525304",
+    "scripts/review_contract.py": "af7692c0f0d960d247f990b7acec81892a6486a3dd281cbc489558bbeea995bc",
+    "scripts/validate_review.py": "5911ab64b1a84138cfac8866d8d543f7bba364d4e3314a84e4a308e6e7b67da7",
+    "scripts/verify_sqlite.py": "38e25d8bfbf15a28fb503e2875b5e8feeb0a3174b9dd0f478a317f0b2bc2b09d"
+  }
+}
