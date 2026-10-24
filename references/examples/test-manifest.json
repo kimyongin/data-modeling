@@ -8,5 +8,10 @@
     "name": "booking-change",
     "input": "references/examples/booking-change.model.json",
     "model": "references/examples/booking-change.model.json"
+  },
+  {
+    "name": "openmarket",
+    "input": "references/examples/openmarket.model.json",
+    "model": "references/examples/openmarket.model.json"
   }
 ]
