@@ -1,17 +1,14 @@
 [
   {
     "name": "inventory",
-    "input": "examples/inventory.model.json",
-    "model": "examples/inventory.model.json"
+    "input": "examples/inventory.model.json"
   },
   {
     "name": "booking-change",
-    "input": "examples/booking-change.model.json",
-    "model": "examples/booking-change.model.json"
+    "input": "examples/booking-change.model.json"
   },
   {
     "name": "openmarket",
-    "input": "examples/openmarket.model.json",
-    "model": "examples/openmarket.model.json"
+    "input": "examples/openmarket.model.json"
   }
 ]

@@ -1,0 +1,6 @@
+{
+  "schema_sha256": "83609f0a9fb09c1713fd483975ea8dc3450cbeb9ba0c4f2fea4cf0a9c705d919",
+  "output_sha256": "27f39370869c7f016252fb362ed94235d02c0bc4a40669fe582eccc871d1da79",
+  "ajv": "8.17.1",
+  "esbuild": "0.25.12"
+}

@@ -1,60 +1,39 @@
-# 샘플 무결성과 결과의 내용 대응
+# 샘플과 실제 확인 결과
 
-기본 결과는 JSON이며 SQL이나 검증 전용 탭을 추가하지 않는다. 모델 탭의 기존 확인 사항·설명에서 기대 동작과 실제 확인 결과를 구별한다.
+## 자동 검사 범위
 
-## 자동으로 검사하는 범위
+- 데이터셋마다 모든 행의 PK 필수·스칼라·중복 금지, required 항목의 누락/NULL 금지를 확인한다.
+- unique_keys는 명시한 조합을 검사한다. NULL/미제공 값이 포함된 조합은 유일성 비교에서 제외한다. 이 의미는 샘플 계약이며 DB별 NULL 옵션을 재현하지 않는다.
+- foreign_key:true는 같은 데이터셋의 부모 PK/유일 조합을 참조해야 한다. NULL이 섞인 참조는 건너뛴다. 논리 연결을 물리 FK로 추측하지 않는다.
+- 요구·규칙·결정·쟁점·모델·샘플·변경 기록의 ID 연결과 실제 결과의 내용 대응을 확인한다.
 
-Python 검사기/생성기와 공통 뷰어 가져오기는 같은 JSON Schema 및 대응하는 의미 검사를 사용한다.
+기간 겹침·집계·권한·트리거·동시성·이관의 정확성을 이 검사로 증명하지 않는다. SQL·검증 전용 탭은 추가하지 않는다.
 
-- 모든 샘플 행: PK 필수·스칼라·중복 금지, nullable:false의 누락/NULL 금지.
-- `unique_keys`: 배열 안의 각 조합이 유일하다. 예: `[["organization_id","code"]]`. 조합에 NULL/미제공 값이 있으면 유일성 비교에서 제외한다. 필수 여부는 nullable로 따로 검사한다.
-- `foreign_key:true`: 양끝의 열 순서에 따라 참조한 샘플이 정확히 한 행 있는지 검사한다. NULL이 섞인 참조 조합은 건너뛴다. `foreign_key:false`인 논리 연결은 물리 FK로 검사하지 않는다.
-- 모델·규칙·대안·영향 기록의 참조, 결과의 시나리오 목록, 내용 지문을 검사한다.
+## 확인 결과
 
-`columns[].key`의 UQ는 이전 파일의 표시용 힌트다. 이를 전역 단일 열 제약으로 추측하지 않는다. 새 문서는 실제 범위를 unique_keys로 명시한다. 위 NULL/유일성 의미는 샘플 계약이며 특정 DB의 타입 변환·NULL 옵션·CHECK·트리거·잠금·권한을 재현하지 않는다. FK와 PK가 맞아도 기간 겹침이나 집계 정의가 옳다는 뜻은 아니다.
+`observations: []`는 미확인이다. 결과가 있는 시나리오에만 scenario_id/status/method/scope/observed_at/message/input_fingerprint를 작성한다. status는 pass/fail이며 누락된 결과를 자동 성공으로 바꾸지 않는다.
 
-## 선택적인 실제 결과 기록
+- sample: 합성 샘플 대조.
+- simulation: 상태를 순서대로 바꾸며 계산한 예시. DB 동시성 확인이 아니다.
+- implementation: 실제 구현 환경에서 확인했으며 대상과 보장 범위를 scope에 명시한다.
+- manual: 수동 검토. 실제 구현 실행을 뜻하지 않는다.
 
-확인하지 않았으면 verification을 생략/null로 둔다. 결과가 있다면 다음을 작성한다.
+실제로 확인한 러너만 마지막에 `lib.fingerprint.observation_fingerprint(document, scenario_id, method)`로 지문을 기록한다. 빌더와 뷰어는 지문을 갱신하거나 검사를 실행하지 않는다. 서명·위조 방지·업무 합의의 증거가 아니다.
 
-- `engine`, `scope`, `executed_at`: 실제 도구/방법, 확인 범위, 실행일.
-- `fingerprint_version:"1"`, `input_fingerprint:"sha256:..."`: 현재 review와 결과의 대응.
-- `results[]`: 모든 시나리오의 `id,status,message,method,scope`.
-- `status`: pass/fail/not_run. method not_run은 status not_run일 때만 쓴다.
-- `method`: sample(합성 샘플 대조), simulation(순차 계산 등 처리 예시), implementation(실제 구현 환경 확인), manual(수동 검토), not_run(미실행).
+## 내용 지문 범위
 
-Python 합산은 sample이며 운영 집계 구현 확인이 아니다. 순차 예시는 simulation이며 DB 동시성 확인이 아니다. implementation은 실제 실행 환경과 보장한 범위를 scope에 명시할 수 있을 때만 쓴다. 뷰어는 이 기록을 읽으며 실행하거나 증거를 인증하지 않는다.
+sample/simulation/implementation은 시나리오의 기대 동작·데이터셋 선택·관련 엔터티와 참조 부모의 구조·관계·연결된 규칙과 설계 결정·샘플 값을 포함한다. 단순 제목·개요 문구나 제작 과정 변경만으로 샘플 계산을 무효화하지 않는다. manual은 관찰 기록을 제외한 문서 전체를 대상으로 한다.
 
-내용 지문은 review 전체를 대상으로 한다. 모델·샘플·시나리오·설명·검토 기록을 수정하면 이전 결과를 거부한다. 검사를 실제로 다시 수행한 러너만 마지막에 `model_integrity.review_fingerprint(review)`로 지문을 기록한다. 생성기는 직접 작성 문서에 임의의 성공 결과나 새 지문을 덧붙이지 않는다. 지문은 변경 감지용이며 서명·위조 방지 수단이 아니다.
+대상 범위를 임의로 축소하는 필드는 제공하지 않는다. 실제 범위는 scope에 쓰되 결과 대응 범위는 공통 함수로 결정한다. 바뀐 샘플·기대 동작·구조·방법에 오래된 결과가 남으면 거부한다. 확인하지 않은 새 내용에 지문만 다시 찍지 않는다.
 
-다시 확인하지 않았다면 verification을 직접 제거하거나 명시적으로 제거한 복사본을 만든다. 이전 원본과 결과는 보존한다.
-
-```bash
-.venv/bin/python scripts/build_model.py edited.json --clear-verification --output updated.model.json
-```
-
-잘못된 입력은 기존 출력·생성 기록·뷰어의 현재 모델을 교체하지 않는다.
-
-## 이전 파일과 명시적인 이전
-
-1.0 파일은 형식을 유지해 읽고 내보낸다. 결과는 **이전 확인 기록 · 입력 대응 미확인**으로 표시하며 현재 입력에 연결된 구현 확인으로 집계하지 않는다. 이미 잘못된 필수 값/PK/FK 샘플이 있다면 수정할 지점을 알려주고 거부한다.
-
-새 형식으로 옮길 때는 원본을 보존한다. 자동으로 결과를 새 입력에 결합하지 않으며 이전 unbound 결과는 활성 문서에서 제거한다. 이전 결과는 원본에 남는다.
+다시 확인하지 않았다면 기존 원본과 결과를 보존하고 명시적으로 결과를 제거한 복사본을 만든다.
 
 ```bash
-.venv/bin/python scripts/migrate_model.py old.model.json --output upgraded.model.json
+python scripts/build_model.py edited.json --clear-observations --output updated.model.json
 ```
 
-이 명령은 기존 출력도 덮어쓰지 않는다. 규칙 기록 1.0은 호환 가능하지만, 새 검토를 수행하면 1.1의 원자적 규칙과 구체 변경 기록으로 작성한다. 내부 실행 자료의 변환은 원본 SHA가 일치하는 보고서만 투영한다. 기존 실행 자료의 통과는 기본적으로 sample이며 임의로 implementation으로 승격하지 않는다.
+## 지문 표현과 파일 저장
 
-## 내용 지문 알고리즘 v1
+타입 트리(null/bool/UTF-8 hex 문자열/IEEE754 숫자/배열/정렬한 객체)의 SHA-256을 사용한다. 숫자 1과 1.0은 같고 true와 1은 다르다. -0은 0으로 정규화한다. 비유한 수·안전 정수 범위 밖 정수·잘못된 유니코드는 거부한다. Python과 JavaScript가 공통 행동 사례로 동일 지문을 검사한다.
 
-Python/브라우저 숫자 출력과 객체 키 정렬 차이를 피하려고 JSON을 아래 타입 트리로 변환한다.
-
-- null → `["n"]`, bool → `["b",value]`.
-- number → `["d",IEEE754 big-endian 64-bit의 소문자 hex]`. -0은 +0으로 정규화하며 비유한 수와 안전 정수 범위를 벗어난 정수는 거부한다.
-- string → `["s",UTF-8 바이트의 소문자 hex]`. 잘못된 단독 surrogate는 거부한다.
-- array → `["a",변환된 원소 배열]`.
-- object → `["o",[[키 UTF-8 hex,변환된 값],...]]`. 키 hex의 오름차순으로 정렬한다.
-
-트리를 공백 없는 ASCII JSON으로 직렬화한 SHA-256 앞에 `sha256:`을 붙인다. 입력은 review 하나이며 verification/build_metadata는 포함하지 않는다. 지문 버전 변경 시 새 계약과 명시적 이전을 제공한다.
+출력은 두 파일을 준비한 후 교체하고 일반 저장 오류에는 둘 다 복구한다. 두 파일의 교체가 전원 중단까지 원자적인 것은 아니다. `.build.json`의 output_sha256 대조로 불일치를 확인한다. 생성 중에는 출력별 잠금을 사용하며 중단 후 남은 잠금은 실행 프로세스가 종료됐는지 확인한 다음 제거한다.

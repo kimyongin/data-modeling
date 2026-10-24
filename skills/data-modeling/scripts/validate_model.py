@@ -1,31 +1,24 @@
 #!/usr/bin/env python3
-"""Check model JSON, samples, review links and content-bound results without viewer files."""
+"""Validate the current JSON contract, references, datasets and scoped observations."""
 import argparse
-import sys
+import json
 from pathlib import Path
 from lib.contract import load_json
-from lib.model_document import validate_model
-from lib.modeling_review import assess_review
-
+from lib.validation import validate_document
+from lib.output import verify_receipt
 
 def main():
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('input', type=Path)
-    p.add_argument('--allow-compatibility', action='store_true')
-    a = p.parse_args()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('input', type=Path)
+    parser.add_argument('--receipt', type=Path)
+    args = parser.parse_args()
     try:
-        data = load_json(a.input)
-        if not isinstance(data, dict) or data.get('format') != 'data-modeling-model':
-            raise ValueError('Use model JSON; convert an old authoring input with build_model.py')
-        validate_model(data, allow_compatibility=a.allow_compatibility)
-        for warning in assess_review(data['review'])['warnings']:
-            print('Review warning: '+warning['code']+': '+warning['message'], file=sys.stderr)
-        if data['format_version'] == '1.0.0' and data.get('verification'):
-            print('Review warning: legacy_verification_unbound: 이전 결과와 현재 입력의 대응은 확인할 수 없습니다.', file=sys.stderr)
-        print('Valid model JSON '+data['format_version']+' (schema, samples, references and result binding; not business approval)')
-    except (ValueError, KeyError, TypeError) as exc:
-        p.error(str(exc))
-
+        report = validate_document(load_json(args.input))
+        if args.receipt:
+            verify_receipt(args.input, args.receipt)
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+    except (ValueError, KeyError, TypeError, OSError) as exc:
+        parser.error(str(exc))
 
 if __name__ == '__main__':
     main()

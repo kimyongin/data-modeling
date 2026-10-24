@@ -1,1 +1,1 @@
-"""JSON-only model authoring and validation; no viewer imports."""
+"""JSON authoring and validation; no viewer imports."""
