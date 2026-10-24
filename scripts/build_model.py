@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Default case builder: validate or convert modeling data to directly importable JSON. Never generates HTML."""
 import argparse
+import copy
 import hashlib
 import json
 import math
 from pathlib import Path
 from review_contract import ROOT, load_json, renderer_release, dependency_versions
 from modeling_review import assess_review
+from model_integrity import validate_samples,validate_observations,review_fingerprint
 from render_review import public_payload, validate_references, write_outputs
 
 MODEL_FORMAT = 'data-modeling-model'
@@ -29,7 +31,9 @@ def validate_model(document, allow_compatibility=False):
     renderer_release()
     dependency_versions()
     from jsonschema import Draft202012Validator
-    schema=load_json(ROOT/'schemas/model-1.0.0.schema.json')
+    version=document.get('format_version') if isinstance(document,dict) else None
+    if version not in ('1.0.0','1.1.0'):raise ValueError('Unsupported model format version')
+    schema=load_json(ROOT/('schemas/model-'+version+'.schema.json'))
     errors=list(Draft202012Validator(schema).iter_errors(document))
     if errors:
         error=errors[0];raise ValueError('Model JSON Schema: /'+'/'.join(map(str,error.absolute_path))+': '+error.message)
@@ -39,6 +43,8 @@ def validate_model(document, allow_compatibility=False):
     browser_values(document)
     validate_references(data, executable=False)
     assess_review(data)
+    validate_samples(data)
+    validate_observations(document)
     metadata=document.get('build_metadata')
     if metadata and (metadata['schema_version']!=data['schema_version'] or metadata['review_profile']!=data['review_profile']):
         raise ValueError('Model metadata schema/profile does not match review')
@@ -54,7 +60,16 @@ def validate_model(document, allow_compatibility=False):
 def make_document(data, report=None, **options):
     payload=public_payload(data,report,**options)
     payload['review'].pop('renderer_version',None)
-    document=dict(format=MODEL_FORMAT,format_version='1.0.0',**payload)
+    payload['review']['schema_version']='1.1.0'
+    if payload.get('build_metadata'):payload['build_metadata']['schema_version']='1.1.0'
+    if payload.get('verification'):
+        payload['verification']['fingerprint_version']='1'
+        payload['verification']['input_fingerprint']=review_fingerprint(payload['review'])
+        original={r['id']:r for r in report['results']}
+        for result in payload['verification']['results']:
+            result['method']='not_run' if result['status']=='not_run' else original[result['id']].get('method','sample')
+            result['scope']=original[result['id']].get('scope',payload['verification']['scope'])
+    document=dict(format=MODEL_FORMAT,format_version='1.1.0',**payload)
     validate_model(document,allow_compatibility=options.get('allow_compatibility',False))
     return document
 
@@ -75,7 +90,7 @@ def validate_report(data, report, digest):
     if any(r.get('status') not in ('pass','fail','not_run') for r in report['results']):raise ValueError('Invalid verification status')
 
 
-def build_to_file(input_path, target, verification_path=None, allow_compatibility=False):
+def build_to_file(input_path, target, verification_path=None, allow_compatibility=False, clear_verification=False):
     """One JSON-only implementation shared by both CLI entry points."""
     input_path, target = Path(input_path), Path(target)
     verification_path = Path(verification_path) if verification_path else None
@@ -88,14 +103,18 @@ def build_to_file(input_path, target, verification_path=None, allow_compatibilit
     if not isinstance(data,dict):raise ValueError('Model input must be an object')
     if data.get('format')==MODEL_FORMAT:
         if verification_path:raise ValueError('An importable model contains optional text verification; do not attach execution data')
-        validate_model(data,allow_compatibility=allow_compatibility);document=data
+        document=copy.deepcopy(data) if clear_verification else data
+        if clear_verification:document.pop('verification',None)
+        validate_model(document,allow_compatibility=allow_compatibility)
     else:
+        if clear_verification:raise ValueError('--clear-verification applies only to authored model JSON')
         report=load_json(verification_path) if verification_path else None
         if report is not None:
             validate_report(data,report,digest);verification_digest=hashlib.sha256(verification_path.read_bytes()).hexdigest()
         document=make_document(data,report,allow_compatibility=allow_compatibility,input_sha256=digest,verification_sha256=verification_digest)
     content=serialize_document(document)
-    receipt=dict(kind='model-json',format_version='1.0.0',schema_version=document['review']['schema_version'],renderer_version=release['renderer_version'],review_profile=document['review']['review_profile'],input_sha256=digest,verification_sha256=verification_digest,renderer_release_sha256=hashlib.sha256((ROOT/'renderer-release.json').read_bytes()).hexdigest(),output_sha256=hashlib.sha256(content.encode()).hexdigest(),dependencies=dependency_versions())
+    receipt=dict(kind='model-json',format_version=document['format_version'],schema_version=document['review']['schema_version'],renderer_version=release['renderer_version'],review_profile=document['review']['review_profile'],input_sha256=digest,verification_sha256=verification_digest,renderer_release_sha256=hashlib.sha256((ROOT/'renderer-release.json').read_bytes()).hexdigest(),output_sha256=hashlib.sha256(content.encode()).hexdigest(),dependencies=dependency_versions())
+    receipt['verification_cleared']=clear_verification
     receipt['design_review']=assess_review(document['review'])
     write_outputs(target,content,receipt)
     return target.resolve()
@@ -107,9 +126,10 @@ def main():
     p.add_argument('--output',type=Path,help='Defaults to <input-stem>.model.json')
     p.add_argument('--verification',type=Path)
     p.add_argument('--allow-compatibility',action='store_true')
+    p.add_argument('--clear-verification',action='store_true',help='Explicitly remove the old observation record without asserting new results')
     args=p.parse_args();target=args.output or args.input.with_name(args.input.stem+'.model.json')
     try:
-        print(str(build_to_file(args.input,target,args.verification,args.allow_compatibility)))
+        print(str(build_to_file(args.input,target,args.verification,args.allow_compatibility,args.clear_verification)))
     except (ValueError,KeyError,TypeError) as exc:p.error(str(exc))
 
 

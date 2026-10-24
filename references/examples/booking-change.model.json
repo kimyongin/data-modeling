@@ -1,6 +1,6 @@
 {
   "format": "data-modeling-model",
-  "format_version": "1.0.0",
+  "format_version": "1.1.0",
   "review": {
     "title": "회의실 예약 — 기존 시스템 변경 영향 검토 (합성)",
     "summary": "회의실을 이중으로 예약하지 않게 하고, 예약·참석 인원·설비를 각각 정확히 관리하는 방법을 검토합니다. 실제 회사 자료가 아니라 설명을 위해 만든 예시입니다.",
@@ -139,12 +139,10 @@
             "S-02"
           ]
         },
-        "example": "본사(C1)의 101호와 연구소(C2)의 101호는 번호만 같을 뿐 서로 다른 방입니다. 회의실을 찾을 때 사업장도 함께 확인합니다.",
-        "review_question": "본사와 다른 사업장에서 같은 방 번호를 써도 구분할 수 있나요?",
-        "short_description": "회의실이 속한 본사·연구소 등의 사업장을 관리합니다.",
         "sample_label_columns": [
           "name"
-        ]
+        ],
+        "role": "core"
       },
       {
         "id": "room",
@@ -226,12 +224,16 @@
             "S-02"
           ]
         },
-        "example": "회의실 A는 본사 101호이며 정원은 8명입니다. 연구소 101호인 회의실 C와는 다른 방입니다.",
-        "review_question": "같은 사업장 안에 101호가 중복 등록되지 않나요? 예약이 없는 방도 찾을 수 있나요?",
-        "short_description": "소속 사업장·방 번호·정원을 관리합니다.",
         "sample_label_columns": [
           "campus_id",
           "code"
+        ],
+        "role": "core",
+        "unique_keys": [
+          [
+            "campus_id",
+            "code"
+          ]
         ]
       },
       {
@@ -287,12 +289,10 @@
             "S-07"
           ]
         },
-        "example": "회원 M1은 기획 담당자이고 M2는 개발 담당자입니다. M1이 예약을 만들고 두 사람이 함께 참석할 수 있습니다.",
-        "review_question": "이름이 바뀌거나 같은 이름의 사람이 있어도 예약자를 정확히 구분할 수 있나요?",
-        "short_description": "예약자와 참석자가 될 사람의 정보를 관리합니다.",
         "sample_label_columns": [
           "name"
-        ]
+        ],
+        "role": "core"
       },
       {
         "id": "booking",
@@ -409,13 +409,11 @@
             "S-04"
           ]
         },
-        "example": "B01은 10월 1일 회의실 A의 10시~11시 예약입니다. 10시 30분 시작은 겹치므로 막고, 11시 시작은 허용합니다.",
-        "review_question": "종료 직후의 다음 예약은 가능한가요? 취소한 시간은 다시 예약할 수 있나요?",
-        "short_description": "누가 어느 방을 언제 쓰는지와 현재 예약 상태를 기록합니다.",
         "sample_label_columns": [
           "room_id",
           "starts_at"
-        ]
+        ],
+        "role": "core"
       },
       {
         "id": "attendance",
@@ -473,11 +471,15 @@
             "S-07"
           ]
         },
-        "example": "예약 B01에는 회원 M1과 M2가 한 줄씩 등록되어 총 2명입니다. M1을 B01에 다시 등록하면 막아야 합니다.",
-        "review_question": "중복 참석자를 막나요? 회의실 설비가 여러 개여도 참석자는 2명으로 나오나요?",
-        "short_description": "한 예약에 참석하는 회원을 한 사람씩 기록합니다.",
         "sample_label_columns": [
           "member_id"
+        ],
+        "role": "core",
+        "unique_keys": [
+          [
+            "booking_id",
+            "member_id"
+          ]
         ]
       },
       {
@@ -533,12 +535,10 @@
             "S-09"
           ]
         },
-        "example": "TV라는 관리 값은 모니터라는 설비 종류를 뜻합니다. 특정 모니터 기기 한 대를 구분하는 번호는 아닙니다.",
-        "review_question": "설비 종류만 관리하면 충분한가요, 아니면 실제 기기의 고장이나 수량도 알아야 하나요?",
-        "short_description": "모니터·화이트보드 같은 설비 종류를 관리합니다.",
         "sample_label_columns": [
           "name"
-        ]
+        ],
+        "role": "core"
       },
       {
         "id": "room_amenity",
@@ -595,13 +595,11 @@
             "S-09"
           ]
         },
-        "example": "회의실 A에는 모니터와 화이트보드가 있어 연결 기록이 2줄입니다. 설비가 2개라고 예약 참석자까지 2배로 세면 안 됩니다.",
-        "review_question": "방의 설비가 늘어나도 예약 건수나 참석 인원이 부풀지 않나요?",
-        "short_description": "각 회의실이 갖춘 설비 종류를 연결합니다.",
         "sample_label_columns": [
           "room_id",
           "amenity_id"
-        ]
+        ],
+        "role": "core"
       }
     ],
     "relationships": [
@@ -821,7 +819,6 @@
         "id": "D-01",
         "title": "예약이 끝나는 시각부터 다음 예약을 허용합니다",
         "rationale": "10시~11시 예약이 있으면 10시 30분 예약은 겹칩니다. 하지만 11시부터는 다음 사람이 쓸 수 있게 합니다. 취소된 예약은 기록으로 남기되 그 시간을 막지 않습니다.",
-        "alternatives": "끝나는 시각까지 막으면 11시 시작 예약도 거절됩니다. 취소한 행을 삭제하면 어느 예약이 취소됐는지 확인할 수 없어 상태를 남깁니다. 변경 전후의 이력은 별도 기능입니다.",
         "requirements": [
           "R-02"
         ],
@@ -829,7 +826,22 @@
           "E-SYN"
         ],
         "example": "B01을 취소하면 같은 방의 10시~11시를 다른 사람이 다시 예약할 수 있습니다.",
-        "review_question": "회의 사이에 준비 시간이 필요한가요? 필요하다면 이 예시와 달리 추가 간격 규칙을 정해야 합니다."
+        "review_question": "회의 사이에 준비 시간이 필요한가요? 필요하다면 이 예시와 달리 추가 간격 규칙을 정해야 합니다.",
+        "choices": [
+          {
+            "id": "C-1",
+            "title": "종료 시각부터 다음 예약 허용",
+            "benefit": "연속 예약의 경계가 명확하고 사용 시간을 낭비하지 않습니다.",
+            "cost": "준비 시간이 필요하면 별도 간격 정책을 추가해야 합니다."
+          },
+          {
+            "id": "C-2",
+            "title": "종료 시각까지 차단",
+            "benefit": "사용 후 정리 시간을 보수적으로 확보할 수 있습니다.",
+            "cost": "추가 간격 정의 없이는 같은 11시 경계를 불필요하게 막을 수 있습니다."
+          }
+        ],
+        "selected_choice": "C-1"
       },
       {
         "id": "D-02",
@@ -841,9 +853,23 @@
         "sources": [
           "E-SYN"
         ],
-        "alternatives": "한번에 합친 목록의 줄 수를 세는 방식은 구현하기 쉬워 보여도 숫자가 부풀 수 있습니다.",
         "example": "B01의 올바른 결과는 참석자 2명, 설비 2개입니다.",
-        "review_question": "설비를 하나 더 등록해도 참석자 수는 그대로인가요?"
+        "review_question": "설비를 하나 더 등록해도 참석자 수는 그대로인가요?",
+        "choices": [
+          {
+            "id": "C-1",
+            "title": "참석자와 설비를 각각 집계",
+            "benefit": "각 목록의 수를 독립적으로 계산해 중복 조합을 피합니다.",
+            "cost": "집계 단계를 나누어 조회를 작성해야 합니다."
+          },
+          {
+            "id": "C-2",
+            "title": "결합 후 항목별 고유 수 집계",
+            "benefit": "한 조회에서 함께 연결해 결과를 만들 수 있습니다.",
+            "cost": "각 수치의 중복 제거 기준과 대량 조인의 성능을 따로 검증해야 합니다."
+          }
+        ],
+        "selected_choice": "C-1"
       }
     ],
     "domains": [
@@ -1132,7 +1158,7 @@
         ]
       }
     },
-    "schema_version": "1.0.0",
+    "schema_version": "1.1.0",
     "review_profile": "standard",
     "scenarios": [
       {
@@ -1520,7 +1546,7 @@
     ],
     "extensions": {
       "modeling_review": {
-        "version": "1.0.0",
+        "version": "1.1.0",
         "complexity": {
           "level": "complex",
           "reason": "예약 시간 충돌과 미결 정책이 기존 쓰기·조회·개인정보·전환에 영향을 줄 수 있습니다. 실제 자료가 없어 영향의 확정은 보류합니다."
@@ -1547,27 +1573,44 @@
         },
         "rules": [
           {
+            "id": "BR-01",
+            "title": "사업장 안의 방 번호 유일성",
             "topic": "identity",
-            "status": "addressed",
+            "design_status": "modeled",
+            "decision_status": "proposed",
             "reason": "사업장 내 방 번호와 참석 연결의 중복을 구분합니다.",
             "requirements": [
-              "R-01",
-              "R-03"
+              "R-01"
+            ],
+            "entities": [
+              "campus",
+              "room",
+              "member",
+              "attendance"
             ],
             "scenarios": [
               "S-01",
-              "S-06"
+              "S-02"
             ],
             "review_points": []
           },
           {
+            "id": "BR-02",
+            "title": "방은 사업장에 속하고 참석 대상은 예약에 연결됩니다.",
             "topic": "ownership",
-            "status": "addressed",
+            "design_status": "modeled",
+            "decision_status": "proposed",
             "reason": "방은 사업장에 속하고 참석 대상은 예약에 연결됩니다.",
             "requirements": [
               "R-01",
               "R-03"
             ],
+            "entities": [
+              "campus",
+              "room",
+              "member",
+              "attendance"
+            ],
             "scenarios": [
               "S-01",
               "S-06"
@@ -1575,11 +1618,17 @@
             "review_points": []
           },
           {
+            "id": "BR-03",
+            "title": "취소 상태만 보존하며 누가 언제 왜 바꿨는지는 범위 밖입니다.",
             "topic": "lifecycle",
-            "status": "excluded",
+            "design_status": "excluded",
+            "decision_status": "proposed",
             "reason": "취소 상태만 보존하며 누가 언제 왜 바꿨는지는 범위 밖입니다.",
             "requirements": [
               "R-02"
+            ],
+            "entities": [
+              "booking"
             ],
             "scenarios": [],
             "review_points": [
@@ -1587,11 +1636,17 @@
             ]
           },
           {
+            "id": "BR-04",
+            "title": "회의 사이 준비 시간의 추가 여부",
             "topic": "time",
-            "status": "open",
+            "design_status": "unmodeled",
+            "decision_status": "open",
             "reason": "연속 예약 사이 준비 시간을 아직 정하지 않았습니다.",
             "requirements": [
               "R-02"
+            ],
+            "entities": [
+              "booking"
             ],
             "scenarios": [],
             "review_points": [
@@ -1599,11 +1654,21 @@
             ]
           },
           {
+            "id": "BR-05",
+            "title": "설비로 인한 참석자 중복 집계를 방지합니다.",
             "topic": "aggregation",
-            "status": "addressed",
+            "design_status": "modeled",
+            "decision_status": "proposed",
             "reason": "설비로 인한 참석자 중복 집계를 방지합니다.",
             "requirements": [
               "R-04"
+            ],
+            "entities": [
+              "room",
+              "booking",
+              "attendance",
+              "amenity",
+              "room_amenity"
             ],
             "scenarios": [
               "S-08"
@@ -1611,50 +1676,94 @@
             "review_points": []
           },
           {
+            "id": "BR-06",
+            "title": "동시 확정의 충돌 정책과 실제 구현 계층을 아직 정하지 않았습니다.",
             "topic": "concurrency",
-            "status": "open",
+            "design_status": "unmodeled",
+            "decision_status": "open",
             "reason": "동시 확정의 충돌 정책과 실제 구현 계층을 아직 정하지 않았습니다.",
             "requirements": [
               "R-02"
             ],
+            "entities": [
+              "booking"
+            ],
             "scenarios": [],
             "review_points": [
               "Q-CHANGE"
             ]
           },
           {
+            "id": "BR-07",
+            "title": "실제 API 소비자와 외부 계약 자료가 없습니다.",
             "topic": "integration",
-            "status": "open",
+            "design_status": "unmodeled",
+            "decision_status": "open",
             "reason": "실제 API 소비자와 외부 계약 자료가 없습니다.",
             "requirements": [],
+            "entities": [],
             "scenarios": [],
             "review_points": [
               "Q-CHANGE"
             ]
           },
           {
+            "id": "BR-08",
+            "title": "권한 자료가 없어 접근 경계와 탈퇴 처리를 확정하지 않습니다.",
             "topic": "access",
-            "status": "open",
+            "design_status": "unmodeled",
+            "decision_status": "open",
             "reason": "권한 자료가 없어 접근 경계와 탈퇴 처리를 확정하지 않습니다.",
             "requirements": [
               "R-03"
             ],
+            "entities": [
+              "member",
+              "attendance"
+            ],
             "scenarios": [],
             "review_points": [
               "Q-06"
             ]
           },
           {
+            "id": "BR-09",
+            "title": "탈퇴 후 개인정보 보존 기간이 미결입니다.",
             "topic": "retention",
-            "status": "open",
+            "design_status": "unmodeled",
+            "decision_status": "open",
             "reason": "탈퇴 후 개인정보 보존 기간이 미결입니다.",
             "requirements": [
               "R-03"
+            ],
+            "entities": [
+              "member",
+              "attendance"
             ],
             "scenarios": [],
             "review_points": [
               "Q-06"
             ]
+          },
+          {
+            "id": "BR-ATTENDANCE",
+            "title": "예약별 회원의 중복 참석 등록 제한",
+            "topic": "identity",
+            "design_status": "modeled",
+            "decision_status": "proposed",
+            "requirements": [
+              "R-03"
+            ],
+            "entities": [
+              "attendance",
+              "booking",
+              "member"
+            ],
+            "scenarios": [
+              "S-06",
+              "S-07"
+            ],
+            "review_points": []
           }
         ],
         "change_impact": {
@@ -1752,7 +1861,9 @@
                 "Q-CHANGE"
               ]
             }
-          ]
+          ],
+          "baseline_kind": "unknown",
+          "changes": []
         }
       }
     }

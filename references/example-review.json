@@ -831,6 +831,6 @@
     }
   },
   "schema_version": "1.0.0",
-  "renderer_version": "1.0.5",
+  "renderer_version": "1.1.0",
   "review_profile": "standard"
 }

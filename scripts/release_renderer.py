@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-RUNTIME = ['scripts/modeling_review.py', 'scripts/build_model.py', 'scripts/render_review.py', 'scripts/review_contract.py', 'scripts/verify_sqlite.py', 'scripts/validate_review.py', 'requirements.txt', 'tools/build-transfer-validator.cjs', 'tools/create_share_schema.py', 'tools/package.json', 'tools/package-lock.json']
+RUNTIME = ['scripts/model_integrity.py', 'scripts/migrate_model.py', 'scripts/modeling_review.py', 'scripts/build_model.py', 'scripts/render_review.py', 'scripts/review_contract.py', 'scripts/verify_sqlite.py', 'scripts/validate_review.py', 'requirements.txt', 'tools/build-transfer-validator.cjs', 'tools/create_share_schema.py', 'tools/create_model_schema.py', 'tools/package.json', 'tools/package-lock.json']
 
 
 def main():

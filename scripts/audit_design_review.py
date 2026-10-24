@@ -23,20 +23,20 @@ def main():
     for name,edit in [
         ('null review is not a missing legacy record',lambda r:r['extensions'].update(modeling_review=None)),
         ('unsupported review version',lambda r:r['extensions']['modeling_review'].update(version='2.0.0')),
-        ('open rule without visible issue',lambda r:next(x for x in r['extensions']['modeling_review']['rules'] if x['status']=='open').update(review_points=[])),
-        ('policy disguised as execution issue',lambda r:next(x for x in r['extensions']['modeling_review']['rules'] if x['status']=='open').update(review_points=['Q-07'])),
+        ('open rule without visible issue',lambda r:next(x for x in r['extensions']['modeling_review']['rules'] if x['decision_status']=='open').update(review_points=[])),
+        ('policy disguised as execution issue',lambda r:next(x for x in r['extensions']['modeling_review']['rules'] if x['decision_status']=='open').update(review_points=['Q-07'])),
         ('addressed rule without a sample',lambda r:r['extensions']['modeling_review']['rules'][0].update(scenarios=[])),
-        ('comparison hidden outside display fields',lambda r:r['decisions'][0].pop('alternatives')),
+        ('comparison hidden outside display fields',lambda r:r['decisions'][0].pop('choices')),
         ('impact explanation cannot be found',lambda r:r['extensions']['modeling_review']['change_impact']['items'][0].update(note_ref='MISSING')),
         ('unknown baseline cannot establish no impact',lambda r:r['extensions']['modeling_review']['change_impact']['items'][0].update(status='unaffected')),
         ('unknown impact without an issue',lambda r:r['extensions']['modeling_review']['change_impact']['items'][0].update(review_points=[])),
         ('affected impact without model targets',lambda r:r['extensions']['modeling_review']['change_impact']['items'][0].update(status='affected',entities=[])),
-        ('duplicate rule topics',lambda r:r['extensions']['modeling_review']['rules'].append(copy.deepcopy(r['extensions']['modeling_review']['rules'][0]))),
+        ('duplicate rule identifiers',lambda r:r['extensions']['modeling_review']['rules'].append(copy.deepcopy(r['extensions']['modeling_review']['rules'][0]))),
         ('duplicate note identifiers',lambda r:r['assumptions'].append(dict(id='A-BASE',title='Duplicate'))),
     ]:check('reject '+name,lambda edit=edit:reject(edit))
     def warning(edit,code):
         d=copy.deepcopy(complex_);edit(d['review']);validate_model(d);require(code in [w['code'] for w in assess_review(d['review'])['warnings']])
-    check('complex case flags unreviewed rule areas',lambda:warning(lambda r:r['extensions']['modeling_review']['rules'].pop(),'rule_topic_unreviewed'))
+    check('complex case flags unreviewed rule areas',lambda:warning(lambda r:r['extensions']['modeling_review'].update(rules=[x for x in r['extensions']['modeling_review']['rules'] if x['topic']!='identity']),'rule_topic_unreviewed'))
     check('existing change flags omitted impact areas',lambda:warning(lambda r:r['extensions']['modeling_review']['change_impact']['items'].pop(),'impact_area_unreviewed'))
     check('two authored versions of the design are flagged',lambda:warning(lambda r:r['requirements'][0].update(design='重複' if False else '설계의 두 번째 원문'),'duplicate_design_forms'))
     sentence='공통 판단은 한 원본에 관리하고 각 엔터티에는 자신만의 의미와 대가를 적어야 합니다. 이 문장은 반복 경고를 확인하기 위한 충분히 긴 합성 문장입니다.'

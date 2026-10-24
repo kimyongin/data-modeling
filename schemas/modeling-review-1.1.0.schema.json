@@ -1,0 +1,407 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:data-modeling:modeling-review:1.1.0",
+  "title": "Atomic design review 1.1.0",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": "1.1.0"
+    },
+    "complexity": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "enum": [
+            "simple",
+            "standard",
+            "complex"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "level",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "alternatives": {
+      "type": "object",
+      "properties": {
+        "not_needed_reason": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "reviews": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "decision_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "criteria": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "uniqueItems": true
+              },
+              "revisit_when": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "required": [
+              "decision_id",
+              "criteria",
+              "revisit_when"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "reviews"
+      ],
+      "additionalProperties": false
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "topic": {
+            "enum": [
+              "identity",
+              "ownership",
+              "lifecycle",
+              "time",
+              "aggregation",
+              "concurrency",
+              "integration",
+              "access",
+              "retention"
+            ]
+          },
+          "design_status": {
+            "enum": [
+              "modeled",
+              "unmodeled",
+              "excluded",
+              "not_applicable"
+            ]
+          },
+          "decision_status": {
+            "enum": [
+              "proposed",
+              "agreed",
+              "open"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+            },
+            "uniqueItems": true
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+            },
+            "uniqueItems": true
+          },
+          "scenarios": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+            },
+            "uniqueItems": true
+          },
+          "review_points": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "topic",
+          "design_status",
+          "decision_status",
+          "requirements",
+          "entities",
+          "scenarios",
+          "review_points"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "change_impact": {
+      "type": "object",
+      "properties": {
+        "baseline": {
+          "enum": [
+            "new",
+            "existing",
+            "unknown"
+          ]
+        },
+        "baseline_note": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "area": {
+                "enum": [
+                  "writes",
+                  "reads",
+                  "contracts",
+                  "existing_data",
+                  "history",
+                  "rollout",
+                  "rollback"
+                ]
+              },
+              "status": {
+                "enum": [
+                  "affected",
+                  "unaffected",
+                  "unknown",
+                  "not_applicable"
+                ]
+              },
+              "note_ref": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "entities": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "uniqueItems": true
+              },
+              "review_points": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "area",
+              "status",
+              "note_ref",
+              "entities",
+              "review_points"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "baseline_kind": {
+          "enum": [
+            "none",
+            "design_document",
+            "production_schema",
+            "unknown"
+          ]
+        },
+        "baseline_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+              },
+              "target_type": {
+                "enum": [
+                  "entity",
+                  "column",
+                  "relationship"
+                ]
+              },
+              "entity_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+              },
+              "column_name": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "relationship_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+              },
+              "change": {
+                "enum": [
+                  "added",
+                  "modified",
+                  "removed"
+                ]
+              },
+              "before": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "after": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "requirements": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+                },
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "id",
+              "target_type",
+              "change",
+              "before",
+              "after",
+              "reason",
+              "requirements"
+            ],
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "target_type": {
+                      "const": "entity"
+                    }
+                  },
+                  "required": [
+                    "target_type"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "entity_id"
+                  ]
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "target_type": {
+                      "const": "column"
+                    }
+                  },
+                  "required": [
+                    "target_type"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "entity_id",
+                    "column_name"
+                  ]
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "target_type": {
+                      "const": "relationship"
+                    }
+                  },
+                  "required": [
+                    "target_type"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "relationship_id"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "baseline",
+        "baseline_note",
+        "items",
+        "baseline_kind",
+        "changes"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "version",
+    "complexity",
+    "alternatives",
+    "rules",
+    "change_impact"
+  ],
+  "additionalProperties": false
+}

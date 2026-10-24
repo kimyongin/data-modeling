@@ -1,6 +1,6 @@
 {
   "format": "data-modeling-model",
-  "format_version": "1.0.0",
+  "format_version": "1.1.0",
   "review": {
     "title": "직접 작성 예제 — 조직별 프로젝트",
     "summary": "여러 조직이 각자 프로젝트와 업무를 관리할 때 다른 조직의 자료가 섞이지 않게 설계합니다. 예시로 프로젝트별 업무 건수와 잘못된 연결 차단을 확인합니다.",
@@ -122,13 +122,11 @@
           ]
         },
         "description": "조직마다 프로젝트 코드를 따로 사용할 수 있도록 소속을 구분합니다.",
-        "example": "O1과 O2는 서로 다른 조직입니다. 두 조직이 각각 MAIN 코드를 써도 됩니다.",
-        "review_question": "다른 조직의 프로젝트를 잘못 연결하지 않나요?",
-        "short_description": "서로 다른 조직의 프로젝트를 구분합니다.",
         "sample_label_columns": [
           "name"
         ],
-        "sources": []
+        "sources": [],
+        "role": "core"
       },
       {
         "id": "project",
@@ -198,13 +196,17 @@
           ]
         },
         "description": "같은 조직 안의 프로젝트를 관리합니다. 업무가 없어도 프로젝트 자체는 목록에 남습니다.",
-        "example": "P1에는 업무 2건, P2에는 업무가 0건 있습니다. 두 프로젝트가 모두 보여야 합니다.",
-        "review_question": "업무가 없는 프로젝트도 목록에서 확인할 수 있나요?",
-        "short_description": "조직별 프로젝트와 코드를 관리합니다.",
         "sample_label_columns": [
           "code"
         ],
-        "sources": []
+        "sources": [],
+        "role": "core",
+        "unique_keys": [
+          [
+            "org_id",
+            "code"
+          ]
+        ]
       },
       {
         "id": "task",
@@ -284,13 +286,11 @@
           ]
         },
         "description": "어느 조직의 어느 프로젝트에서 할 일인지 기록합니다. 프로젝트의 소속 조직과 업무의 소속 조직이 같아야 합니다.",
-        "example": "업무 T2를 P1에서 P2로 옮기면 두 프로젝트에 업무가 1건씩 나옵니다.",
-        "review_question": "다른 조직의 프로젝트로 업무를 잘못 옮기면 막아주나요?",
-        "short_description": "어느 프로젝트에서 할 일인지 기록합니다.",
         "sample_label_columns": [
           "title"
         ],
-        "sources": []
+        "sources": [],
+        "role": "core"
       }
     ],
     "relationships": [
@@ -495,7 +495,7 @@
         ]
       }
     },
-    "schema_version": "1.0.0",
+    "schema_version": "1.1.0",
     "review_profile": "standard",
     "scenarios": [
       {
@@ -753,7 +753,7 @@
     ],
     "extensions": {
       "modeling_review": {
-        "version": "1.0.0",
+        "version": "1.1.0",
         "complexity": {
           "level": "standard",
           "reason": "조직 경계를 지키는 관계와 조직별 집계가 있어 식별과 연결 범위를 검토합니다."
@@ -764,11 +764,18 @@
         },
         "rules": [
           {
+            "id": "BR-01",
+            "title": "조직 안의 코드와 조직 밖의 코드 재사용을 구별합니다.",
             "topic": "identity",
-            "status": "addressed",
+            "design_status": "modeled",
+            "decision_status": "proposed",
             "reason": "조직 안의 코드와 조직 밖의 코드 재사용을 구별합니다.",
             "requirements": [
               "R-01"
+            ],
+            "entities": [
+              "organization",
+              "project"
             ],
             "scenarios": [
               "S-03",
@@ -777,11 +784,18 @@
             "review_points": []
           },
           {
+            "id": "BR-02",
+            "title": "업무와 프로젝트의 조직이 일치해야 합니다.",
             "topic": "ownership",
-            "status": "addressed",
+            "design_status": "modeled",
+            "decision_status": "proposed",
             "reason": "업무와 프로젝트의 조직이 일치해야 합니다.",
             "requirements": [
               "R-02"
+            ],
+            "entities": [
+              "organization",
+              "task"
             ],
             "scenarios": [
               "S-02"
@@ -789,11 +803,18 @@
             "review_points": []
           },
           {
+            "id": "BR-03",
+            "title": "업무가 없는 프로젝트도 0건으로 포함합니다.",
             "topic": "aggregation",
-            "status": "addressed",
+            "design_status": "modeled",
+            "decision_status": "proposed",
             "reason": "업무가 없는 프로젝트도 0건으로 포함합니다.",
             "requirements": [
               "R-03"
+            ],
+            "entities": [
+              "project",
+              "task"
             ],
             "scenarios": [
               "S-01"
@@ -804,7 +825,9 @@
         "change_impact": {
           "baseline": "new",
           "baseline_note": "새 논리 모델 예제이며 기존 시스템 전환은 가정하지 않습니다.",
-          "items": []
+          "items": [],
+          "baseline_kind": "none",
+          "changes": []
         }
       }
     }

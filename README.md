@@ -25,7 +25,7 @@
 - **비개발자도 검토:** 업무용 이름, 한 행의 의미, 선택 이유와 현실적인 샘플로 설명합니다. ERD에서 연결을 보고 세부 속성과 설명을 함께 읽을 수 있습니다.
 - **데이터와 화면 분리:** 새 사례는 `.model.json`만 작성합니다. HTML/CSS/JS를 사례마다 만들지 않고 고정 공통 뷰어를 재사용합니다.
 - **직접 작성·공유 가능:** JSON을 직접 편집하거나 스킬로 만들 수 있습니다. 동료는 뷰어를 한 번 받아두고 이후에는 JSON만 가져옵니다. 별도 서버가 필요 없습니다.
-- **버전과 검사:** JSON Schema, ID·관계·샘플 연결 검사, 버전이 고정된 생성기와 생성 기록을 사용합니다. 실제 실행 결과가 없으면 미실행을 유지합니다.
+- **버전과 검사:** JSON Schema와 모든 샘플의 PK·필수 값·명시적 유일 조합·FK를 검사합니다. 결과를 기록하면 현재 모델·샘플의 내용 지문과 연결하여 변경 뒤 남은 오래된 결과를 거부합니다. 샘플·시뮬레이션·실제 구현 확인을 구별하고 실행하지 않은 것은 미실행으로 둡니다.
 
 ## 동작 방식
 
@@ -74,17 +74,23 @@ DB는 아직 정하지 않았어. 대안과 빠진 업무 규칙을 검토하고
 ```json
 {
   "format": "data-modeling-model",
-  "format_version": "1.0.0",
+  "format_version": "1.1.0",
   "review": {
-    "schema_version": "1.0.0",
+    "schema_version": "1.1.0",
     "review_profile": "standard"
   }
 }
 ```
 
-상세 필드는 [직접 작성 안내](references/model-json.md), [모델 스키마](schemas/model-1.0.0.schema.json), [설계 검토 기록](references/design-review.md)을 따릅니다. 새 사례는 `review.extensions.modeling_review`에 복잡도·대안·규칙·변경 영향의 검토 연결도 작성합니다. 이 기록의 독립 버전은 1.0.0이며 기존 뷰어 문서 형식은 유지합니다.
+상세 필드는 [직접 작성 안내](references/model-json.md), [모델 스키마](schemas/model-1.1.0.schema.json), [설계 검토 기록](references/design-review.md)을 따릅니다. 새 사례는 `review.extensions.modeling_review`에 복잡도·대안·규칙·변경 영향의 검토 연결도 작성합니다. 새 모델·검토 기록 버전은 1.1.0입니다. 규칙마다 ID를 두고 설계 반영과 정책 합의를 따로 기록합니다. 같은 주제의 여러 규칙을 허용합니다. 중요한 대안은 선택지별 이점·대가와 선택한 안을 기록하며, 변경 기준이 이전 설계 문서인지 실제 운영 스키마인지 밝힙니다.
 
-직접 작성할 때 렌더러 버전·체크섬·SQL·실행 보고서는 필요 없습니다. 모델이나 샘플을 바꾸면 이전 확인 결과를 제거하거나 실제로 다시 확인한 결과로 갱신합니다.
+직접 작성할 때 렌더러 버전·체크섬·SQL·실행 보고서는 필요 없습니다. 기본 이름·역할·항목 정의는 유지하되 엔터티마다 예·질문·위험을 반복할 필요가 없습니다. 업무 핵심·근거/운영 지원·조건부 확장을 구별하고, 실제 유일성 범위는 `unique_keys`의 열 조합으로 작성합니다.
+
+모델이나 샘플을 바꾸면 이전 확인 결과를 제거하거나 실제로 다시 확인해야 합니다. 다시 확인하지 않았다면 아래처럼 명시적으로 결과를 제거한 복사본을 만듭니다. 생성기는 성공 결과의 지문만 임의로 새로 붙이지 않습니다.
+
+```bash
+.venv/bin/python scripts/build_model.py edited.json --clear-verification --output updated.model.json
+```
 
 ### 3. 검사하고 JSON으로 정리하기
 
@@ -100,7 +106,7 @@ cp references/example-model.json source.json
 
 생성기는 `.model.json`과 추적용 `.model.build.json`만 만듭니다. 입력은 덮어쓰지 않습니다. 같은 입력과 배포본이면 같은 결과가 나옵니다. 생성 기록의 `design_review`에는 규칙·변경 영향의 미검토 영역, 설명 중복 등의 경고가 남습니다. 검토 연결이 잘못됐거나 미결 규칙의 설명 위치가 없으면 거부합니다. 경고는 내용을 읽고 보완할 지점이며, 자동으로 완전성을 판정하는 점수가 아닙니다.
 
-직접 작성한 JSON은 검사 후 그대로 가져올 수도 있습니다. 생성 기록은 선택 사항이고 공유할 업무 데이터는 `.model.json`입니다. 실제 실행 검증이 필요한 경우의 별도 입력과 명령은 [생성 절차](references/rendering-workflow.md)에 설명합니다.
+직접 작성한 JSON은 검사 후 그대로 가져올 수도 있습니다. 생성 기록은 선택 사항이고 공유할 업무 데이터는 `.model.json`입니다. 새 사례에 SQL이나 검증 전용 탭을 만들지 않습니다. 샘플 무결성 검사는 문법·참조의 모순을 찾는 보조 수단이며 업무 규칙·동시성·권한 구현의 증명이 아닙니다.
 
 ### 4. 기존 공통 뷰어에서 확인·공유하기
 
@@ -109,25 +115,38 @@ cp references/example-model.json source.json
 3. 개요·스펙·모델·참조에서 설명과 구조·샘플을 검토합니다.
 4. 동료에게 JSON을 전달합니다. 같은 형식을 지원하는 뷰어를 이미 갖고 있다면 뷰어를 다시 전달할 필요가 없습니다.
 
-뷰어의 내보내기로 전체 JSON을 다시 저장할 수 있습니다. 새로고침하면 빈 화면으로 돌아오며 브라우저 저장소나 서버에 자동 보관하지 않습니다. 검토 기록의 심화 검사는 Python 검사기/생성기에서 수행하므로 JSON 수정 후 공유 전 다시 검사합니다. 새 사례마다 HTML이나 뷰어를 생성하지 않습니다.
+뷰어의 내보내기로 전체 JSON을 다시 저장할 수 있습니다. 새로고침하면 빈 화면으로 돌아오며 브라우저 저장소나 서버에 자동 보관하지 않습니다. Python 검사기/생성기와 뷰어는 같은 스키마와 대응하는 샘플·검토·결과 대응 검사를 수행합니다. 뷰어에 기록된 결과는 새로 실행하거나 인증한 결과가 아닙니다. 새 사례마다 HTML이나 뷰어를 생성하지 않습니다.
+
+## 이전 JSON과 뷰어 갱신
+
+1.0만 지원하는 뷰어를 갖고 있다면 [공통 뷰어](dist/model-viewer.html)로 **한 번 갱신**합니다. 이후에는 새 사례의 JSON만 만듭니다. 이전 1.0 JSON도 열리고 같은 형식으로 내보내집니다. 다만 이전 결과에는 현재 입력과의 연결 정보가 없으므로 **이전 확인 기록 · 입력 대응 미확인**으로 구별합니다.
+
+새 형식으로 바꿀 때만 아래 명령을 사용합니다. 원본과 과거 기록을 보존하고, 현재 결과로 오해할 수 있는 이전 확인 기록은 새 문서에서 제거합니다. 기존 출력도 덮어쓰지 않습니다.
+
+```bash
+.venv/bin/python scripts/migrate_model.py old.model.json --output upgraded.model.json
+```
+
+자세한 방법·범위·내용 지문과 검사 한계는 [결과 계약](references/result-integrity.md)에 있습니다. 해시는 변경 감지용이며 결과의 진위를 인증하는 서명이 아닙니다.
 
 ## 예제
 
 - [비품 분류 목록](references/examples/inventory.model.json): 단순한 새 설계. 관련 식별·삭제 규칙과 분류 관리 대안만 짧게 검토합니다.
 - [회의실 예약 변경](references/examples/booking-change.model.json): 합성 모델을 기준으로 미결 정책과 쓰기·조회·전환·복구 영향을 검토합니다. 실제 운영 자료가 없어 기준 상태와 영향은 미확인으로 남깁니다.
 
-두 파일 모두 그대로 기존 뷰어에서 가져올 수 있으며 실행 보고서를 포함하지 않습니다.
+두 파일은 1.1을 지원하는 공통 뷰어에서 그대로 가져올 수 있으며 실행 보고서를 포함하지 않습니다. 엔터티별 반복 예/질문/위험을 생략하면서 필요한 판단은 유지합니다.
 
 복제한 저장소 루트에서 검토 연결과 두 사례의 JSON 전용 생성을 재검사할 수 있습니다. 테스트 출력은 임시 폴더를 사용합니다.
 
 ```bash
-.venv/bin/python scripts/audit_design_review.py --manifest references/examples/test-manifest.json --output /tmp/data-modeling-check.json
+.venv/bin/python scripts/audit_integrity.py --output /tmp/data-modeling-check.json
 ```
 
 ## 문서와 유지보수
 
 - [스킬 본문](SKILL.md): 모델링 판단 절차와 필수 원칙
 - [조사·설계 기준](references/modeling-guide.md): 식별·이력·통합·집계·기존 변경
+- [샘플·결과 계약](references/result-integrity.md): 유일성·참조 검사, 확인 방법·범위·내용 지문과 명시적 이전
 - [설계 검토](references/design-review.md): 복잡도·대안·규칙 누락·변경 영향과 검토 기록
 - [설명 작성](references/report-writing.md): 쉬운 문장과 중복을 줄이는 방법
 - [뷰어·데이터 계약](references/review-contract.md): 데이터 필드와 UI 세부 규칙

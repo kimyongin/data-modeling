@@ -1,77 +1,75 @@
 # 복잡도에 맞춘 설계 검토
 
-이 문서는 모델링 판단의 깊이와 기록 방법을 정한다. 화면은 [뷰어 계약](review-contract.md), 쉬운 설명과 분량은 [설명 작성](report-writing.md)을 따른다.
+판단의 깊이와 기록 방법을 정한다. 화면은 [뷰어 계약](review-contract.md), 쉬운 설명은 [설명 작성](report-writing.md)을 따른다. 새 문서는 model 1.1, 검토 기록은 modeling-review 1.1을 쓴다.
 
 ## 검토 깊이
 
 | 수준 | 판단 기준 | 필요한 깊이 |
 |---|---|---|
-| simple | 하나의 업무, 분명한 식별·규칙, 외부 통합·기존 데이터 전환 없음 | 핵심 규칙과 설계를 구분하는 예를 짧게 검토. 실제 대안이 없으면 이유를 기록 |
-| standard | 여러 관계·상태·예외 또는 소유권 경계가 있음 | 중요한 선택의 대안, 관련 경계 상황, 미결 정책과 영향 검토 |
-| complex | 여러 원천의 충돌, 금전 집계·과거 재현, 격리·동시성, 기존 데이터 전환 등 실패 비용이 큼 | 선택 기준을 명시한 대안 비교, 관련 규칙 영역의 누락 점검, 쓰기부터 전환·복구까지 영향 추적 |
+| simple | 분명한 식별·규칙, 외부 통합·기존 데이터 전환 없음 | 핵심 규칙·선택 이유·설계를 가르는 예를 짧게 작성 |
+| standard | 여러 관계·상태·예외 또는 소유권 경계 | 중요한 대안, 관련 경계 상황, 미결 정책과 영향 |
+| complex | 여러 원천 충돌, 금전·과거 재현, 격리·동시성, 기존 전환 | 선택 기준별 대안, 관련 규칙 누락, 쓰기부터 전환·복구까지 추적 |
 
-복잡도는 테이블 개수나 설명 분량이 아니다. 위험이 집중된 부분을 깊게 보고 나머지는 짧게 쓴다. 작은 변경도 금전이나 격리에 영향을 주면 깊게 검토한다. 모든 사례에 모든 위험·대안·미결 사항을 만들어 넣지 않는다.
+테이블 수로 정하지 않는다. 위험이 집중된 부분을 깊게 보고 나머지는 짧게 쓴다. 모든 엔터티에 별도 위험·질문·대안을 채울 필요가 없다. role core는 업무 핵심, supporting은 근거/운영 지원, optional은 조건부 확장이다. optional에는 inclusion_condition을 명시하고 핵심 기능의 필수 구조로 포장하지 않는다.
 
 ## 대안 비교
 
-실제로 가능한 설계만 비교한다. 결정 원문은 `decisions[].rationale`에 선택한 구조·선택 이유·포기한 이점을, `alternatives`에 다른 선택과 비교 기준·차이를 쓴다. 이미 합의된 제약으로 대안이 없다면 검토 기록의 `not_needed_reason`에 적는다. 스펙의 설계안은 업무 동작을 설명하며 이 비교를 다시 장황하게 복사하지 않는다.
+실제로 가능한 선택지별 이점·대가를 `decisions[].choices:[{id,title,benefit,cost}]`에 작성하고 `selected_choice`로 선택한 안을 연결한다. `rationale`에는 선택 이유를 쓴다. 검토 기록의 alternatives.reviews는 decision_id, criteria(비교 기준 배열), revisit_when(재검토 조건)을 연결한다. choices와 기존 alternatives 문자열에 같은 내용을 중복 작성하지 않는다.
 
-중요한 선택에는 다음을 확인한다.
-
-- 어떤 업무·제약 때문에 갈리는가? 운영 단순성, 일관성, 변경 빈도, 과거 재현, 조회 비용 중 무엇을 우선하는가?
-- 선택한 안과 다른 안은 같은 기준에서 어떤 이익·비용이 다른가?
-- 원천 사양·규모·업무 정책이 어떻게 바뀌면 결정을 다시 볼 것인가?
-
-단순한 단어 목록을 대안 비교라고 하지 않는다. 복합 사례에서도 의미 없는 3안 비교를 매 엔터티에 강요하지 않는다.
+예: 상품마다 마켓 값을 직접 덮어쓰는 안과 원천별 값을 보존하고 변환하는 안은 구현 단순성·추적·정정 비용에서 비교할 수 있다. 선택하지 않은 안도 실제로 가능한 안이어야 한다. “복잡하므로 분리” 같은 한 문장을 대안 비교로 삼지 않는다. 단순 사례에 실질적 선택이 없으면 alternatives.not_needed_reason으로 충분하다.
 
 ## 업무 규칙의 누락 검토
 
-요구 문장만 테이블로 옮긴 뒤 끝내지 않는다. 아래 영역 중 이번 설계와 관련된 것을 확인한다. 복합 사례에서는 빠진 영역을 경고로 안내하며, 해당 없으면 이유를 적는다.
+하나의 규칙마다 ID·짧은 제목·관련 요구/모델/시나리오를 둔다. 같은 topic의 여러 규칙을 허용한다. 하나의 concurrency 항목에 중복 수신·역순·같은 시각 충돌·동시 갱신을 모두 묶지 않는다.
 
 | topic | 빠뜨리기 쉬운 질문 |
 |---|---|
-| identity | 무엇을 같은 대상으로 보는가? 유일성은 전역인가, 조직·마켓·기간 안인가? |
-| ownership | 누가 원본을 관리하고 충돌하면 누구의 값을 따르는가? 조직 경계를 넘을 수 있는가? |
-| lifecycle | 생성·확정·취소·정정·삭제 시 연결과 값이 어떻게 되는가? |
-| time | 발생·효력·수집 시점 중 무엇으로 조회하는가? 과거를 재현할 수 있는가? |
-| aggregation | 한 건의 의미, 중복 집계, 환불·수수료·단위·반올림 기준이 분명한가? |
-| concurrency | 동시에 요청하거나 중복·역순으로 받으면 규칙이 유지되는가? |
-| integration | 외부 ID 범위, 재수집·삭제·스키마 변경·매핑 정정은 어떻게 처리하는가? |
-| access | 소유 정보와 실제 조회·수정 권한을 혼동하지 않았는가? |
-| retention | 보존·익명화·삭제와 이력·참조가 충돌하지 않는가? |
+| identity | 동일 대상·조직/계정/기간 안의 유일성 범위는? |
+| ownership | 원본 관리 주체, 충돌 우선순위, 조직 경계는? |
+| lifecycle | 확정·취소·정정·삭제 시 연결과 값은? |
+| time | 발생·효력·수집 시점과 과거 재현은? |
+| aggregation | 한 건의 의미, 중복·환불·단위·반올림은? |
+| concurrency | 동시 요청·중복·역순 입력은? |
+| integration | 외부 ID, 재수집·삭제·사양 변경·매핑 정정은? |
+| access | 소유 정보와 실제 읽기·쓰기 권한의 차이는? |
+| retention | 보존·익명화·삭제와 참조/이력의 충돌은? |
 
-상태는 `addressed`(설계와 샘플 상황에 연결), `open`(정책 미결), `excluded`(범위 제외), `not_applicable`(해당 없음)이다. addressed는 실행 통과나 규칙의 완전성 판정이 아니다. 미결·제외는 뷰어의 `review_points`에 질문·제안·영향을 함께 남긴다. 알 수 없는 정책을 미실행 검사 하나로 덮지 않는다.
+상태는 두 축이다.
+
+- design_status: modeled(구조·시나리오에 반영), unmodeled(미반영), excluded(범위 제외), not_applicable(해당 없음).
+- decision_status: proposed(작성자 제안), agreed(사용자 명시 합의), open(정책 미결).
+
+modeled는 구현 확인이나 정책 합의가 아니다. modeled이면서 open일 수도 있다. 미반영·제외·해당 없음에는 reason을 남긴다. 미결/미반영/제외는 화면의 review_points에 연결한다. 정책 미결을 verification 종류의 미실행 항목으로 덮지 않는다. 위험 문장이 있다는 이유만으로 자동으로 남은 결정으로 만들지 않는다.
 
 ## 변경 영향 검토
 
-기준은 `new`(새 설계), `existing`(기존 시스템), `unknown`(현재 구조 미확인)이다. 기존 구조·현재 소비자·데이터를 읽지 못했으면 무영향으로 결론 내리지 않는다.
+`change_impact.baseline`: new/existing/unknown. `baseline_kind`: none/design_document/production_schema/unknown. 이전 모델 JSON만 읽었다면 design_document이며 실제 운영 스키마 확인을 뜻하지 않는다. 가능한 경우 기준 파일의 SHA-256도 남긴다.
 
-- 쓰기(writes): 등록·수정·삭제·수집 주체와 제약 검사.
-- 조회(reads): 화면·보고·배치의 조인과 조회 의미, 지연·성능.
-- 계약(contracts): API·내보내기·외부 ID·이벤트 소비자.
-- 기존 데이터(existing_data): 중복·빈 값·기존 연결, 정리·보완 범위.
-- 과거(history): 집계·정산·시점 재현, 재매핑으로 과거가 달라지는지.
-- 전환(rollout): 구/신 구조 공존·호환·보완 작업·대조·전환 조건.
-- 복구(rollback): 되돌릴 수 있는 범위, 역변환 불가 값, 중단·복구 조건.
+`changes`에 설계상 실제 추가·변경·제외한 엔터티/열/관계를 ID별로 기록한다. before/after는 비교에 필요한 필드만 담고 현재 after가 모델과 일치해야 한다. 원본을 읽지 못한 전후 차이를 지어내지 않는다. 이것은 자동 DB diff·이관 실행 기록이 아니다.
 
-기존 설계는 모든 영역을 검토하되 영향이 없거나 해당 없다는 근거도 짧게 기록한다. 새 설계에 존재하지 않는 이관 절차를 만들지 않는다. 대신 중요한 미결 정책이 달라질 때 모델·샘플·조회 중 무엇이 바뀌는지 `review_points[].impact`로 남긴다. 영향 원문은 assumptions/limitations의 ID가 있는 메모 또는 review_points에 두고 기록에서 참조한다.
+영향은 다음 중 관련 영역을 확인한다. existing/unknown에서는 빠진 영역을 경고한다.
+
+- writes/reads: 등록·수정·삭제·수집 주체, 조회·보고의 연결과 의미.
+- contracts/existing_data: API·내보내기·소비자, 기존 중복·NULL·보완 범위.
+- history: 과거 집계·정산·시점 재현과 재매핑의 영향.
+- rollout/rollback: 공존·대조·전환 조건과 되돌릴 수 없는 값·중단/복구 조건.
+
+원문은 ID가 있는 assumptions/limitations 또는 review_points 한 곳에 쓰고 items.note_ref로 연결한다. 현재 상태를 모르면 무영향으로 단정하지 않는다. 새 설계에는 존재하지 않는 이관 절차를 만들지 않고 중요한 정책이 바뀔 때 바뀌는 모델·샘플·조회를 남긴다.
 
 ## JSON 검토 기록
 
-공개 모델 문서 형식과 뷰어 계약 1.0.0을 유지한다. 선택 확장 `review.extensions.modeling_review`의 독립 계약은 `schemas/modeling-review-1.0.0.schema.json`이다. 기존 파일은 확장 없이도 열린다. 새 사례는 이 검토 기록을 작성한다. 기존 뷰어는 업무 설명·대안·미결 사항을 기존 필드에서 읽고 확장 기록은 그대로 가져오기/내보내기한다. 확장만 작성하고 업무 설명을 숨기지 않는다.
+새 사례는 `review.extensions.modeling_review`에 `schemas/modeling-review-1.1.0.schema.json`을 따라 작성한다. 기존 1.0 기록과 기록 없는 파일은 호환된다. 업무 설명 원문을 확장 안에만 숨기지 않는다.
 
 ```json
 {
-  "version": "1.0.0",
-  "complexity": {"level": "simple", "reason": "단일 조직의 물품 목록이며 외부 통합과 이관이 없습니다."},
-  "alternatives": {"reviews": [], "not_needed_reason": "고유 관리번호를 쓰는 조건이 확정되어 식별 구조에 실질적인 대안이 없습니다."},
-  "rules": [{"topic": "identity", "status": "addressed", "reason": "관리번호의 중복 범위를 확인했습니다.", "requirements": ["R-01"], "scenarios": ["S-01"], "review_points": []}],
-  "change_impact": {"baseline": "new", "baseline_note": "기존 DB를 대체하지 않는 새 논리 모델입니다.", "items": []}
+  "version": "1.1.0",
+  "complexity": {"level":"simple","reason":"단일 조직의 비품 분류이며 외부 통합과 이관이 없습니다."},
+  "alternatives": {"reviews":[],"not_needed_reason":"식별 체계는 이미 합의된 제약입니다."},
+  "rules": [{"id":"BR-01","title":"관리번호 중복 방지","topic":"identity","design_status":"modeled","decision_status":"proposed","requirements":["R-01"],"entities":["item"],"scenarios":["S-01"],"review_points":[]}],
+  "change_impact": {"baseline":"new","baseline_kind":"none","baseline_note":"기존 DB를 대체하지 않는 새 논리 모델입니다.","changes":[],"items":[]}
 }
 ```
 
-대안이 있으면 `alternatives.reviews`에 `{decision_id, criteria:[비교 기준...], revisit_when}`을 기록하고 해당 결정의 rationale/alternatives에 읽을 수 있는 비교 원문을 작성한다. change_impact.items는 `{area, status, note_ref, entities:[], review_points:[]}`이며 status는 affected/unaffected/unknown/not_applicable다. note_ref는 화면에 표시되는 메모 또는 쟁점 ID다. unknown은 해결할 review_point, affected는 관련 엔터티를 연결한다. 기존 데이터가 미확인인데 unaffected로 기록하면 거부한다.
+이 조각의 참조 ID는 실제 문서에 있어야 한다. modeled 규칙은 연결된 시나리오가 해당 요구사항을 다뤄야 한다. change 항목은 id,target_type,대상 식별자,change,before,after,reason,requirements를 갖는다. target_type entity/column은 entity_id, column은 column_name, relationship은 relationship_id를 지정한다. added의 before와 removed의 after는 null이다. modified의 before는 비어 있지 않은 객체다.
 
-생성기는 이 계약·ID·규칙-시나리오 연결·설명 위치를 검사한다. 복합 사례의 미검토 영역, 기존 변경의 빠진 영향 영역, 한 요구의 design/design_points 중복, 동일 장문 설명 반복, 샘플 상황이 없는 요구를 경고한다. `.build.json`의 design_review에 기록되며 `validate_review.py`도 경고를 출력한다. 같은 입력은 같은 경고 순서로 나온다.
-
-이 검사는 작성자가 선언한 연결을 확인하는 보조 수단이다. 대안의 실제 타당성, 원문의 충분함, 알려지지 않은 규칙 누락, 성능·동시성·운영 전환을 자동 증명하지 않는다. 공통 뷰어의 가져오기는 기본 데이터 계약을 검사하며 이 심화 검토는 Python 공통 생성기/검사기에서 수행한다. 직접 수정한 파일도 전달 전에 해당 검사기를 다시 실행한다.
+Python과 뷰어가 계약·참조·샘플·결과 대응을 검사한다. 복합 사례의 미검토 topic, 기존 변경의 미검토 영향, 중복된 원문 등을 경고한다. 생성 기록의 design_review에 남고 validate_review.py가 출력한다. 문장 타당성·모든 업무 규칙·성능·동시성·이관을 자동으로 증명하지 않는다. 경고 0개를 완료 점수로 쓰지 않는다.

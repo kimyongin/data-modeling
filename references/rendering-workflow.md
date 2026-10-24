@@ -4,7 +4,7 @@
 
 ## 환경과 버전
 
-Python 3.11+의 전용 환경에 requirements.txt를 설치한다. 정상 사용 중 의존성·공통 코드·스키마를 바꾸지 않는다. 현재 제작 입력 스키마는 1.0.0, 기본 모델 문서 형식은 1.0.0, 생성기 버전은 renderer-release.json에서 확인한다. 모델 JSON의 호환성은 형식/데이터 스키마로 결정하고 렌더러 핀은 직접 작성하지 않는다.
+Python 3.11+의 전용 환경에 requirements.txt를 설치한다. 정상 사용 중 의존성·공통 코드·스키마를 바꾸지 않는다. 현재 제작 입력 스키마는 1.0.0, 기본 모델 문서 형식은 1.1.0, 생성기 버전은 renderer-release.json에서 확인한다. 모델 JSON의 호환성은 형식/데이터 스키마로 결정하고 렌더러 핀은 직접 작성하지 않는다.
 
 ```bash
 python3 -m venv .venv
@@ -13,7 +13,7 @@ python3 -m venv .venv
 
 ## 새 사례: JSON을 직접 작성
 
-1. [직접 작성 안내](model-json.md)와 [완전한 예제](example-model.json)를 읽고 model-1.0.0.schema.json에 맞춰 standard 문서를 작성한다. 업무 설명·근거·관계·샘플·남은 판단을 채운다.
+1. [직접 작성 안내](model-json.md)와 [완전한 예제](example-model.json)를 읽고 model-1.1.0.schema.json에 맞춰 standard 문서를 작성한다. 업무 설명·근거·관계·샘플·남은 판단을 채운다.
 2. validate_review.py로 문법·스키마·ID/관계/열/샘플 연결을 확인한다. 검증하지 못한 확인 결과는 비워 두고 미실행으로 표시한다.
 3. JSON을 기존 dist/model-viewer.html에서 가져와 개요/스펙/ERD/설명/샘플을 읽는다. 최종 JSON과 재사용하는 뷰어 링크를 전달한다.
 
@@ -29,7 +29,7 @@ python3 -m venv .venv
 
 ## 내부 실행 검증 자료를 사용하는 경우
 
-기존 review-1.0.0.schema.json은 실행 검증을 위한 중간 입력으로 유지한다. 이때만 renderer_version을 현재 릴리스에 고정하고, 기대 결과/DDL/SQL 등을 내부 파일에 보존한다. 필요하고 가능한 실행 검증에만 verify_sqlite.py를 사용한다. 다른 모델에 SQLite나 실행 보고서를 강요하지 않는다.
+이미 존재하는 review-1.0.0.schema.json 자료의 선택적 변환 경로를 호환 유지한다. 새 사례에 SQL을 작성하거나 전용 검증 탭을 추가하지 않는다. 이때만 renderer_version을 현재 릴리스에 고정하고, 기대 결과/DDL/SQL 등을 내부 파일에 보존한다. 필요하고 가능한 실행 검증에만 verify_sqlite.py를 사용한다. 다른 모델에 SQLite나 실행 보고서를 강요하지 않는다.
 
 ```bash
 .venv/bin/python <skill-dir>/scripts/verify_sqlite.py <case>/review.json --output <case>/verification.json
@@ -40,10 +40,10 @@ python3 -m venv .venv
 
 ## 두 형식과 확인 결과의 의미
 
-- **기본 모델 JSON(data-modeling-model, 1.0.0):** 직접 작성/스킬 생성/파일 공유 모두 사용한다. format/format_version/review가 필수다. 체크섬이나 렌더러 해시가 없어도 된다. JSON을 편집하고 재검사·가져오기로 갱신한다. verification과 build_metadata는 선택이다.
+- **기본 모델 JSON(data-modeling-model, 1.1.0):** 직접 작성/스킬 생성/파일 공유 모두 사용한다. format/format_version/review가 필수다. 체크섬이나 렌더러 해시가 없어도 된다. JSON을 편집하고 재검사·가져오기로 갱신한다. verification과 build_metadata는 선택이다.
 - **이전 공유 JSON(data-modeling-share, 1.0.0):** 이미 배포한 내보내기 파일용이다. 기존 체크섬과 명시적으로 지원하는 릴리스 해시를 계속 검사한다. 새 사례를 이 형식으로 강제하지 않는다.
 
-모든 실제 결과는 JSON에 기록된 내용이며 뷰어가 새로 실행/서명한 결과가 아니다. 결과가 없는 모델은 미실행이다. 기본 모델의 생성기 버전은 추적 정보이며, 같은 데이터 스키마인데 UI 버전만 다르다는 이유로 가져오기를 막지 않는다. 지원하지 않는 데이터 형식/스키마는 뷰어 갱신이 필요하다.
+새 결과는 방법·범위와 review 내용 지문을 기록한다. 내용이 바뀌면 이전 결과를 거부하며, 다시 수행하지 않았다면 --clear-verification으로 명시적으로 제거한다. 이전 1.0 결과는 입력 대응 미확인인 과거 기록으로 표시한다. [결과 계약](result-integrity.md)을 따른다. 모든 실제 결과는 JSON에 기록된 내용이며 뷰어가 새로 실행/서명한 결과가 아니다. 결과가 없는 모델은 미실행이다. 기본 모델의 생성기 버전은 추적 정보이며, 같은 데이터 스키마인데 UI 버전만 다르다는 이유로 가져오기를 막지 않는다. 지원하지 않는 데이터 형식/스키마는 뷰어 갱신이 필요하다.
 
 ## 공통 뷰어와 명시적인 HTML 생성
 
@@ -69,8 +69,12 @@ dist/model-viewer.html은 업무 데이터 없는 고정 뷰어다. 처음 한 �
 
 사용자가 화면/생성 방식 개선을 요청한 경우에만 유지보수 모드다. 이전 ZIP·입력·기록을 보존하고 공통 코드/지침/스키마/검사를 수정한 뒤 release_renderer.py --version <새 버전> --notes '<이유>'로 새 릴리스를 발행한다. 기존 번호/이력을 덮어쓰지 않는다. 테스트로 직접 작성 JSON과 기존 내보내기 파일·실패/미실행·다른 업무의 JSON을 같은 뷰어에서 검사한다. 소스/설치본/ZIP·JSON/뷰어 재생성 바이트를 비교한다.
 
-스키마를 바꾸면 유지보수용 tools/create_share_schema.py와 Ajv 8.17.1/esbuild 0.25.12의 고정 빌드로 브라우저 검사기를 다시 컴파일한다. 일반 사용자는 Node/npm을 설치하지 않는다. 동적 스크립트나 원격 라이브러리를 JSON에서 불러오지 않는다. 이전 제작 입력의 버전 이전은 원본을 보존하고 migrate_review.py로 명시적으로 수행한다.
+1.1 계약의 원본은 tools/create_model_schema.py로 생성하고, 이미 배포한 1.0 스키마는 수정하지 않는다. 스키마를 바꾸면 Ajv 8.17.1/esbuild 0.25.12의 고정 빌드로 브라우저 검사기를 다시 컴파일한다. 일반 사용자는 Node/npm을 설치하지 않는다. 동적 스크립트나 원격 라이브러리를 JSON에서 불러오지 않는다. 이전 제작 입력의 버전 이전은 원본을 보존하고 migrate_review.py로 명시적으로 수행한다.
 
 ## 설계 검토 기록
 
-새 사례는 [설계 검토](design-review.md)에 따라 `review.extensions.modeling_review`를 작성한다. 복잡도·대안·규칙 누락·변경 영향의 연결을 검사하고 생성 기록의 `design_review`에 경고를 남긴다. 기존 뷰어·모델 1.0.0 계약은 유지하며 사례마다 HTML을 만들지 않는다. 업무 설명 원문은 기존 결정·미결 사항·전제에 한 번 작성하고 [설명 작성](report-writing.md)에 따라 중복을 줄인다. 이 검토 기록이나 경고 0개는 실제 실행 통과를 뜻하지 않는다.
+새 사례는 [설계 검토](design-review.md)에 따라 `review.extensions.modeling_review`를 작성한다. 복잡도·대안·규칙 누락·변경 영향의 연결을 검사하고 생성 기록의 `design_review`에 경고를 남긴다. 기존 1.0 파일은 원본을 유지해 읽으며 새 문서는 1.1 계약을 따르고 사례마다 HTML을 만들지 않는다. 업무 설명 원문은 기존 결정·미결 사항·전제에 한 번 작성하고 [설명 작성](report-writing.md)에 따라 중복을 줄인다. 이 검토 기록이나 경고 0개는 실제 실행 통과를 뜻하지 않는다.
+
+## 1.1 형식 도입 시 한 번의 뷰어 갱신
+
+1.0만 지원하는 뷰어는 1.1 JSON을 읽을 수 없으므로 배포된 dist/model-viewer.html로 한 번 교체한다. 이후 새 사례에는 JSON만 만든다. 1.0 원본은 유지하며 필요한 경우만 migrate_model.py로 별도 출력에 명시적으로 옮긴다. 구 결과를 자동으로 현재 결과에 결합하지 않는다. Python/뷰어 검사 일치는 audit_integrity.py의 --node 옵션과 check_integrity_viewer.cjs로 확인한다.

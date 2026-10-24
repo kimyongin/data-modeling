@@ -7,6 +7,7 @@ import json
 import re
 import platform
 import tempfile
+from model_integrity import value_key
 from review_contract import (validate_document, renderer_release, load_json, canonical_digest, dependency_versions, ROOT)
 from pathlib import Path
 
@@ -143,7 +144,7 @@ def validate_references(data, executable=True):
             continue
         if not isinstance(insight, dict):
             raise ValueError('Entity insights must be an object: ' + entity['id'])
-        for key in ('purpose', 'tradeoff', 'risk'):
+        for key in (('purpose', 'tradeoff', 'risk') if data['schema_version']=='1.0.0' else tuple(k for k in ('purpose','tradeoff','risk') if k in insight)):
             if not isinstance(insight.get(key), str) or not insight[key].strip():
                 raise ValueError('Entity insights require purpose/tradeoff/risk: ' + entity['id'])
         for key, known in insight_refs.items():
@@ -193,7 +194,7 @@ def validate_references(data, executable=True):
             key = ref.get('key')
             if not primary or not isinstance(key, dict) or set(key) != primary or any(value is None or isinstance(value, (dict, list)) for value in key.values()):
                 raise ValueError('Sample reference requires the full primary key: ' + case['id'])
-            if sum(all(name in row and type(row[name]) is type(value) and row[name] == value for name, value in key.items()) for row in entity.get('rows', [])) != 1:
+            if sum(all(name in row and value_key(row[name]) == value_key(value) for name, value in key.items()) for row in entity.get('rows', [])) != 1:
                 raise ValueError('Sample reference must match exactly one baseline row: ' + case['id'])
         for field in ('expect_error_message', 'rejection_reason'):
             if field in case and (not isinstance(case[field], str) or not case[field].strip() or not case.get('expect_error')):
@@ -283,7 +284,7 @@ def render_html(review, verification, build_metadata, title):
     payload = payload.replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     css = (assets / 'review.css').read_text(encoding='utf-8')
     scripts = [(assets / name).read_text(encoding='utf-8') for name in
-               ('vendor/viz-global.js', 'vendor/share-validator.js', 'review-transfer.js', 'review.js')]
+               ('vendor/viz-global.js', 'vendor/share-validator.js', 'model-integrity.js', 'review-transfer.js', 'review.js')]
     return ('<!doctype html><html lang="ko"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<title>' + esc(title) + '</title><style>' + css + '</style></head>'
@@ -309,17 +310,19 @@ def main():
     parser.add_argument('--verification', type=Path)
     parser.add_argument('--format', choices=('json','html'), help='Default: json. Independent HTML requires explicit --format html')
     parser.add_argument('--allow-compatibility', action='store_true', help='Explicit legacy/test rendering; never a new standard report')
+    parser.add_argument('--clear-verification',action='store_true',help='Explicitly clear observations in authored model JSON')
     args = parser.parse_args()
-    if args.viewer and (args.input or args.verification or args.allow_compatibility or args.format):
+    if args.viewer and (args.input or args.verification or args.allow_compatibility or args.format or args.clear_verification):
         parser.error('--viewer cannot be combined with an input, --verification or --allow-compatibility')
     if not args.viewer and args.input is None:
         parser.error('Provide a review input, or use --viewer to generate a data-free viewer')
+    if args.format == 'html' and args.clear_verification:parser.error('--clear-verification is JSON-only')
     if args.format == 'html' and args.output.suffix.lower() not in ('.html', '.htm'):
         parser.error('--format html requires an .html output path')
     try:
         if not args.viewer and args.format != 'html':
             from build_model import build_to_file
-            print(str(build_to_file(args.input,args.output,args.verification,args.allow_compatibility)))
+            print(str(build_to_file(args.input,args.output,args.verification,args.allow_compatibility,args.clear_verification)))
             return
         if args.viewer:
             output = render_viewer()

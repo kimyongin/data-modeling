@@ -20,7 +20,9 @@ def main():
             from modeling_review import assess_review
             for warning in assess_review(data['review'])['warnings']:
                 print('Review warning: '+warning['code']+': '+warning['message'],file=sys.stderr)
-            print('Valid: directly importable model JSON 1.0.0 (format and review links; not business approval)')
+            if data['format_version']=='1.0.0' and data.get('verification'):
+                print('Review warning: legacy_verification_unbound: 이전 결과와 현재 입력의 대응은 확인할 수 없습니다.',file=sys.stderr)
+            print('Valid: model JSON '+data['format_version']+' (schema, samples and review links; '+('content-bound observations' if data['format_version']=='1.1.0' else 'legacy observations unbound')+'; not business approval)')
             return
         validate_review(data, allow_compatibility=args.allow_compatibility)
         print('Valid: schema ' + data['schema_version'] + ', renderer ' + data['renderer_version'] + ', ' + data['review_profile'])

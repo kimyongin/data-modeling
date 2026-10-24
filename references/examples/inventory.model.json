@@ -1,8 +1,8 @@
 {
   "format": "data-modeling-model",
-  "format_version": "1.0.0",
+  "format_version": "1.1.0",
   "review": {
-    "schema_version": "1.0.0",
+    "schema_version": "1.1.0",
     "review_profile": "standard",
     "title": "비품 분류 목록 — 단순 설계 검토",
     "summary": "비품마다 관리번호와 분류를 기록하고 분류별 목록을 확인합니다.",
@@ -56,13 +56,27 @@
         "id": "D-01",
         "title": "분류를 목록으로 따로 관리",
         "rationale": "같은 분류의 이름을 한 곳에서 바꾸고 비품의 연결은 유지합니다. 분류 등록과 연결 관리가 추가됩니다.",
-        "alternatives": "비품마다 분류 이름을 직접 쓰면 등록은 간단하지만 이름 변경과 오타 정리가 여러 행에 걸립니다. 이름 변경의 일관성을 우선해 분류 목록을 선택합니다.",
         "requirements": [
           "R-02"
         ],
         "sources": [
           "E-SYN"
-        ]
+        ],
+        "choices": [
+          {
+            "id": "C-1",
+            "title": "분류를 별도 관리",
+            "benefit": "이름 변경을 한 곳에서 처리하고 비품 연결을 유지합니다.",
+            "cost": "분류 등록과 연결을 따로 관리합니다."
+          },
+          {
+            "id": "C-2",
+            "title": "비품마다 분류명을 기록",
+            "benefit": "별도 분류 등록 없이 바로 입력할 수 있습니다.",
+            "cost": "이름 변경과 오타 정리가 여러 비품에 걸쳐 필요합니다."
+          }
+        ],
+        "selected_choice": "C-1"
       }
     ],
     "review_points": [
@@ -134,7 +148,6 @@
         "name": "분류",
         "grain": "분류 기준 한 개",
         "description": "비품을 묶는 분류 이름을 관리합니다.",
-        "short_description": "비품을 묶는 분류 이름을 관리합니다.",
         "columns": [
           {
             "name": "id",
@@ -169,29 +182,18 @@
         "sources": [
           "E-SYN"
         ],
-        "example": "C1은 컴퓨터 분류입니다.",
-        "review_question": "현재 이름만 보아도 충분한가요?",
-        "insights": {
-          "purpose": "이름을 바꾸는 기준을 한 곳에서 관리합니다.",
-          "tradeoff": "별도 분류를 먼저 등록해야 합니다.",
-          "risk": "현재 이름만 남기므로 과거 분류명을 재현하지 않습니다.",
-          "decision_ids": [
-            "D-01"
-          ],
-          "source_ids": [
-            "E-SYN"
-          ],
-          "scenario_ids": [
-            "S-01"
+        "role": "core",
+        "unique_keys": [
+          [
+            "name"
           ]
-        }
+        ]
       },
       {
         "id": "item",
         "name": "비품",
         "grain": "비품 한 개",
         "description": "관리번호로 비품을 구분하고 분류에 연결합니다.",
-        "short_description": "관리번호로 비품을 구분하고 분류에 연결합니다.",
         "columns": [
           {
             "name": "id",
@@ -247,22 +249,12 @@
         "sources": [
           "E-SYN"
         ],
-        "example": "IT-001 노트북은 C1 컴퓨터 분류에 속합니다.",
-        "review_question": "모든 대상 비품에 고유 관리번호가 있나요?",
-        "insights": {
-          "purpose": "같은 이름의 물건도 관리번호로 구별합니다.",
-          "tradeoff": "수량 합계 대신 물건별로 등록합니다.",
-          "risk": "개별 물건으로 구분하지 않는 소모품은 이 예시에서 다루지 않습니다.",
-          "decision_ids": [
-            "D-01"
-          ],
-          "source_ids": [
-            "E-SYN"
-          ],
-          "scenario_ids": [
-            "S-01"
+        "role": "core",
+        "unique_keys": [
+          [
+            "asset_code"
           ]
-        }
+        ]
       }
     ],
     "relationships": [
@@ -371,7 +363,7 @@
     ],
     "extensions": {
       "modeling_review": {
-        "version": "1.0.0",
+        "version": "1.1.0",
         "complexity": {
           "level": "simple",
           "reason": "단일 조직의 현재 분류 목록이며 외부 통합·이력·기존 전환이 없습니다."
@@ -390,54 +382,99 @@
         },
         "rules": [
           {
+            "id": "BR-01",
+            "title": "중복 관리번호를 막습니다.",
             "topic": "identity",
-            "status": "addressed",
+            "design_status": "modeled",
+            "decision_status": "proposed",
             "reason": "중복 관리번호를 막습니다.",
             "requirements": [
               "R-01"
             ],
+            "entities": [
+              "item"
+            ],
             "scenarios": [
               "S-02"
             ],
             "review_points": []
           },
           {
+            "id": "BR-02",
+            "title": "비품이 있는 분류의 삭제 제한",
             "topic": "lifecycle",
-            "status": "addressed",
+            "design_status": "modeled",
+            "decision_status": "proposed",
             "reason": "사용 중 분류 삭제를 막습니다.",
             "requirements": [
               "R-02"
             ],
+            "entities": [
+              "category",
+              "item"
+            ],
             "scenarios": [
               "S-02"
             ],
             "review_points": []
           },
           {
+            "id": "BR-03",
+            "title": "외부 원천과 통합하지 않는 합성 목록입니다.",
             "topic": "integration",
-            "status": "not_applicable",
+            "design_status": "not_applicable",
+            "decision_status": "proposed",
             "reason": "외부 원천과 통합하지 않는 합성 목록입니다.",
             "requirements": [],
+            "entities": [],
             "scenarios": [],
             "review_points": []
           },
           {
+            "id": "BR-04",
+            "title": "현재 분류 이름만 유지하고 과거 이름 재현은 제외합니다.",
             "topic": "time",
-            "status": "excluded",
+            "design_status": "excluded",
+            "decision_status": "proposed",
             "reason": "현재 분류 이름만 유지하고 과거 이름 재현은 제외합니다.",
             "requirements": [
               "R-02"
+            ],
+            "entities": [
+              "category",
+              "item"
             ],
             "scenarios": [],
             "review_points": [
               "Q-SCOPE"
             ]
+          },
+          {
+            "id": "BR-RENAME",
+            "title": "분류 이름 변경 후 비품 연결 유지",
+            "topic": "lifecycle",
+            "design_status": "modeled",
+            "decision_status": "proposed",
+            "reason": "사용 중 분류 삭제를 막습니다.",
+            "requirements": [
+              "R-02"
+            ],
+            "entities": [
+              "category",
+              "item"
+            ],
+            "scenarios": [
+              "S-01"
+            ],
+            "review_points": []
           }
         ],
         "change_impact": {
           "baseline": "new",
           "baseline_note": "새 목록의 논리 모델이며 기존 DB 교체나 데이터 전환은 없습니다.",
-          "items": []
+          "items": [],
+          "baseline_kind": "none",
+          "changes": []
         }
       }
     }
