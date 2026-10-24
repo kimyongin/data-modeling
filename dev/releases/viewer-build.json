@@ -1,0 +1,11 @@
+{
+  "kind": "bundled-viewer",
+  "renderer_version": "1.2.0",
+  "model_versions": [
+    "1.0.0",
+    "1.1.0"
+  ],
+  "viewer_release_sha256": "c9752b21dfbcd39b27b9bd2c28fbfac7cdc51a83df28f85b8f7b1bb47cbebd1f",
+  "output_sha256": "26832a581c0090facce99b1e58a93cc8c0754ced1e84f18e7ac078a47c9cc2ee",
+  "empty_data": true
+}
