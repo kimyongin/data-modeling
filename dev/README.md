@@ -35,6 +35,8 @@ python dev/tools/check.py --node node --development --output /tmp/data-modeling-
 
 `review-regressions.mjs`는 변경 전후의 부분 기록과 값 구분, 영역별 영향 상태·대상·쟁점, 공통 근거의 중복 제거, 세 목록의 다중 단어 검색과 선택 보존, 오류의 정확한 누락 필드·업무 이름·수정 안내를 확인한다. 검색은 `search.js` 하나를 공유하며 오류 설명은 검사기의 코드·구조 정보와 `errors.js`의 화면 문구를 분리한다. 문서 계약과 Python/JS 판정은 유지한다.
 
+`change-hardening-regressions.mjs`는 변경 전 설계 값의 형식 차이, 대상 종류의 일치, 하위 필드·배열의 타입·중복·순서·미기록 구분, 허용 값과 문법 오류 위치를 검사한다. 최신 스펙·모델에 비교 표가 섞이지 않고 참조의 설계 변경 기록에서 한 항목만 표시하는지, 선택·검색과 JSON 원문이 보존되는지도 확인한다. `comparison.js`는 표시만 담당하며 JSON 계약이나 생성기에 의존성을 추가하지 않는다. 표시 대상은 target_type을 기준으로 정하고, 현재 계약에서 허용하는 다른 ID 필드를 대체 대상으로 사용하지 않는다.
+
 `check_bundle.mjs`는 `app-regressions.mjs`에서 최종 HTML의 전체 앱 진입 코드를 최소 DOM에서 실행한다. 빈 화면·세 예제 파일 가져오기·검색·샘플·실제 Blob 내보내기, 취소·문법·누락 필드·지원하지 않는 버전·파일 읽기 실패·용량 초과·동시 가져오기를 확인한다. 원본 함수만 호출하는 검사와 별도로 파일 이벤트 경로도 검사하며 패키징에서 필수 실행한다. 이때 Graphviz는 대기 상태로 두고, 같은 명령의 별도 검사에서 실제 엔진으로 모든 예제의 ERD 범위를 그린다. 실제 브라우저 CSS·포인터 검사로 보고하지 않는다.
 
 `check_examples.py`는 비품·예약·오픈마켓의 명시한 합성 샘플만 대조한다. 실제 결과를 다시 기록할 때만 `--record-observations`를 명시한다. 스키마 통과나 화면 작동을 실제 API/DB/동시성 검증으로 기록하지 않는다.
@@ -52,7 +54,7 @@ python dev/tools/check.py --node node --development --output /tmp/data-modeling-
 소스·스키마 검사기·개발 검사를 갱신한 뒤 새 뷰어 버전을 봉인한다. 봉인한 명세를 덮어쓰지 않는다.
 
 ```bash
-python dev/tools/release_viewer.py --version 2.3.0 --notes '변경 이유'
+python dev/tools/release_viewer.py --version 2.4.0 --notes '변경 이유'
 python dev/tools/build_viewer.py --node node
 python dev/tools/check.py --node node --output /tmp/data-modeling-release-check
 python dev/tools/package_skill.py --node node --output /tmp/data-modeling.zip --release

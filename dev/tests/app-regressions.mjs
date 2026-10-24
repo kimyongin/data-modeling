@@ -5,6 +5,7 @@ import vm from "node:vm";
 import assert from "node:assert/strict";
 import { webcrypto } from "node:crypto";
 import { Element, installDOM } from "./dom-fixture.mjs";
+import { historicalRoleDocument, redundantTargetDocument } from "./change-fixtures.mjs";
 
 async function runAppRegressions(check, html, manifest) {
   const dom = installDOM(), scripts = [...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)];
@@ -66,8 +67,10 @@ async function runAppRegressions(check, html, manifest) {
       await check(item.name + " shipped app file import, multiword search, sample drawer and exact Blob export", async () => {
         await load(doc, item.name + ".model.json");
         click("스펙");
+        assert.equal(host.querySelector(".change-impact"), null);
+        click("참조"); click("설계 변경 기록");
         const impact = host.querySelector(".change-impact");
-        assert.equal(impact.querySelectorAll(".change-card").length, doc.change_impact.changes.length);
+        assert.equal(impact.querySelectorAll(".change-card").length, Math.min(1, doc.change_impact.changes.length));
         assert.equal(impact.querySelectorAll(".impact-area").length, doc.change_impact.areas.length);
         if (doc.change_impact.changes.length) { assert(impact.textContent.includes("변경 전")); assert(impact.textContent.includes("변경 후")); }
         if (item.name === "booking-change") {
@@ -75,6 +78,7 @@ async function runAppRegressions(check, html, manifest) {
           assert(impact.textContent.includes("영향 미확인"));
         }
         const query = doc.requirements[0].id.toLowerCase() + "\t" + doc.requirements[0].title.split(/\s+/).at(-1);
+        click("스펙");
         const search = host.querySelector(".record-list").querySelector("input"); search.value = " " + query + " "; search.emit("input");
         assert(host.querySelector(".record-items").querySelectorAll("button").some((b) => !b.hidden && b.dataset.record === doc.requirements[0].id));
         click("모델"); click("확인 사항");
@@ -105,7 +109,7 @@ async function runAppRegressions(check, html, manifest) {
       await reject({ name: "gone.json", size: 12, text: async () => { throw Error("PRIVATE_FILE_ERROR"); } }, ["파일을 읽을 수 없습니다", "다시 선택"]);
       assert(!host.querySelector(".transfer-notice").textContent.includes("PRIVATE_FILE_ERROR"));
       await reject({ name: "large.json", size: 21 * 1024 * 1024, text: async () => { throw Error("should not read"); } }, ["20MB", "샘플"]);
-      await reject(file('{"x": "bad\\q"}'), ["JSON 문법", "따옴표"]);
+      await reject(file('{"x": "bad\\q"}'), ["JSON 문법", "이스케이프", "1행"]);
     });
     await check("shipped app latest file selection wins over slower old file and releases old observers", async () => {
       let release;
@@ -113,6 +117,39 @@ async function runAppRegressions(check, html, manifest) {
       const latest = JSON.parse(fs.readFileSync("examples/booking-change.model.json", "utf8"));
       await load(latest); release(); await new Promise((r) => setTimeout(r, 10));
       assert.equal(host.querySelector("h1").textContent, latest.document.title); assert.equal(dom.observers(), 1);
+    });
+    await check("shipped app accepts valid changed-before objects and opens spec without losing the current document", async () => {
+      const doc = historicalRoleDocument(JSON.parse(fs.readFileSync("examples/inventory.model.json", "utf8")));
+      await load(doc); click("참조"); click("설계 변경 기록");
+      const row = host.querySelectorAll("tbody tr").find((tr) => tr.dataset.path === '["role"]');
+      assert(row); assert(row.children[1].textContent.includes('"toString": null'));
+      assert(row.children[2].textContent.includes("업무 핵심"));
+      const count = downloads.length; click("내보내기"); await until(() => downloads.length > count);
+      assert.deepEqual(JSON.parse(await blobs.get(downloads.at(-1).url).text()), doc);
+    });
+    await check("shipped app keeps typed change targets and readable composite-key additions", async () => {
+      const doc = redundantTargetDocument(base); await load(doc); click("참조"); click("설계 변경 기록");
+      const first = host.querySelectorAll(".change-card")[0];
+      assert(first.querySelector("h4").textContent.includes("metric_definition"));
+      assert(!first.querySelector("h4").textContent.includes(doc.model.relationships[0].id));
+      const picker = host.querySelector(".change-picker").querySelector("select");
+      picker.value = "CH-08"; picker.emit("change");
+      const composite = host.querySelector(".change-card");
+      assert.equal(composite.dataset.change, "CH-08");
+      assert(composite.textContent.includes("연결 출발점 → 연결 속성"));
+      assert(composite.querySelectorAll(".comparison-added").some((li) => li.textContent.includes("account_id")));
+      assert(composite.querySelectorAll(".comparison-added").some((li) => li.textContent.includes("market")));
+      const search = host.querySelector(".record-list").querySelector("input");
+      search.value = "CH-08 account_id"; search.emit("input");
+      assert(host.querySelector(".record-items").querySelectorAll("button").some((b) => b.dataset.record === "@changes" && !b.hidden));
+    });
+    await check("shipped app enum and syntax guidance allows correction without exposing file values or losing the review", async () => {
+      const broken = structuredClone(base); broken.model.entities[0].role = "PRIVATE_VALUE";
+      await reject(file(broken), ["모델 역할 (role)", "업무 핵심 (core)", "근거·운영 지원 (supporting)", "조건부 확장 (optional)"]);
+      assert(!host.querySelector(".transfer-notice").textContent.includes("PRIVATE_VALUE"));
+      await reject(file('{\n "a":1,\n "a":2\n}'), ["3행 2열", "중복 항목: a"]);
+      await reject(file('{\n "a":1\n "b":2\n}'), ["3행 2열", "쉼표"]);
+      await load(base); assert.equal(host.querySelector("h1").textContent, base.document.title);
     });
   } finally { Element.prototype.click = oldClick; }
 }

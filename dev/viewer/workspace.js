@@ -285,7 +285,7 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
       collection.replaceChildren(renderOverview(doc, engine, signal));
       return;
     }
-    const items = s.tab === "spec" ? [{ id: "@scope", title: "범위와 전제" }, { id: "@common", title: "공통 설계 판단" }, ...doc.requirements] : [...doc.sources, { id: "@process", title: "제작 과정" }, { id: "@glossary", title: "용어 안내" }];
+    const items = s.tab === "spec" ? [{ id: "@scope", title: "범위와 전제" }, { id: "@common", title: "공통 설계 판단" }, ...doc.requirements] : [...doc.sources, { id: "@changes", title: "설계 변경 기록" }, { id: "@process", title: "제작 과정" }, { id: "@glossary", title: "용어 안내" }];
     const key = s.tab + ":" + (tabRecords[s.tab] || s.recordId || items[0].id);
     if (lastRecord === key) return;
     lastRecord = key;
@@ -299,7 +299,7 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
     listKeys(itemsHost);
     let selected = null;
     // Search the same readable content shown in the detail pane, including linked judgments.
-    const bodies = new Map(items.map((item) => [item.id, s.tab === "spec" ? renderSpec(doc, item.id, index) : renderReference(doc, item.id, index)]));
+    const bodies = new Map(items.map((item) => [item.id, s.tab === "spec" ? renderSpec(doc, item.id, index) : renderReference(doc, item.id, index, { selectedId: s.changeId, onSelect: (id) => state.update({ changeId: id }) })]));
     const selectRecord = (item) => {
       if (selected?.id === item?.id) return;
       if (selected && lastRecord) recordScroll.set(lastRecord, detail.scrollTop);
@@ -316,12 +316,12 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
       }
     };
     for (const item of items) {
-      const b = button(["@scope", "@common", "@process", "@glossary"].includes(item.id) ? item.title : index.label(item.id), () => {
+      const b = button(["@scope", "@common", "@process", "@glossary", "@changes"].includes(item.id) ? item.title : index.label(item.id), () => {
         recordListScroll[s.tab] = itemsHost.scrollTop;
         selectRecord(item);
       }, "navigation-item");
       b.dataset.record = item.id;
-      b.dataset.search = b.textContent + " " + bodies.get(item.id).textContent;
+      b.dataset.search = b.textContent + " " + bodies.get(item.id).textContent + " " + (bodies.get(item.id).dataset.searchText || "");
       b.setAttribute("aria-pressed", "false");
       itemsHost.append(b);
     }

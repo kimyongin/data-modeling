@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import assert from "node:assert/strict";
 import { createWorkspace } from "../viewer/workspace.js";
-import { renderSpec } from "../viewer/content.js";
+import { renderReference } from "../viewer/content.js";
 import { renderImpact } from "../viewer/impact.js";
 import { indexDocument } from "../viewer/dom.js";
 import { matchesQuery } from "../viewer/search.js";
@@ -16,14 +16,16 @@ async function runReviewRegressions(check, dom, manifest) {
   for (const item of manifest) {
     const doc = JSON.parse(fs.readFileSync(item.input, "utf8"));
     await check(item.name + " change evidence retains every snapshot, area state, target and issue without mutating JSON", () => {
-      const original = JSON.stringify(doc), body = renderSpec(doc, "@scope", indexDocument(doc));
-      const cards = body.querySelectorAll(".change-card");
-      assert.equal(cards.length, doc.change_impact.changes.length);
+      const original = JSON.stringify(doc), body = renderReference(doc, "@changes", indexDocument(doc));
+      assert.equal(body.querySelectorAll(".change-card").length, Math.min(1, doc.change_impact.changes.length));
+      const picker = body.querySelector("select");
       for (const change of doc.change_impact.changes) {
-        const card = cards.find((c) => c.dataset.change === change.id);
+        if (picker) { picker.value = change.id; picker.emit("change"); }
+        const card = body.querySelector(".change-card");
+        assert.equal(card.dataset.change, change.id);
         assert(card.textContent.includes("변경 전")); assert(card.textContent.includes("변경 후"));
         assert(card.textContent.includes(change.reason));
-        assert.equal(card.querySelectorAll("tbody tr").length, new Set([...Object.keys(change.before || {}), ...Object.keys(change.after || {})]).size);
+        for (const field of new Set([...Object.keys(change.before || {}), ...Object.keys(change.after || {})])) assert(card.querySelectorAll("tbody tr").some((tr) => JSON.parse(tr.dataset.path)[0] === field));
       }
       for (const area of doc.change_impact.areas) {
         const row = body.querySelectorAll(".impact-area").find((a) => a.dataset.area === area.area);
@@ -83,11 +85,14 @@ async function runReviewRegressions(check, dom, manifest) {
       { id: "CH-REMOVE", target_type: "entity", entity_id: "old_model", change: "removed", before: { name: "이전 모델" }, after: null, reason: "제외 이유", requirement_ids: [] },
       { id: "CH-REL", target_type: "relationship", relationship_id: "old_relation", change: "removed", before: { title: "이전 관계" }, after: null, reason: "관계 제외 이유", requirement_ids: [] }
     ] };
-    const body = renderImpact(impact, indexDocument(doc)), text = body.textContent;
-    for (const term of ["운영 데이터 구조와 비교", "변경 전", "변경 후", "아니오 (false)", "0", '빈 문자열 · ""', "NULL · 비어 있는 값", "추가 전 대상 없음", "제외 후 대상 없음", "값 미기록 · 판단하지 않음", "old_model: 이전 모델", "old_relation: 이전 관계", '"state": "kept"', "전체의 차이를 뜻하지 않습니다"]) assert(text.includes(term), term);
+    const body = renderImpact(impact, indexDocument(doc)), picker = body.querySelector("select");
+    let text = "";
+    for (const change of impact.changes) { picker.value = change.id; picker.emit("change"); text += body.textContent; }
+    for (const term of ["운영 데이터 구조와 비교", "변경 전", "변경 후", "아니오 (false)", "0", '빈 문자열 · ""', "NULL · 비어 있는 값", "추가 전 대상 없음", "제외 후 대상 없음", "값 미기록 · 판단하지 않음", "old_model: 이전 모델", "old_relation: 이전 관계", "nested.state", '"kept"', "전체의 차이를 뜻하지 않습니다"]) assert(text.includes(term), term);
     assert(!text.includes("대상 미확인"));
-    const rows = body.querySelectorAll(".change-card")[1].querySelectorAll("tbody tr");
-    assert.deepEqual(rows.find((r) => r.children[0].textContent === "count").children.map((c) => c.textContent), ["count", "0", "값 미기록 · 판단하지 않음"]);
+    picker.value = "CH-MOD"; picker.emit("change");
+    const rows = body.querySelector(".change-card").querySelectorAll("tbody tr");
+    assert.deepEqual(rows.find((r) => r.dataset.path === '["count"]').children.map((c) => c.textContent).slice(1), ["0", "값 미기록 · 판단하지 않음"]);
     assert.deepEqual(rows.find((r) => r.children[0].textContent.includes("required")).children.map((c) => c.textContent).slice(1), ["아니오 (false)", "예 (true)"]);
   });
   await check("all impact states remain distinct even with a shared note and absent targets", () => {

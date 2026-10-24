@@ -59,6 +59,17 @@ tr.evidence td { background: #fff6da; }
 .impact-area > .badge { margin-left: 10px; }
 .impact-area[data-status=unknown] > .badge { background: #fff2d8; color: #805b1c; }
 .impact-area[data-status=affected] > .badge { background: #e8f1fb; color: #205b8e; }
+.comparison-table tr[data-state=changed] > td:first-child, .comparison-table tr[data-state=reordered] > td:first-child { border-left: 3px solid #bd8d37; background: #fff8e9; }
+.comparison-table tr[data-state=added] > td:first-child { border-left: 3px solid #398260; }
+.comparison-table tr[data-state=removed] > td:first-child { border-left: 3px solid #b95656; }
+.comparison-table .comparison-values { margin: 0; padding-left: 20px; }
+.comparison-values > li { padding: 3px 5px; }
+.comparison-values .badge { margin-left: 6px; }
+.comparison-added { background: #eaf5ee; }
+.comparison-removed { background: #fceeee; }
+.comparison-table td:first-child .badge { margin-top: 5px; }
+.change-picker { display: grid; gap: 6px; margin-top: 18px; font-size: 12px; color: var(--muted); }
+.change-picker select { width: 100%; min-width: 0; padding: 8px; font: inherit; color: #25394d; background: white; border: 1px solid var(--line); border-radius: 5px; }
 
 .app { height: 100dvh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; }
 .app-header { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 22px; min-width: 0; padding: 12px 20px; border-bottom: 1px solid var(--line); background: #fff; }
@@ -168,7 +179,7 @@ tr.evidence td { background: #fff6da; }
 .sample-content { height: 100%; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); }
 .sample-content > .caption { padding: 6px 12px; }
 .sample-grid { height: 100%; }
-</style></head><body><div id="app"></div><noscript>JavaScript를 활성화해 모델을 검토하세요.</noscript><script type="application/json" id="viewer-data">{"version": "2.3.0", "document_version": "2.0.0", "development": false, "notices": {"AJV-LICENSE.txt": "The MIT License (MIT)\n\nCopyright (c) 2015-2021 Evgeny Poberezkin\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n", "EXPAT-LICENSE.txt": "Copyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2001-2025 Expat maintainers\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be included\nin all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.\nIN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,\nTORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE\nSOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n", "GRAPHVIZ-LICENSE.txt": "Eclipse Public License - v 2.0\n\n    THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE\n    PUBLIC LICENSE (\"AGREEMENT\"). ANY USE, REPRODUCTION OR DISTRIBUTION\n    OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.\n\n1. DEFINITIONS\n\n\"Contribution\" means:\n\n  a) in the case of the initial Contributor, the initial content\n     Distributed under this Agreement, and\n\n  b) in the case of each subsequent Contributor:\n     i) changes to the Program, and\n     ii) additions to the Program;\n  where such changes and/or additions to the Program originate from\n  and are Distributed by that particular Contributor. A Contribution\n  \"originates\" from a Contributor if it was added to the Program by\n  such Contributor itself or anyone acting on such Contributor's behalf.\n  Contributions do not include changes or additions to the Program that\n  are not Modified Works.\n\n\"Contributor\" means any person or entity that Distributes the Program.\n\n\"Licensed Patents\" mean patent claims licensable by a Contributor which\nare necessarily infringed by the use or sale of its Contribution alone\nor when combined with the Program.\n\n\"Program\" means the Contributions Distributed in accordance with this\nAgreement.\n\n\"Recipient\" means anyone who receives the Program under this Agreement\nor any Secondary License (as applicable), including Contributors.\n\n\"Derivative Works\" shall mean any work, whether in Source Code or other\nform, that is based on (or derived from) the Program and for which the\neditorial revisions, annotations, elaborations, or other modifications\nrepresent, as a whole, an original work of authorship.\n\n\"Modified Works\" shall mean any work in Source Code or other form that\nresults from an addition to, deletion from, or modification of the\ncontents of the Program, including, for purposes of clarity any new file\nin Source Code form that contains any contents of the Program. Modified\nWorks shall not include works that contain only declarations,\ninterfaces, types, classes, structures, or files of the Program solely\nin each case in order to link to, bind by name, or subclass the Program\nor Modified Works thereof.\n\n\"Distribute\" means the acts of a) distributing or b) making available\nin any manner that enables the transfer of a copy.\n\n\"Source Code\" means the form of a Program preferred for making\nmodifications, including but not limited to software source code,\ndocumentation source, and configuration files.\n\n\"Secondary License\" means either the GNU General Public License,\nVersion 2.0, or any later versions of that license, including any\nexceptions or additional permissions as identified by the initial\nContributor.\n\n2. GRANT OF RIGHTS\n\n  a) Subject to the terms of this Agreement, each Contributor hereby\n  grants Recipient a non-exclusive, worldwide, royalty-free copyright\n  license to reproduce, prepare Derivative Works of, publicly display,\n  publicly perform, Distribute and sublicense the Contribution of such\n  Contributor, if any, and such Derivative Works.\n\n  b) Subject to the terms of this Agreement, each Contributor hereby\n  grants Recipient a non-exclusive, worldwide, royalty-free patent\n  license under Licensed Patents to make, use, sell, offer to sell,\n  import and otherwise transfer the Contribution of such Contributor,\n  if any, in Source Code or other form. This patent license shall\n  apply to the combination of the Contribution and the Program if, at\n  the time the Contribution is added by the Contributor, such addition\n  of the Contribution causes such combination to be covered by the\n  Licensed Patents. The patent license shall not apply to any other\n  combinations which include the Contribution. No hardware per se is\n  licensed hereunder.\n\n  c) Recipient understands that although each Contributor grants the\n  licenses to its Contributions set forth herein, no assurances are\n  provided by any Contributor that the Program does not infringe the\n  patent or other intellectual property rights of any other entity.\n  Each Contributor disclaims any liability to Recipient for claims\n  brought by any other entity based on infringement of intellectual\n  property rights or otherwise. As a condition to exercising the\n  rights and licenses granted hereunder, each Recipient hereby\n  assumes sole responsibility to secure any other intellectual\n  property rights needed, if any. For example, if a third party\n  patent license is required to allow Recipient to Distribute the\n  Program, it is Recipient's responsibility to acquire that license\n  before distributing the Program.\n\n  d) Each Contributor represents that to its knowledge it has\n  sufficient copyright rights in its Contribution, if any, to grant\n  the copyright license set forth in this Agreement.\n\n  e) Notwithstanding the terms of any Secondary License, no\n  Contributor makes additional grants to any Recipient (other than\n  those set forth in this Agreement) as a result of such Recipient's\n  receipt of the Program under the terms of a Secondary License\n  (if permitted under the terms of Section 3).\n\n3. REQUIREMENTS\n\n3.1 If a Contributor Distributes the Program in any form, then:\n\n  a) the Program must also be made available as Source Code, in\n  accordance with section 3.2, and the Contributor must accompany\n  the Program with a statement that the Source Code for the Program\n  is available under this Agreement, and informs Recipients how to\n  obtain it in a reasonable manner on or through a medium customarily\n  used for software exchange; and\n\n  b) the Contributor may Distribute the Program under a license\n  different than this Agreement, provided that such license:\n     i) effectively disclaims on behalf of all other Contributors all\n     warranties and conditions, express and implied, including\n     warranties or conditions of title and non-infringement, and\n     implied warranties or conditions of merchantability and fitness\n     for a particular purpose;\n\n     ii) effectively excludes on behalf of all other Contributors all\n     liability for damages, including direct, indirect, special,\n     incidental and consequential damages, such as lost profits;\n\n     iii) does not attempt to limit or alter the recipients' rights\n     in the Source Code under section 3.2; and\n\n     iv) requires any subsequent distribution of the Program by any\n     party to be under a license that satisfies the requirements\n     of this section 3.\n\n3.2 When the Program is Distributed as Source Code:\n\n  a) it must be made available under this Agreement, or if the\n  Program (i) is combined with other material in a separate file or\n  files made available under a Secondary License, and (ii) the initial\n  Contributor attached to the Source Code the notice described in\n  Exhibit A of this Agreement, then the Program may be made available\n  under the terms of such Secondary Licenses, and\n\n  b) a copy of this Agreement must be included with each copy of\n  the Program.\n\n3.3 Contributors may not remove or alter any copyright, patent,\ntrademark, attribution notices, disclaimers of warranty, or limitations\nof liability (\"notices\") contained within the Program from any copy of\nthe Program which they Distribute, provided that Contributors may add\ntheir own appropriate notices.\n\n4. COMMERCIAL DISTRIBUTION\n\nCommercial distributors of software may accept certain responsibilities\nwith respect to end users, business partners and the like. While this\nlicense is intended to facilitate the commercial use of the Program,\nthe Contributor who includes the Program in a commercial product\noffering should do so in a manner which does not create potential\nliability for other Contributors. Therefore, if a Contributor includes\nthe Program in a commercial product offering, such Contributor\n(\"Commercial Contributor\") hereby agrees to defend and indemnify every\nother Contributor (\"Indemnified Contributor\") against any losses,\ndamages and costs (collectively \"Losses\") arising from claims, lawsuits\nand other legal actions brought by a third party against the Indemnified\nContributor to the extent caused by the acts or omissions of such\nCommercial Contributor in connection with its distribution of the Program\nin a commercial product offering. The obligations in this section do not\napply to any claims or Losses relating to any actual or alleged\nintellectual property infringement. In order to qualify, an Indemnified\nContributor must: a) promptly notify the Commercial Contributor in\nwriting of such claim, and b) allow the Commercial Contributor to control,\nand cooperate with the Commercial Contributor in, the defense and any\nrelated settlement negotiations. The Indemnified Contributor may\nparticipate in any such claim at its own expense.\n\nFor example, a Contributor might include the Program in a commercial\nproduct offering, Product X. That Contributor is then a Commercial\nContributor. If that Commercial Contributor then makes performance\nclaims, or offers warranties related to Product X, those performance\nclaims and warranties are such Commercial Contributor's responsibility\nalone. Under this section, the Commercial Contributor would have to\ndefend claims against the other Contributors related to those performance\nclaims and warranties, and if a court requires any other Contributor to\npay any damages as a result, the Commercial Contributor must pay\nthose damages.\n\n5. NO WARRANTY\n\nEXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, AND TO THE EXTENT\nPERMITTED BY APPLICABLE LAW, THE PROGRAM IS PROVIDED ON AN \"AS IS\"\nBASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR\nIMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS OF\nTITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR\nPURPOSE. Each Recipient is solely responsible for determining the\nappropriateness of using and distributing the Program and assumes all\nrisks associated with its exercise of rights under this Agreement,\nincluding but not limited to the risks and costs of program errors,\ncompliance with applicable laws, damage to or loss of data, programs\nor equipment, and unavailability or interruption of operations.\n\n6. DISCLAIMER OF LIABILITY\n\nEXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, AND TO THE EXTENT\nPERMITTED BY APPLICABLE LAW, NEITHER RECIPIENT NOR ANY CONTRIBUTORS\nSHALL HAVE ANY LIABILITY FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,\nEXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING WITHOUT LIMITATION LOST\nPROFITS), HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN\nCONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\nARISING IN ANY WAY OUT OF THE USE OR DISTRIBUTION OF THE PROGRAM OR THE\nEXERCISE OF ANY RIGHTS GRANTED HEREUNDER, EVEN IF ADVISED OF THE\nPOSSIBILITY OF SUCH DAMAGES.\n\n7. GENERAL\n\nIf any provision of this Agreement is invalid or unenforceable under\napplicable law, it shall not affect the validity or enforceability of\nthe remainder of the terms of this Agreement, and without further\naction by the parties hereto, such provision shall be reformed to the\nminimum extent necessary to make such provision valid and enforceable.\n\nIf Recipient institutes patent litigation against any entity\n(including a cross-claim or counterclaim in a lawsuit) alleging that the\nProgram itself (excluding combinations of the Program with other software\nor hardware) infringes such Recipient's patent(s), then such Recipient's\nrights granted under Section 2(b) shall terminate as of the date such\nlitigation is filed.\n\nAll Recipient's rights under this Agreement shall terminate if it\nfails to comply with any of the material terms or conditions of this\nAgreement and does not cure such failure in a reasonable period of\ntime after becoming aware of such noncompliance. If all Recipient's\nrights under this Agreement terminate, Recipient agrees to cease use\nand distribution of the Program as soon as reasonably practicable.\nHowever, Recipient's obligations under this Agreement and any licenses\ngranted by Recipient relating to the Program shall continue and survive.\n\nEveryone is permitted to copy and distribute copies of this Agreement,\nbut in order to avoid inconsistency the Agreement is copyrighted and\nmay only be modified in the following manner. The Agreement Steward\nreserves the right to publish new versions (including revisions) of\nthis Agreement from time to time. No one other than the Agreement\nSteward has the right to modify this Agreement. The Eclipse Foundation\nis the initial Agreement Steward. The Eclipse Foundation may assign the\nresponsibility to serve as the Agreement Steward to a suitable separate\nentity. Each new version of the Agreement will be given a distinguishing\nversion number. The Program (including Contributions) may always be\nDistributed subject to the version of the Agreement under which it was\nreceived. In addition, after a new version of the Agreement is published,\nContributor may elect to Distribute the Program (including its\nContributions) under the new version.\n\nExcept as expressly stated in Sections 2(a) and 2(b) above, Recipient\nreceives no rights or licenses to the intellectual property of any\nContributor under this Agreement, whether expressly, by implication,\nestoppel or otherwise. All rights in the Program not expressly granted\nunder this Agreement are reserved. Nothing in this Agreement is intended\nto be enforceable by any entity that is not a Contributor or Recipient.\nNo third-party beneficiary rights are created under this Agreement.\n\nExhibit A - Form of Secondary Licenses Notice\n\n\"This Source Code may also be made available under the following \nSecondary Licenses when the conditions for such availability set forth \nin the Eclipse Public License, v. 2.0 are satisfied: {name license(s),\nversion(s), and exceptions or additional permissions here}.\"\n\n  Simply including a copy of this Agreement, including this Exhibit A\n  is not sufficient to license the Source Code under Secondary Licenses.\n\n  If it is not possible or desirable to put the notice in a particular\n  file, then You may include the notice in a location (such as a LICENSE\n  file in a relevant directory) where a recipient would be likely to\n  look for such a notice.\n\n  You may add additional accurate notices of copyright ownership.", "NOTICE.txt": "Vendored, unmodified @viz-js/viz 3.25.0 (viz-global.js), Copyright Michael Daines, MIT.\nSource: https://github.com/mdaines/viz-js/tree/v3\nContains Graphviz 14.1.3, Eclipse Public License 2.0; corresponding source:\nhttps://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/14.1.3/graphviz-14.1.3.tar.gz\nContains Expat 2.7.4, MIT; corresponding source:\nhttps://github.com/libexpat/libexpat/releases/download/R_2_7_4/expat-2.7.4.tar.gz\nFull license notices accompany this file and are embedded in generated HTML.\nThe skill's review.js, CSS and renderer are separate original code.\n\nSharing-file validation uses Ajv 8.17.1 standalone generated code and its\nucs2length runtime helper (MIT; see AJV-LICENSE.txt). The schema is compiled\nat maintenance time and bundled with esbuild 0.25.12; neither tool is loaded\nfrom the network when the report is generated or opened.\n", "VIZ-LICENSE.txt": "MIT License\n\nCopyright (c) Michael Daines\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n"}}</script><script>/*!
+</style></head><body><div id="app"></div><noscript>JavaScript를 활성화해 모델을 검토하세요.</noscript><script type="application/json" id="viewer-data">{"version": "2.4.0", "document_version": "2.0.0", "development": false, "notices": {"AJV-LICENSE.txt": "The MIT License (MIT)\n\nCopyright (c) 2015-2021 Evgeny Poberezkin\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n", "EXPAT-LICENSE.txt": "Copyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2001-2025 Expat maintainers\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be included\nin all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.\nIN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,\nTORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE\nSOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n", "GRAPHVIZ-LICENSE.txt": "Eclipse Public License - v 2.0\n\n    THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE\n    PUBLIC LICENSE (\"AGREEMENT\"). ANY USE, REPRODUCTION OR DISTRIBUTION\n    OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.\n\n1. DEFINITIONS\n\n\"Contribution\" means:\n\n  a) in the case of the initial Contributor, the initial content\n     Distributed under this Agreement, and\n\n  b) in the case of each subsequent Contributor:\n     i) changes to the Program, and\n     ii) additions to the Program;\n  where such changes and/or additions to the Program originate from\n  and are Distributed by that particular Contributor. A Contribution\n  \"originates\" from a Contributor if it was added to the Program by\n  such Contributor itself or anyone acting on such Contributor's behalf.\n  Contributions do not include changes or additions to the Program that\n  are not Modified Works.\n\n\"Contributor\" means any person or entity that Distributes the Program.\n\n\"Licensed Patents\" mean patent claims licensable by a Contributor which\nare necessarily infringed by the use or sale of its Contribution alone\nor when combined with the Program.\n\n\"Program\" means the Contributions Distributed in accordance with this\nAgreement.\n\n\"Recipient\" means anyone who receives the Program under this Agreement\nor any Secondary License (as applicable), including Contributors.\n\n\"Derivative Works\" shall mean any work, whether in Source Code or other\nform, that is based on (or derived from) the Program and for which the\neditorial revisions, annotations, elaborations, or other modifications\nrepresent, as a whole, an original work of authorship.\n\n\"Modified Works\" shall mean any work in Source Code or other form that\nresults from an addition to, deletion from, or modification of the\ncontents of the Program, including, for purposes of clarity any new file\nin Source Code form that contains any contents of the Program. Modified\nWorks shall not include works that contain only declarations,\ninterfaces, types, classes, structures, or files of the Program solely\nin each case in order to link to, bind by name, or subclass the Program\nor Modified Works thereof.\n\n\"Distribute\" means the acts of a) distributing or b) making available\nin any manner that enables the transfer of a copy.\n\n\"Source Code\" means the form of a Program preferred for making\nmodifications, including but not limited to software source code,\ndocumentation source, and configuration files.\n\n\"Secondary License\" means either the GNU General Public License,\nVersion 2.0, or any later versions of that license, including any\nexceptions or additional permissions as identified by the initial\nContributor.\n\n2. GRANT OF RIGHTS\n\n  a) Subject to the terms of this Agreement, each Contributor hereby\n  grants Recipient a non-exclusive, worldwide, royalty-free copyright\n  license to reproduce, prepare Derivative Works of, publicly display,\n  publicly perform, Distribute and sublicense the Contribution of such\n  Contributor, if any, and such Derivative Works.\n\n  b) Subject to the terms of this Agreement, each Contributor hereby\n  grants Recipient a non-exclusive, worldwide, royalty-free patent\n  license under Licensed Patents to make, use, sell, offer to sell,\n  import and otherwise transfer the Contribution of such Contributor,\n  if any, in Source Code or other form. This patent license shall\n  apply to the combination of the Contribution and the Program if, at\n  the time the Contribution is added by the Contributor, such addition\n  of the Contribution causes such combination to be covered by the\n  Licensed Patents. The patent license shall not apply to any other\n  combinations which include the Contribution. No hardware per se is\n  licensed hereunder.\n\n  c) Recipient understands that although each Contributor grants the\n  licenses to its Contributions set forth herein, no assurances are\n  provided by any Contributor that the Program does not infringe the\n  patent or other intellectual property rights of any other entity.\n  Each Contributor disclaims any liability to Recipient for claims\n  brought by any other entity based on infringement of intellectual\n  property rights or otherwise. As a condition to exercising the\n  rights and licenses granted hereunder, each Recipient hereby\n  assumes sole responsibility to secure any other intellectual\n  property rights needed, if any. For example, if a third party\n  patent license is required to allow Recipient to Distribute the\n  Program, it is Recipient's responsibility to acquire that license\n  before distributing the Program.\n\n  d) Each Contributor represents that to its knowledge it has\n  sufficient copyright rights in its Contribution, if any, to grant\n  the copyright license set forth in this Agreement.\n\n  e) Notwithstanding the terms of any Secondary License, no\n  Contributor makes additional grants to any Recipient (other than\n  those set forth in this Agreement) as a result of such Recipient's\n  receipt of the Program under the terms of a Secondary License\n  (if permitted under the terms of Section 3).\n\n3. REQUIREMENTS\n\n3.1 If a Contributor Distributes the Program in any form, then:\n\n  a) the Program must also be made available as Source Code, in\n  accordance with section 3.2, and the Contributor must accompany\n  the Program with a statement that the Source Code for the Program\n  is available under this Agreement, and informs Recipients how to\n  obtain it in a reasonable manner on or through a medium customarily\n  used for software exchange; and\n\n  b) the Contributor may Distribute the Program under a license\n  different than this Agreement, provided that such license:\n     i) effectively disclaims on behalf of all other Contributors all\n     warranties and conditions, express and implied, including\n     warranties or conditions of title and non-infringement, and\n     implied warranties or conditions of merchantability and fitness\n     for a particular purpose;\n\n     ii) effectively excludes on behalf of all other Contributors all\n     liability for damages, including direct, indirect, special,\n     incidental and consequential damages, such as lost profits;\n\n     iii) does not attempt to limit or alter the recipients' rights\n     in the Source Code under section 3.2; and\n\n     iv) requires any subsequent distribution of the Program by any\n     party to be under a license that satisfies the requirements\n     of this section 3.\n\n3.2 When the Program is Distributed as Source Code:\n\n  a) it must be made available under this Agreement, or if the\n  Program (i) is combined with other material in a separate file or\n  files made available under a Secondary License, and (ii) the initial\n  Contributor attached to the Source Code the notice described in\n  Exhibit A of this Agreement, then the Program may be made available\n  under the terms of such Secondary Licenses, and\n\n  b) a copy of this Agreement must be included with each copy of\n  the Program.\n\n3.3 Contributors may not remove or alter any copyright, patent,\ntrademark, attribution notices, disclaimers of warranty, or limitations\nof liability (\"notices\") contained within the Program from any copy of\nthe Program which they Distribute, provided that Contributors may add\ntheir own appropriate notices.\n\n4. COMMERCIAL DISTRIBUTION\n\nCommercial distributors of software may accept certain responsibilities\nwith respect to end users, business partners and the like. While this\nlicense is intended to facilitate the commercial use of the Program,\nthe Contributor who includes the Program in a commercial product\noffering should do so in a manner which does not create potential\nliability for other Contributors. Therefore, if a Contributor includes\nthe Program in a commercial product offering, such Contributor\n(\"Commercial Contributor\") hereby agrees to defend and indemnify every\nother Contributor (\"Indemnified Contributor\") against any losses,\ndamages and costs (collectively \"Losses\") arising from claims, lawsuits\nand other legal actions brought by a third party against the Indemnified\nContributor to the extent caused by the acts or omissions of such\nCommercial Contributor in connection with its distribution of the Program\nin a commercial product offering. The obligations in this section do not\napply to any claims or Losses relating to any actual or alleged\nintellectual property infringement. In order to qualify, an Indemnified\nContributor must: a) promptly notify the Commercial Contributor in\nwriting of such claim, and b) allow the Commercial Contributor to control,\nand cooperate with the Commercial Contributor in, the defense and any\nrelated settlement negotiations. The Indemnified Contributor may\nparticipate in any such claim at its own expense.\n\nFor example, a Contributor might include the Program in a commercial\nproduct offering, Product X. That Contributor is then a Commercial\nContributor. If that Commercial Contributor then makes performance\nclaims, or offers warranties related to Product X, those performance\nclaims and warranties are such Commercial Contributor's responsibility\nalone. Under this section, the Commercial Contributor would have to\ndefend claims against the other Contributors related to those performance\nclaims and warranties, and if a court requires any other Contributor to\npay any damages as a result, the Commercial Contributor must pay\nthose damages.\n\n5. NO WARRANTY\n\nEXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, AND TO THE EXTENT\nPERMITTED BY APPLICABLE LAW, THE PROGRAM IS PROVIDED ON AN \"AS IS\"\nBASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR\nIMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS OF\nTITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR\nPURPOSE. Each Recipient is solely responsible for determining the\nappropriateness of using and distributing the Program and assumes all\nrisks associated with its exercise of rights under this Agreement,\nincluding but not limited to the risks and costs of program errors,\ncompliance with applicable laws, damage to or loss of data, programs\nor equipment, and unavailability or interruption of operations.\n\n6. DISCLAIMER OF LIABILITY\n\nEXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, AND TO THE EXTENT\nPERMITTED BY APPLICABLE LAW, NEITHER RECIPIENT NOR ANY CONTRIBUTORS\nSHALL HAVE ANY LIABILITY FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,\nEXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING WITHOUT LIMITATION LOST\nPROFITS), HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN\nCONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\nARISING IN ANY WAY OUT OF THE USE OR DISTRIBUTION OF THE PROGRAM OR THE\nEXERCISE OF ANY RIGHTS GRANTED HEREUNDER, EVEN IF ADVISED OF THE\nPOSSIBILITY OF SUCH DAMAGES.\n\n7. GENERAL\n\nIf any provision of this Agreement is invalid or unenforceable under\napplicable law, it shall not affect the validity or enforceability of\nthe remainder of the terms of this Agreement, and without further\naction by the parties hereto, such provision shall be reformed to the\nminimum extent necessary to make such provision valid and enforceable.\n\nIf Recipient institutes patent litigation against any entity\n(including a cross-claim or counterclaim in a lawsuit) alleging that the\nProgram itself (excluding combinations of the Program with other software\nor hardware) infringes such Recipient's patent(s), then such Recipient's\nrights granted under Section 2(b) shall terminate as of the date such\nlitigation is filed.\n\nAll Recipient's rights under this Agreement shall terminate if it\nfails to comply with any of the material terms or conditions of this\nAgreement and does not cure such failure in a reasonable period of\ntime after becoming aware of such noncompliance. If all Recipient's\nrights under this Agreement terminate, Recipient agrees to cease use\nand distribution of the Program as soon as reasonably practicable.\nHowever, Recipient's obligations under this Agreement and any licenses\ngranted by Recipient relating to the Program shall continue and survive.\n\nEveryone is permitted to copy and distribute copies of this Agreement,\nbut in order to avoid inconsistency the Agreement is copyrighted and\nmay only be modified in the following manner. The Agreement Steward\nreserves the right to publish new versions (including revisions) of\nthis Agreement from time to time. No one other than the Agreement\nSteward has the right to modify this Agreement. The Eclipse Foundation\nis the initial Agreement Steward. The Eclipse Foundation may assign the\nresponsibility to serve as the Agreement Steward to a suitable separate\nentity. Each new version of the Agreement will be given a distinguishing\nversion number. The Program (including Contributions) may always be\nDistributed subject to the version of the Agreement under which it was\nreceived. In addition, after a new version of the Agreement is published,\nContributor may elect to Distribute the Program (including its\nContributions) under the new version.\n\nExcept as expressly stated in Sections 2(a) and 2(b) above, Recipient\nreceives no rights or licenses to the intellectual property of any\nContributor under this Agreement, whether expressly, by implication,\nestoppel or otherwise. All rights in the Program not expressly granted\nunder this Agreement are reserved. Nothing in this Agreement is intended\nto be enforceable by any entity that is not a Contributor or Recipient.\nNo third-party beneficiary rights are created under this Agreement.\n\nExhibit A - Form of Secondary Licenses Notice\n\n\"This Source Code may also be made available under the following \nSecondary Licenses when the conditions for such availability set forth \nin the Eclipse Public License, v. 2.0 are satisfied: {name license(s),\nversion(s), and exceptions or additional permissions here}.\"\n\n  Simply including a copy of this Agreement, including this Exhibit A\n  is not sufficient to license the Source Code under Secondary Licenses.\n\n  If it is not possible or desirable to put the notice in a particular\n  file, then You may include the notice in a location (such as a LICENSE\n  file in a relevant directory) where a recipient would be likely to\n  look for such a notice.\n\n  You may add additional accurate notices of copyright ownership.", "NOTICE.txt": "Vendored, unmodified @viz-js/viz 3.25.0 (viz-global.js), Copyright Michael Daines, MIT.\nSource: https://github.com/mdaines/viz-js/tree/v3\nContains Graphviz 14.1.3, Eclipse Public License 2.0; corresponding source:\nhttps://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/14.1.3/graphviz-14.1.3.tar.gz\nContains Expat 2.7.4, MIT; corresponding source:\nhttps://github.com/libexpat/libexpat/releases/download/R_2_7_4/expat-2.7.4.tar.gz\nFull license notices accompany this file and are embedded in generated HTML.\nThe skill's review.js, CSS and renderer are separate original code.\n\nSharing-file validation uses Ajv 8.17.1 standalone generated code and its\nucs2length runtime helper (MIT; see AJV-LICENSE.txt). The schema is compiled\nat maintenance time and bundled with esbuild 0.25.12; neither tool is loaded\nfrom the network when the report is generated or opened.\n", "VIZ-LICENSE.txt": "MIT License\n\nCopyright (c) Michael Daines\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n"}}</script><script>/*!
 Viz.js 3.25.0
 Copyright (c) Michael Daines
 
@@ -208,29 +219,40 @@ Expat https://libexpat.github.io
   });
 
   // dev/viewer/json.js
-  var fail = (message, code = "json_syntax") => {
-    throw Object.assign(new Error(message), { code });
-  };
   var MAX_BYTES = 20 * 1024 * 1024;
   function parse(source) {
     if (source.charCodeAt(0) === 65279) source = source.slice(1);
     let at = 0;
+    const fail3 = (reason, code = "json_syntax", position = at, extra = {}) => {
+      position = Math.min(position, source.length);
+      const prefix = source.slice(0, position), breaks = prefix.match(/\r\n|\r|\n/g) || [];
+      const lineStart = Math.max(prefix.lastIndexOf("\n"), prefix.lastIndexOf("\r")) + 1;
+      const column = Array.from(prefix.slice(lineStart)).length + 1;
+      throw Object.assign(new Error(reason), { code, details: { reason, line: breaks.length + 1, column, ...extra } });
+    };
     const ws = () => {
       while (/[\x20\t\r\n]/.test(source[at] || "!")) at++;
     };
     function string() {
       const start = at++;
-      let escaped = false;
       while (at < source.length) {
         const ch = source[at++];
-        if (!escaped && ch === '"') return JSON.parse(source.slice(start, at));
-        if (!escaped && ch === "\\") escaped = true;
-        else escaped = false;
+        if (ch === '"') return JSON.parse(source.slice(start, at));
+        if (ch.charCodeAt(0) < 32) fail3("\uBB38\uC790\uC5F4 \uC548\uC5D0 \uC904\uBC14\uAFC8\uC774\uB098 \uC81C\uC5B4 \uBB38\uC790\uB97C \uADF8\uB300\uB85C \uB123\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4. \uC774\uC2A4\uCF00\uC774\uD504 \uD45C\uAE30\uB85C \uBC14\uAFD4 \uC8FC\uC138\uC694.", "json_syntax", at - 1);
+        if (ch === "\\") {
+          const escapeAt = at - 1, escaped = source[at++];
+          if (escaped === "u") {
+            for (let i = 0; i < 4; i++) {
+              if (!/[0-9a-fA-F]/.test(source[at] || "!")) fail3("\uC720\uB2C8\uCF54\uB4DC \uC774\uC2A4\uCF00\uC774\uD504\uC5D0\uB294 16\uC9C4\uC218 \uB124 \uC790\uB9AC\uAC00 \uD544\uC694\uD569\uB2C8\uB2E4.", "json_syntax", at);
+              at++;
+            }
+          } else if (!escaped || !'"\\/bfnrt'.includes(escaped)) fail3("\uBB38\uC790\uC5F4\uC758 \uC774\uC2A4\uCF00\uC774\uD504 \uD45C\uAE30\uAC00 \uC798\uBABB\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC5ED\uC2AC\uB798\uC2DC \uB4A4\uC5D0\uB294 \uD5C8\uC6A9\uB41C \uBB38\uC790\uB098 \uC720\uB2C8\uCF54\uB4DC \uD45C\uAE30\uB97C \uC368 \uC8FC\uC138\uC694.", "json_syntax", escapeAt);
+        }
       }
-      fail("\uBB38\uC790\uC5F4\uC774 \uB05D\uB098\uC9C0 \uC54A\uC740 JSON\uC785\uB2C8\uB2E4.");
+      fail3("\uBB38\uC790\uC5F4\uC774 \uB05D\uB098\uC9C0 \uC54A\uC740 JSON\uC785\uB2C8\uB2E4.");
     }
     function value(depth) {
-      if (depth > 80) fail("\uB370\uC774\uD130\uAC00 \uB108\uBB34 \uAE4A\uAC8C \uC911\uCCA9\uB418\uC5B4 \uC788\uC2B5\uB2C8\uB2E4.", "depth");
+      if (depth > 80) fail3("\uB370\uC774\uD130\uAC00 \uB108\uBB34 \uAE4A\uAC8C \uC911\uCCA9\uB418\uC5B4 \uC788\uC2B5\uB2C8\uB2E4.", "depth");
       ws();
       const ch = source[at];
       if (ch === '"') return string();
@@ -244,18 +266,26 @@ Expat https://libexpat.github.io
         }
         while (at < source.length) {
           ws();
-          if (source[at] !== '"') fail("JSON \uD56D\uBAA9 \uC774\uB984\uC744 \uC77D\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4.");
+          if (at >= source.length) fail3("\uAC1D\uCCB4\uB97C \uB2EB\uB294 \uC911\uAD04\uD638(})\uAC00 \uBE60\uC84C\uC2B5\uB2C8\uB2E4.");
+          if (source[at] !== '"') fail3("\uD56D\uBAA9 \uC774\uB984\uC740 \uD070\uB530\uC634\uD45C\uB85C \uAC10\uC2F8 \uC8FC\uC138\uC694.");
+          const keyAt = at;
           const key2 = string();
-          if (Object.hasOwn(out, key2)) fail("\uAC19\uC740 \uD56D\uBAA9 \uC774\uB984\uC774 \uC911\uBCF5\uB418\uC5C8\uC2B5\uB2C8\uB2E4: " + key2);
+          if (Object.hasOwn(out, key2)) fail3("\uAC19\uC740 \uD56D\uBAA9 \uC774\uB984\uC774 \uC911\uBCF5\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC774\uB984\uC744 \uAD6C\uBD84\uD558\uAC70\uB098 \uC911\uBCF5 \uD56D\uBAA9\uC744 \uC81C\uAC70\uD574 \uC8FC\uC138\uC694.", "json_syntax", keyAt, { duplicateKey: key2.slice(0, 100) });
           ws();
-          if (source[at++] !== ":") fail("JSON \uAD6C\uBD84\uC790\uAC00 \uC798\uBABB\uB418\uC5C8\uC2B5\uB2C8\uB2E4.");
+          if (source[at] !== ":") fail3("\uD56D\uBAA9 \uC774\uB984\uACFC \uAC12 \uC0AC\uC774\uC5D0 \uCF5C\uB860(:)\uC774 \uD544\uC694\uD569\uB2C8\uB2E4.");
+          at++;
           out[key2] = value(depth + 1);
           ws();
-          const end = source[at++];
-          if (end === "}") return out;
-          if (end !== ",") break;
+          if (source[at] === "}") {
+            at++;
+            return out;
+          }
+          if (source[at] !== ",") fail3("\uD56D\uBAA9 \uC0AC\uC774\uC758 \uC27C\uD45C(,) \uB610\uB294 \uB2EB\uB294 \uC911\uAD04\uD638(})\uAC00 \uD544\uC694\uD569\uB2C8\uB2E4.");
+          const commaAt = at++;
+          ws();
+          if (source[at] === "}") fail3("\uB9C8\uC9C0\uB9C9 \uD56D\uBAA9 \uB4A4\uC758 \uC27C\uD45C(,)\uB97C \uC81C\uAC70\uD574 \uC8FC\uC138\uC694.", "json_syntax", commaAt);
         }
-        fail("JSON \uAC1D\uCCB4 \uD615\uC2DD\uC774 \uC798\uBABB\uB418\uC5C8\uC2B5\uB2C8\uB2E4.");
+        fail3("\uAC1D\uCCB4\uB97C \uB2EB\uB294 \uC911\uAD04\uD638(})\uAC00 \uBE60\uC84C\uC2B5\uB2C8\uB2E4.");
       }
       if (ch === "[") {
         at++;
@@ -268,11 +298,16 @@ Expat https://libexpat.github.io
         while (at < source.length) {
           out.push(value(depth + 1));
           ws();
-          const end = source[at++];
-          if (end === "]") return out;
-          if (end !== ",") break;
+          if (source[at] === "]") {
+            at++;
+            return out;
+          }
+          if (source[at] !== ",") fail3("\uBAA9\uB85D \uD56D\uBAA9 \uC0AC\uC774\uC758 \uC27C\uD45C(,) \uB610\uB294 \uB2EB\uB294 \uB300\uAD04\uD638(])\uAC00 \uD544\uC694\uD569\uB2C8\uB2E4.");
+          const commaAt = at++;
+          ws();
+          if (source[at] === "]") fail3("\uB9C8\uC9C0\uB9C9 \uBAA9\uB85D \uD56D\uBAA9 \uB4A4\uC758 \uC27C\uD45C(,)\uB97C \uC81C\uAC70\uD574 \uC8FC\uC138\uC694.", "json_syntax", commaAt);
         }
-        fail("JSON \uBC30\uC5F4 \uD615\uC2DD\uC774 \uC798\uBABB\uB418\uC5C8\uC2B5\uB2C8\uB2E4.");
+        fail3("\uBAA9\uB85D\uC744 \uB2EB\uB294 \uB300\uAD04\uD638(])\uAC00 \uBE60\uC84C\uC2B5\uB2C8\uB2E4.");
       }
       for (const [token, result2] of [["true", true], ["false", false], ["null", null]]) if (source.startsWith(token, at)) {
         at += token.length;
@@ -282,14 +317,14 @@ Expat https://libexpat.github.io
       if (match) {
         at += match[0].length;
         const n = Number(match[0]);
-        if (!Number.isFinite(n) || Number.isInteger(n) && !Number.isSafeInteger(n)) fail("\uC815\uD655\uD558\uAC8C \uD45C\uC2DC\uD560 \uC218 \uC5C6\uB294 \uC22B\uC790\uC785\uB2C8\uB2E4. \uD070 \uC2DD\uBCC4\uC790\uB294 \uBB38\uC790\uC5F4\uB85C \uC800\uC7A5\uD574 \uC8FC\uC138\uC694.", "unsafe_number");
+        if (!Number.isFinite(n) || Number.isInteger(n) && !Number.isSafeInteger(n)) fail3("\uC815\uD655\uD558\uAC8C \uD45C\uC2DC\uD560 \uC218 \uC5C6\uB294 \uC22B\uC790\uC785\uB2C8\uB2E4. \uD070 \uC2DD\uBCC4\uC790\uB294 \uBB38\uC790\uC5F4\uB85C \uC800\uC7A5\uD574 \uC8FC\uC138\uC694.", "unsafe_number");
         return n;
       }
-      fail("\uC62C\uBC14\uB978 JSON \uD30C\uC77C\uC774 \uC544\uB2D9\uB2C8\uB2E4.");
+      fail3("\uAC12\uC744 \uC77D\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4. \uBB38\uC790\uC5F4\uC740 \uD070\uB530\uC634\uD45C\uB85C \uAC10\uC2F8\uACE0 \uC22B\uC790\xB7true\xB7false\xB7null\uC740 JSON \uD45C\uAE30\uC5D0 \uB9DE\uCDB0 \uC8FC\uC138\uC694.");
     }
     const result = value(0);
     ws();
-    if (at !== source.length) fail("JSON \uB4A4\uC5D0 \uBD88\uD544\uC694\uD55C \uB0B4\uC6A9\uC774 \uC788\uC2B5\uB2C8\uB2E4.");
+    if (at !== source.length) fail3("JSON \uB4A4\uC5D0 \uBD88\uD544\uC694\uD55C \uB0B4\uC6A9\uC774 \uC788\uC2B5\uB2C8\uB2E4.");
     return result;
   }
 
@@ -3540,7 +3575,7 @@ Expat https://libexpat.github.io
   s.evaluated = { props: true, dynamicProps: false, dynamicItems: false };
 
   // dev/viewer/fingerprint.js
-  var fail2 = (code, detail = "") => {
+  var fail = (code, detail = "") => {
     throw new Error(code + (detail ? ": " + detail : ""));
   };
   var hex = (bytes) => Array.from(bytes, (b2) => b2.toString(16).padStart(2, "0")).join("");
@@ -3548,7 +3583,7 @@ Expat https://libexpat.github.io
     if (value === null) return ["n"];
     if (typeof value === "boolean") return ["b", value];
     if (typeof value === "number") {
-      if (!Number.isFinite(value) || Number.isInteger(value) && !Number.isSafeInteger(value)) fail2("unsafe_number");
+      if (!Number.isFinite(value) || Number.isInteger(value) && !Number.isSafeInteger(value)) fail("unsafe_number");
       const bytes = new Uint8Array(8);
       new DataView(bytes.buffer).setFloat64(0, value === 0 ? 0 : value, false);
       return ["d", hex(bytes)];
@@ -3558,14 +3593,14 @@ Expat https://libexpat.github.io
         const c = value.charCodeAt(i);
         if (c >= 55296 && c <= 56319) {
           const next = value.charCodeAt(++i);
-          if (!(next >= 56320 && next <= 57343)) fail2("invalid_unicode");
-        } else if (c >= 56320 && c <= 57343) fail2("invalid_unicode");
+          if (!(next >= 56320 && next <= 57343)) fail("invalid_unicode");
+        } else if (c >= 56320 && c <= 57343) fail("invalid_unicode");
       }
       return ["s", hex(new TextEncoder().encode(value))];
     }
     if (Array.isArray(value)) return ["a", value.map(typed)];
     if (value && typeof value === "object") return ["o", Object.keys(value).map((k) => [typed(k)[1], typed(value[k])]).sort((a2, b2) => a2[0] < b2[0] ? -1 : a2[0] > b2[0] ? 1 : 0)];
-    fail2("invalid_json_value");
+    fail("invalid_json_value");
   }
   var key = (value) => JSON.stringify(typed(value));
   async function fingerprint(review) {
@@ -3574,12 +3609,12 @@ Expat https://libexpat.github.io
   }
 
   // dev/viewer/validation.js
-  var fail3 = (code, path = "", details = {}) => {
+  var fail2 = (code, path = "", details = {}) => {
     throw Object.assign(new Error(code + ": " + path), { code, path, details });
   };
   var topics = ["identity", "ownership", "lifecycle", "time", "aggregation", "concurrency", "integration", "access", "retention"];
   var areas = ["writes", "reads", "contracts", "existing_data", "history", "rollout", "rollback"];
-  var subset = (keys, object) => Object.fromEntries(Object.entries(object).filter(([k]) => keys.includes(k)));
+  var subset = (keys, object2) => Object.fromEntries(Object.entries(object2).filter(([k]) => keys.includes(k)));
   var same = (a2, b2) => key(a2) === key(b2);
   function observationInput(document2, scenarioId, method) {
     const scenario = document2.samples.scenarios.find((s2) => s2.id === scenarioId);
@@ -3605,68 +3640,68 @@ Expat https://libexpat.github.io
     return fingerprint(observationInput(document2, scenarioId, method));
   }
   async function validateDocument(document2) {
-    if (!document2 || document2.version !== "2.0.0") fail3("version", "Only model document 2.0.0 is supported", { actual: document2?.version });
+    if (!document2 || document2.version !== "2.0.0") fail2("version", "Only model document 2.0.0 is supported", { actual: document2?.version });
     if (!Kt(document2)) {
       const error = Kt.errors?.[0] || {};
-      fail3("schema", error.instancePath || "/", { keyword: error.keyword, params: error.params });
+      fail2("schema", error.instancePath || "/", { keyword: error.keyword, params: error.params });
     }
     function depth(value, level = 0) {
-      if (level > 80) fail3("depth", "Maximum nesting is 80");
-      if (value && typeof value === "object") for (const child of Object.values(value)) depth(child, level + 1);
+      if (level > 80) fail2("depth", "Maximum nesting is 80");
+      if (value && typeof value === "object") for (const child2 of Object.values(value)) depth(child2, level + 1);
     }
     depth(document2);
     typed(document2);
-    if (new Blob([JSON.stringify(document2, null, 2) + "\n"]).size > MAX_BYTES) fail3("file_size", "Formatted JSON exceeds 20MB");
+    if (new Blob([JSON.stringify(document2, null, 2) + "\n"]).size > MAX_BYTES) fail2("file_size", "Formatted JSON exceeds 20MB");
     const collections = { ...subset(["requirements", "rules", "decisions", "issues", "sources", "assumptions", "limitations"], document2), ...document2.model, ...document2.samples, changes: document2.change_impact.changes };
     const maps = {}, ids = /* @__PURE__ */ new Set();
     for (const [name, items] of Object.entries(collections)) {
       maps[name] = /* @__PURE__ */ new Map();
       for (const item of items) {
-        if (ids.has(item.id)) fail3("duplicate_id", item.id);
+        if (ids.has(item.id)) fail2("duplicate_id", item.id);
         ids.add(item.id);
         maps[name].set(item.id, item);
       }
     }
     const refs = (item, field, target) => {
-      for (const id of item[field] || []) if (!maps[target].has(id)) fail3("reference", (item.id || "") + "/" + field + "/" + id);
+      for (const id of item[field] || []) if (!maps[target].has(id)) fail2("reference", (item.id || "") + "/" + field + "/" + id);
     };
     const targets = { requirement_ids: "requirements", entity_ids: "entities", source_ids: "sources", decision_ids: "decisions", scenario_ids: "scenarios", issue_ids: "issues" };
     for (const items of Object.values(collections)) for (const item of items) for (const [field, target] of Object.entries(targets)) refs(item, field, target);
     const entities = maps.entities;
     for (const e of entities.values()) {
       const names = e.attributes.map((a2) => a2.name);
-      if (new Set(names).size !== names.length) fail3("attribute_duplicate", e.id);
-      if ((e.display_attributes || []).some((name) => !names.includes(name))) fail3("display_attribute", e.id);
-      for (const fields of [e.primary_key, ...e.unique_keys]) if (fields.some((f) => !names.includes(f))) fail3("key_attribute", e.id);
-      if (new Set(e.unique_keys.map(key)).size !== e.unique_keys.length) fail3("unique_duplicate", e.id);
+      if (new Set(names).size !== names.length) fail2("attribute_duplicate", e.id);
+      if ((e.display_attributes || []).some((name) => !names.includes(name))) fail2("display_attribute", e.id);
+      for (const fields of [e.primary_key, ...e.unique_keys]) if (fields.some((f) => !names.includes(f))) fail2("key_attribute", e.id);
+      if (new Set(e.unique_keys.map(key)).size !== e.unique_keys.length) fail2("unique_duplicate", e.id);
     }
-    for (const domain of maps.domains.values()) if (domain.id === "all") fail3("reserved_id", "all");
+    for (const domain of maps.domains.values()) if (domain.id === "all") fail2("reserved_id", "all");
     for (const r of maps.relationships.values()) {
       for (const side of ["from", "to"]) {
         const endpoint = r[side], e = entities.get(endpoint.entity_id);
-        if (!e || endpoint.attributes.some((f) => !e.attributes.some((a22) => a22.name === f))) fail3("relationship_endpoint", r.id);
+        if (!e || endpoint.attributes.some((f) => !e.attributes.some((a22) => a22.name === f))) fail2("relationship_endpoint", r.id);
       }
       const a2 = r.from, b2 = r.to;
       if (r.foreign_key) {
-        if (!a2.attributes.length || a2.attributes.length !== b2.attributes.length) fail3("foreign_key_arity", r.id);
+        if (!a2.attributes.length || a2.attributes.length !== b2.attributes.length) fail2("foreign_key_arity", r.id);
         const parent = entities.get(b2.entity_id);
-        if (![parent.primary_key, ...parent.unique_keys].some((fields) => same(fields, b2.attributes))) fail3("foreign_key_unique", r.id);
+        if (![parent.primary_key, ...parent.unique_keys].some((fields) => same(fields, b2.attributes))) fail2("foreign_key_unique", r.id);
       }
     }
     for (const dataset of maps.datasets.values()) {
       for (const [eid, rows] of Object.entries(dataset.rows)) {
         const e = entities.get(eid);
-        if (!e) fail3("dataset_entity", dataset.id + "/" + eid);
+        if (!e) fail2("dataset_entity", dataset.id + "/" + eid);
         const attrs = new Map(e.attributes.map((a2) => [a2.name, a2]));
         for (const row of rows) {
-          if (Object.keys(row).some((k) => !attrs.has(k))) fail3("sample_attribute", dataset.id + "/" + eid);
-          for (const [name, a2] of attrs) if ((a2.required || e.primary_key.includes(name)) && row[name] == null) fail3("sample_required", dataset.id + "/" + eid + "/" + name);
-          for (const name of e.primary_key) if (typeof row[name] === "object") fail3("sample_primary_scalar", dataset.id + "/" + eid);
+          if (Object.keys(row).some((k) => !attrs.has(k))) fail2("sample_attribute", dataset.id + "/" + eid);
+          for (const [name, a2] of attrs) if ((a2.required || e.primary_key.includes(name)) && row[name] == null) fail2("sample_required", dataset.id + "/" + eid + "/" + name);
+          for (const name of e.primary_key) if (typeof row[name] === "object") fail2("sample_primary_scalar", dataset.id + "/" + eid);
         }
         for (const fields of [e.primary_key, ...e.unique_keys]) {
           if (!fields.length) continue;
           const keys = rows.filter((r) => fields.every((f) => r[f] != null)).map((r) => key(fields.map((f) => r[f])));
-          if (new Set(keys).size !== keys.length) fail3("sample_duplicate", dataset.id + "/" + eid + "/" + fields.join(","));
+          if (new Set(keys).size !== keys.length) fail2("sample_duplicate", dataset.id + "/" + eid + "/" + fields.join(","));
         }
       }
       for (const r of maps.relationships.values()) {
@@ -3675,44 +3710,44 @@ Expat https://libexpat.github.io
         const parents = new Set((dataset.rows[b2.entity_id] || []).filter((row) => b2.attributes.every((f) => row[f] != null)).map((row) => key(b2.attributes.map((f) => row[f]))));
         for (const row of dataset.rows[a2.entity_id] || []) {
           if (a2.attributes.some((f) => row[f] == null)) continue;
-          if (!parents.has(key(a2.attributes.map((f) => row[f])))) fail3("sample_foreign_key", dataset.id + "/" + r.id);
+          if (!parents.has(key(a2.attributes.map((f) => row[f])))) fail2("sample_foreign_key", dataset.id + "/" + r.id);
         }
       }
     }
     for (const scenario of maps.scenarios.values()) {
       const dataset = maps.datasets.get(scenario.dataset_id);
-      if (!dataset || !scenario.requirement_ids.length) fail3("scenario_dataset", scenario.id);
+      if (!dataset || !scenario.requirement_ids.length) fail2("scenario_dataset", scenario.id);
       for (const ref of scenario.sample_refs) {
         const eid = ref.entity_id;
-        if (!scenario.entity_ids.includes(eid)) fail3("sample_reference_entity", scenario.id);
+        if (!scenario.entity_ids.includes(eid)) fail2("sample_reference_entity", scenario.id);
         const pk = entities.get(eid).primary_key;
-        if (!pk.length || pk.length !== Object.keys(ref.key).length || pk.some((k) => !Object.hasOwn(ref.key, k))) fail3("sample_reference_key", scenario.id);
-        if ((dataset.rows[eid] || []).filter((row) => pk.every((k) => Object.hasOwn(row, k) && same(row[k], ref.key[k]))).length !== 1) fail3("sample_reference_row", scenario.id);
+        if (!pk.length || pk.length !== Object.keys(ref.key).length || pk.some((k) => !Object.hasOwn(ref.key, k))) fail2("sample_reference_key", scenario.id);
+        if ((dataset.rows[eid] || []).filter((row) => pk.every((k) => Object.hasOwn(row, k) && same(row[k], ref.key[k]))).length !== 1) fail2("sample_reference_row", scenario.id);
       }
     }
     for (const r of maps.rules.values()) {
       if (r.design_status === "modeled") {
         const covered = new Set(r.scenario_ids.flatMap((id) => maps.scenarios.get(id).requirement_ids));
-        if (!r.requirement_ids.length || !r.scenario_ids.length || r.requirement_ids.some((id) => !covered.has(id))) fail3("rule_coverage", r.id);
+        if (!r.requirement_ids.length || !r.scenario_ids.length || r.requirement_ids.some((id) => !covered.has(id))) fail2("rule_coverage", r.id);
       }
-      if (["unmodeled", "excluded", "not_applicable"].includes(r.design_status) && !r.reason) fail3("rule_reason", r.id);
-      if ((r.agreement_status === "open" || ["unmodeled", "excluded"].includes(r.design_status)) && !r.issue_ids.length) fail3("rule_issue", r.id);
-      if (r.agreement_status === "open" && r.issue_ids.some((id) => maps.issues.get(id).kind === "verification")) fail3("rule_policy", r.id);
+      if (["unmodeled", "excluded", "not_applicable"].includes(r.design_status) && !r.reason) fail2("rule_reason", r.id);
+      if ((r.agreement_status === "open" || ["unmodeled", "excluded"].includes(r.design_status)) && !r.issue_ids.length) fail2("rule_issue", r.id);
+      if (r.agreement_status === "open" && r.issue_ids.some((id) => maps.issues.get(id).kind === "verification")) fail2("rule_policy", r.id);
     }
     for (const d of maps.decisions.values()) {
       const choices = d.choices.map((c) => c.id);
-      if (new Set(choices).size !== choices.length || !choices.includes(d.selected_choice) && d.status !== "open" || Object.hasOwn(d, "selected_choice") && !choices.includes(d.selected_choice)) fail3("decision_choice", d.id);
+      if (new Set(choices).size !== choices.length || !choices.includes(d.selected_choice) && d.status !== "open" || Object.hasOwn(d, "selected_choice") && !choices.includes(d.selected_choice)) fail2("decision_choice", d.id);
     }
     const notes = /* @__PURE__ */ new Set([...maps.assumptions.keys(), ...maps.limitations.keys(), ...maps.issues.keys()]);
     const impact = document2.change_impact, seenAreas = /* @__PURE__ */ new Set();
     for (const item of impact.areas) {
       refs(item, "entity_ids", "entities");
       refs(item, "issue_ids", "issues");
-      if (seenAreas.has(item.area) || !notes.has(item.note_id)) fail3("impact_note", item.area);
+      if (seenAreas.has(item.area) || !notes.has(item.note_id)) fail2("impact_note", item.area);
       seenAreas.add(item.area);
-      if (item.status === "affected" && !item.entity_ids.length) fail3("impact_target", item.area);
-      if (item.status === "unknown" && !item.issue_ids.length) fail3("impact_issue", item.area);
-      if (impact.baseline.kind === "unknown" && item.status === "unaffected") fail3("impact_baseline", item.area);
+      if (item.status === "affected" && !item.entity_ids.length) fail2("impact_target", item.area);
+      if (item.status === "unknown" && !item.issue_ids.length) fail2("impact_issue", item.area);
+      if (impact.baseline.kind === "unknown" && item.status === "unaffected") fail2("impact_baseline", item.area);
     }
     for (const c of impact.changes) {
       let target;
@@ -3722,18 +3757,18 @@ Expat https://libexpat.github.io
         if (c.target_type === "attribute") target = target?.attributes.find((a2) => a2.name === c.attribute_name);
       }
       if (c.change === "removed") {
-        if (target || c.after !== null || !c.before || !Object.keys(c.before).length) fail3("change_removed", c.id);
-      } else if (!target || !c.after || !Object.keys(c.after).length || Object.entries(c.after).some(([k, v]) => !Object.hasOwn(target, k) || !same(v, target[k]))) fail3("change_after", c.id);
-      if (c.change === "added" && c.before !== null) fail3("change_before", c.id);
-      if (c.change === "modified" && (!c.before || !Object.keys(c.before).length)) fail3("change_before", c.id);
+        if (target || c.after !== null || !c.before || !Object.keys(c.before).length) fail2("change_removed", c.id);
+      } else if (!target || !c.after || !Object.keys(c.after).length || Object.entries(c.after).some(([k, v]) => !Object.hasOwn(target, k) || !same(v, target[k]))) fail2("change_after", c.id);
+      if (c.change === "added" && c.before !== null) fail2("change_before", c.id);
+      if (c.change === "modified" && (!c.before || !Object.keys(c.before).length)) fail2("change_before", c.id);
     }
     const diagram = document2.document.overview.diagram, nodeIds = diagram.nodes.map((n) => n.id);
-    if (new Set(nodeIds).size !== nodeIds.length || diagram.links.some((e) => !nodeIds.includes(e.from) || !nodeIds.includes(e.to))) fail3("overview_link", "document/overview/diagram");
+    if (new Set(nodeIds).size !== nodeIds.length || diagram.links.some((e) => !nodeIds.includes(e.from) || !nodeIds.includes(e.to))) fail2("overview_link", "document/overview/diagram");
     const seen = /* @__PURE__ */ new Set();
     for (const o of document2.observations) {
-      if (!maps.scenarios.has(o.scenario_id) || seen.has(o.scenario_id)) fail3("observation_scenario", o.scenario_id);
+      if (!maps.scenarios.has(o.scenario_id) || seen.has(o.scenario_id)) fail2("observation_scenario", o.scenario_id);
       seen.add(o.scenario_id);
-      if (o.input_fingerprint !== await observationFingerprint(document2, o.scenario_id, o.method)) fail3("observation_stale", o.scenario_id);
+      if (o.input_fingerprint !== await observationFingerprint(document2, o.scenario_id, o.method)) fail2("observation_stale", o.scenario_id);
     }
     const warnings = [], warn = (code, path, message) => warnings.push({ code, path, message });
     for (const r of document2.requirements) if (!document2.samples.scenarios.some((s2) => s2.requirement_ids.includes(r.id))) warn("requirement_without_scenario", r.id, "\uD655\uC778\uD560 \uC0C1\uD669\uC774 \uC5F0\uACB0\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4.");
@@ -3789,7 +3824,7 @@ Expat https://libexpat.github.io
     head.append(tr);
     for (const row of rows) {
       const tr2 = el("tr");
-      for (const value of row) tr2.append(el("td", text(value)));
+      for (const value of row) tr2.append(value instanceof Node ? add(el("td"), value) : el("td", text(value)));
       body.append(tr2);
     }
     if (!rows.length) {
@@ -3849,7 +3884,7 @@ Expat https://libexpat.github.io
 
   // dev/viewer/state.js
   function createState(document2) {
-    let state = { tab: "model", nav: "domains", scope: { kind: "all" }, datasetId: document2.samples.datasets[0].id, entityId: document2.model.entities[0].id, detail: "attributes", recordId: null };
+    let state = { tab: "model", nav: "domains", scope: { kind: "all" }, datasetId: document2.samples.datasets[0].id, entityId: document2.model.entities[0].id, detail: "attributes", recordId: null, changeId: document2.change_impact.changes[0]?.id || null };
     const subscribers = /* @__PURE__ */ new Set();
     return {
       get: () => state,
@@ -4418,46 +4453,140 @@ ${hints.join("\n")}}`);
     }).filter(Boolean).join(" \xB7 ");
   }
 
+  // dev/viewer/comparison.js
+  var missing = Symbol("unrecorded");
+  var absent = Symbol("no target");
+  var fieldLabels = { id: "\uC2DD\uBCC4 \uCF54\uB4DC", name: "\uC774\uB984", title: "\uC81C\uBAA9", label: "\uD45C\uC2DC \uC774\uB984", description: "\uC124\uBA85", role: "\uBAA8\uB378 \uC5ED\uD560", grain: "\uD55C \uC904\uC758 \uC758\uBBF8", condition: "\uD3EC\uD568 \uC870\uAC74", type: "\uC800\uC7A5 \uD615\uC2DD", required: "\uD544\uC218 \uC785\uB825", attributes: "\uC18D\uC131", primary_key: "\uAD6C\uBD84 \uAC12(PK)", unique_keys: "\uC911\uBCF5\uC744 \uB9C9\uB294 \uC870\uD569", constraints: "\uCD94\uAC00 \uC81C\uC57D", indexes: "\uC870\uD68C \uC778\uB371\uC2A4", from: "\uC5F0\uACB0 \uCD9C\uBC1C\uC810", to: "\uC5F0\uACB0 \uB300\uC0C1", entity_id: "\uBAA8\uB378", cardinality: "\uC5F0\uACB0 \uAC00\uB2A5\uD55C \uAC1C\uC218", foreign_key: "\uC5F0\uACB0 \uAC12(FK)\uC73C\uB85C \uBCF4\uC7A5", rule: "\uC9C0\uCF1C\uC57C \uD560 \uC870\uAC74", enforcement: "\uBCF4\uC7A5 \uC704\uCE58", display_attributes: "\uC5C5\uBB34 \uC2DD\uBCC4 \uC18D\uC131", requirement_ids: "\uC5F0\uACB0 \uC694\uAD6C\uC0AC\uD56D", entity_ids: "\uC5F0\uACB0 \uBAA8\uB378", decision_ids: "\uC5F0\uACB0 \uC124\uACC4 \uD310\uB2E8", source_ids: "\uADFC\uAC70 \uC790\uB8CC" };
+  var roleLabels = { core: "\uC5C5\uBB34 \uD575\uC2EC", supporting: "\uADFC\uAC70\xB7\uC6B4\uC601 \uC9C0\uC6D0", optional: "\uC870\uAC74\uBD80 \uD655\uC7A5" };
+  var cardinalityLabels = { "1": "\uBC18\uB4DC\uC2DC \uD55C \uAC74", "0..1": "\uC5C6\uAC70\uB098 \uD55C \uAC74", "0..N": "\uC5C6\uAC70\uB098 \uC5EC\uB7EC \uAC74", "1..N": "\uD55C \uAC74 \uC774\uC0C1" };
+  var states = { added: "\uCD94\uAC00", removed: "\uC81C\uC678", changed: "\uAC12 \uBCC0\uACBD", reordered: "\uC21C\uC11C \uBCC0\uACBD", same: "\uAC19\uC740 \uAC12", unrecorded: "\uC77C\uBD80 \uAC12 \uBBF8\uAE30\uB85D" };
+  var object = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+  var unknown = (value) => value === missing || value === absent;
+  var child = (value, name) => unknown(value) ? value : Object.hasOwn(value, name) ? value[name] : missing;
+  function comparisonRows(change) {
+    const rows = [];
+    function walk(path, before, after) {
+      if ((object(before) || object(after)) && (object(before) || unknown(before)) && (object(after) || unknown(after))) {
+        const fields = [.../* @__PURE__ */ new Set([...Object.keys(object(before) ? before : {}), ...Object.keys(object(after) ? after : {})])];
+        const emptyObject = [before, after].some((value) => object(value) && !Object.keys(value).length);
+        if (fields.length && !emptyObject) {
+          for (const field of fields) walk([...path, field], child(before, field), child(after, field));
+          return;
+        }
+      }
+      if (!path.length) return;
+      let state = before === absent ? "added" : after === absent ? "removed" : before === missing || after === missing ? "unrecorded" : key(before) === key(after) ? "same" : "changed";
+      if (state === "changed" && Array.isArray(before) && Array.isArray(after) && key(before.map(key).sort()) === key(after.map(key).sort())) state = "reordered";
+      rows.push({ path, before, after, state });
+    }
+    walk([], change.before === null ? absent : change.before, change.after === null ? absent : change.after);
+    return rows;
+  }
+  function readPath(value, path) {
+    for (const part of path) value = value?.[part];
+    return value;
+  }
+  function scalarLabel(value, path, snapshot, change, index) {
+    if (value === null) return "NULL \xB7 \uBE44\uC5B4 \uC788\uB294 \uAC12";
+    if (value === "") return '\uBE48 \uBB38\uC790\uC5F4 \xB7 ""';
+    if (typeof value === "boolean") return value ? "\uC608 (true)" : "\uC544\uB2C8\uC624 (false)";
+    const field = path.at(-1);
+    if (field === "role" && typeof value === "string" && Object.hasOwn(roleLabels, value)) return roleLabels[value] + " (" + value + ")";
+    if (field === "cardinality" && typeof value === "string" && Object.hasOwn(cardinalityLabels, value)) return cardinalityLabels[value] + " (" + value + ")";
+    if (field === "entity_id" && typeof value === "string" && index.get(value)) return index.label(value);
+    if (["requirement_ids", "entity_ids", "decision_ids", "source_ids"].includes(field) && typeof value === "string" && index.get(value)) return index.label(value);
+    if (["attributes", "primary_key", "display_attributes"].includes(field) && typeof value === "string") {
+      const parent = readPath(snapshot, path.slice(0, -1)), entityId = parent?.entity_id || (change.target_type === "entity" ? change.entity_id : null);
+      const attribute = index.get(entityId)?.attributes?.find((a2) => a2.name === value);
+      if (attribute) return attribute.label + " (" + value + ")";
+    }
+    return typeof value === "object" ? JSON.stringify(value, null, 2) : typeof value === "string" ? JSON.stringify(value) : String(value);
+  }
+  function valueCell(value, other, path, snapshot, change, index, side) {
+    if (value === absent) return p(side === "before" ? "\uCD94\uAC00 \uC804 \uB300\uC0C1 \uC5C6\uC74C" : "\uC81C\uC678 \uD6C4 \uB300\uC0C1 \uC5C6\uC74C", "muted");
+    if (value === missing) return p("\uAC12 \uBBF8\uAE30\uB85D \xB7 \uD310\uB2E8\uD558\uC9C0 \uC54A\uC74C", "muted");
+    if (!Array.isArray(value)) return p(scalarLabel(value, path, snapshot, change, index));
+    if (!value.length) return p("\uBE48 \uBAA9\uB85D \xB7 []");
+    const list = el("ol", null, "comparison-values"), counts = /* @__PURE__ */ new Map();
+    const comparable = Array.isArray(other) || other === absent;
+    for (const item of Array.isArray(other) ? other : []) counts.set(key(item), (counts.get(key(item)) || 0) + 1);
+    for (const item of value) {
+      const token = key(item), remaining = counts.get(token) || 0;
+      if (remaining) counts.set(token, remaining - 1);
+      const changed = comparable && !remaining, itemClass = changed ? side === "before" ? "comparison-removed" : "comparison-added" : "";
+      list.append(add(el("li", null, itemClass), el("span", scalarLabel(item, path, snapshot, change, index)), changed ? el("span", side === "before" ? "\uC81C\uC678\uB41C \uAC12" : "\uCD94\uAC00\uB41C \uAC12", "badge") : null));
+    }
+    return list;
+  }
+  function comparisonTable(change, index) {
+    const rows = comparisonRows(change);
+    const grid = table(["\uBE44\uAD50 \uD56D\uBAA9", "\uBCC0\uACBD \uC804", "\uBCC0\uACBD \uD6C4"], rows.map((row) => [
+      add(el("div"), el("strong", row.path.map((part) => part === "attributes" && ["from", "to"].includes(row.path[0]) ? "\uC5F0\uACB0 \uC18D\uC131" : Object.hasOwn(fieldLabels, part) ? fieldLabels[part] : part).join(" \u2192 ")), p(row.path.join("."), "code"), p(states[row.state], "badge")),
+      valueCell(row.before, row.after, row.path, change.before, change, index, "before"),
+      valueCell(row.after, row.before, row.path, change.after, change, index, "after")
+    ]));
+    grid.classList.add("comparison-table");
+    grid.querySelectorAll("tbody tr").forEach((tr, i) => {
+      tr.dataset.state = rows[i].state;
+      tr.dataset.path = JSON.stringify(rows[i].path);
+    });
+    return grid;
+  }
+
   // dev/viewer/impact.js
   var baselineLabels = { new: "\uC0C8\uB85C \uC124\uACC4\uD558\uB294 \uBAA8\uB378", design_document: "\uC774\uC804 \uC124\uACC4 \uBB38\uC11C\uC640 \uBE44\uAD50", production_schema: "\uC6B4\uC601 \uB370\uC774\uD130 \uAD6C\uC870\uC640 \uBE44\uAD50", unknown: "\uBE44\uAD50\uD560 \uAE30\uC900\uC774 \uC544\uC9C1 \uC5C6\uC74C" };
   var areaLabels = { writes: "\uB4F1\uB85D\xB7\uC218\uC815", reads: "\uC870\uD68C", contracts: "\uC678\uBD80 \uACC4\uC57D", existing_data: "\uAE30\uC874 \uC790\uB8CC", history: "\uACFC\uAC70 \uC774\uB825", rollout: "\uC804\uD658", rollback: "\uBCF5\uAD6C" };
   var statusLabels2 = { affected: "\uC601\uD5A5 \uC788\uC74C", unaffected: "\uC601\uD5A5 \uC5C6\uC74C\uC73C\uB85C \uAC80\uD1A0", unknown: "\uC601\uD5A5 \uBBF8\uD655\uC778" };
-  var fieldLabels = { id: "\uC2DD\uBCC4 \uCF54\uB4DC", name: "\uC774\uB984", title: "\uC81C\uBAA9", label: "\uD45C\uC2DC \uC774\uB984", description: "\uC124\uBA85", role: "\uBAA8\uB378 \uC5ED\uD560", grain: "\uD55C \uC904\uC758 \uC758\uBBF8", condition: "\uD3EC\uD568 \uC870\uAC74", type: "\uC800\uC7A5 \uD615\uC2DD", required: "\uD544\uC218 \uC785\uB825", attributes: "\uC18D\uC131", primary_key: "\uAD6C\uBD84 \uAC12(PK)", unique_keys: "\uC911\uBCF5\uC744 \uB9C9\uB294 \uC870\uD569", constraints: "\uCD94\uAC00 \uC81C\uC57D", indexes: "\uC870\uD68C \uC778\uB371\uC2A4", from: "\uC5F0\uACB0 \uCD9C\uBC1C\uC810", to: "\uC5F0\uACB0 \uB300\uC0C1", foreign_key: "\uC5F0\uACB0 \uAC12(FK)\uC73C\uB85C \uBCF4\uC7A5", rule: "\uC9C0\uCF1C\uC57C \uD560 \uC870\uAC74", enforcement: "\uBCF4\uC7A5 \uC704\uCE58", display_attributes: "\uC5C5\uBB34 \uC2DD\uBCC4 \uC18D\uC131", requirement_ids: "\uC5F0\uACB0 \uC694\uAD6C\uC0AC\uD56D", entity_ids: "\uC5F0\uACB0 \uBAA8\uB378", decision_ids: "\uC5F0\uACB0 \uC124\uACC4 \uD310\uB2E8", source_ids: "\uADFC\uAC70 \uC790\uB8CC" };
-  var roleLabels = { core: "\uC5C5\uBB34 \uD575\uC2EC", supporting: "\uADFC\uAC70\xB7\uC6B4\uC601 \uC9C0\uC6D0", optional: "\uC870\uAC74\uBD80 \uD655\uC7A5" };
-  function snapshotValue(value, field) {
-    if (value === null) return "NULL \xB7 \uBE44\uC5B4 \uC788\uB294 \uAC12";
-    if (value === "") return '\uBE48 \uBB38\uC790\uC5F4 \xB7 ""';
-    if (typeof value === "boolean") return value ? "\uC608 (true)" : "\uC544\uB2C8\uC624 (false)";
-    if (field === "role" && Object.hasOwn(roleLabels, value)) return roleLabels[value] + " (" + value + ")";
-    return typeof value === "object" ? JSON.stringify(value, null, 2) : String(value);
-  }
+  var changeLabels = { added: "\uCD94\uAC00", modified: "\uBCC0\uACBD", removed: "\uC81C\uC678" };
   function changeTarget(change, index) {
-    const id = change.relationship_id || change.entity_id, target = index.get(id);
-    const name = target?.name || target?.title || change.target_type !== "attribute" && (change.before?.name || change.before?.title);
+    const id = change.target_type === "relationship" ? change.relationship_id : change.entity_id, target = index.get(id);
+    const name = [target?.name, target?.title, ...change.target_type !== "attribute" ? [change.before?.name, change.before?.title] : []].find((value) => typeof value === "string" && value.length);
     const label2 = id + (name ? ": " + name : "");
     if (change.target_type !== "attribute") return label2;
-    const attr = target?.attributes.find((a2) => a2.name === change.attribute_name);
-    return label2 + " / " + change.attribute_name + ": " + (attr?.label || change.before?.label || "\uD45C\uC2DC \uC774\uB984 \uBBF8\uAE30\uB85D");
+    const attr = target?.attributes?.find((a2) => a2.name === change.attribute_name);
+    const attrLabel = [attr?.label, change.before?.label].find((value) => typeof value === "string" && value.length) || "\uD45C\uC2DC \uC774\uB984 \uBBF8\uAE30\uB85D";
+    return label2 + " / " + change.attribute_name + ": " + attrLabel;
   }
-  function renderImpact(impact, index) {
+  function renderImpact(impact, index, { selectedId, onSelect = () => {
+  } } = {}) {
     const block = section("\uBCC0\uACBD \uC601\uD5A5", facts([["\uBE44\uAD50 \uAE30\uC900", baselineLabels[impact.baseline.kind] || impact.baseline.kind], ["\uAE30\uC900\uC758 \uBC94\uC704", impact.baseline.description]]));
     block.classList.add("change-impact");
     if (impact.changes.length) {
       add(block, p("\uC544\uB798\uB294 \uBB38\uC11C\uC5D0 \uAE30\uB85D\uB41C \uD56D\uBAA9\uB9CC \uBE44\uAD50\uD569\uB2C8\uB2E4. \uAC12\uC774 \uBBF8\uAE30\uB85D\uB41C \uD56D\uBAA9\uC740 \uCD94\uAC00\xB7\uC0AD\uC81C\uB85C \uCD94\uC815\uD558\uC9C0 \uC54A\uC73C\uBA70, \uC2E4\uC81C \uC6B4\uC601 DB \uC804\uCCB4\uC758 \uCC28\uC774\uB97C \uB73B\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.", "muted"));
+      const cards = /* @__PURE__ */ new Map();
       for (const change of impact.changes) {
         const card = el("article", null, "change-card");
         card.dataset.change = change.id;
-        add(card, el("h4", change.id + ": " + { added: "\uCD94\uAC00", modified: "\uBCC0\uACBD", removed: "\uC81C\uC678" }[change.change] + " \xB7 " + changeTarget(change, index)), p(change.reason));
-        const fields = [.../* @__PURE__ */ new Set([...Object.keys(change.before || {}), ...Object.keys(change.after || {})])];
-        const cell = (snapshot, field, side) => snapshot === null ? side === "before" ? "\uCD94\uAC00 \uC804 \uB300\uC0C1 \uC5C6\uC74C" : "\uC81C\uC678 \uD6C4 \uB300\uC0C1 \uC5C6\uC74C" : Object.hasOwn(snapshot, field) ? snapshotValue(snapshot[field], field) : "\uAC12 \uBBF8\uAE30\uB85D \xB7 \uD310\uB2E8\uD558\uC9C0 \uC54A\uC74C";
-        add(card, table(["\uBE44\uAD50 \uD56D\uBAA9", "\uBCC0\uACBD \uC804", "\uBCC0\uACBD \uD6C4"], fields.map((field) => [Object.hasOwn(fieldLabels, field) ? fieldLabels[field] + " \xB7 " + field : field, cell(change.before, field, "before"), cell(change.after, field, "after")])), change.requirement_ids.length ? references(change.requirement_ids, index) : null);
-        block.append(card);
+        add(card, el("h4", change.id + ": " + changeLabels[change.change] + " \xB7 " + changeTarget(change, index)), p(change.reason));
+        add(card, comparisonTable(change, index), change.requirement_ids.length ? references(change.requirement_ids, index) : null);
+        cards.set(change.id, card);
       }
+      const detail = el("div", null, "change-detail"), selected = cards.has(selectedId) ? selectedId : impact.changes[0].id;
+      if (impact.changes.length > 1) {
+        const picker = el("select");
+        picker.setAttribute("aria-label", "\uC124\uACC4 \uBCC0\uACBD \uD56D\uBAA9 \uC120\uD0DD");
+        for (const change of impact.changes) {
+          const option = el("option", change.id + ": " + changeTarget(change, index) + " \xB7 " + changeLabels[change.change]);
+          option.value = change.id;
+          picker.append(option);
+        }
+        picker.value = selected;
+        picker.addEventListener("change", () => {
+          if (!cards.has(picker.value)) return;
+          detail.replaceChildren(cards.get(picker.value));
+          onSelect(picker.value);
+        });
+        block.append(add(el("label", null, "change-picker"), el("span", "\uAC80\uD1A0\uD560 \uBCC0\uACBD \uD56D\uBAA9 \xB7 " + impact.changes.length + "\uAC1C \uC911 \uD558\uB098\uC529 \uBCF4\uAE30"), picker));
+      }
+      detail.append(cards.get(selected));
+      block.append(detail);
+      block.dataset.searchText = [...cards.values()].map((card) => card.textContent).join(" ");
     } else block.append(p("\uAC1C\uBCC4 \uD56D\uBAA9\uC758 \uC804\uD6C4 \uBE44\uAD50\uB294 \uAE30\uB85D\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4.", "muted"));
     if (!impact.areas.length) {
       block.append(p("\uC5C5\uBB34\uBCC4 \uBCC0\uACBD \uC601\uD5A5\uC740 \uAE30\uB85D\uB418\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4.", "muted"));
       return block;
     }
+    add(block, el("h4", "\uC774\uBC88 \uBCC0\uACBD \uC804\uCCB4\uC758 \uC5C5\uBB34 \uC601\uD5A5"), p("\uC544\uB798\uB294 \uC774\uBC88 \uC124\uACC4 \uBCC0\uACBD \uC804\uCCB4\uC5D0 \uB300\uD55C \uC5C5\uBB34 \uC601\uD5A5 \uAC80\uD1A0\uC785\uB2C8\uB2E4.", "muted"));
     const groups = /* @__PURE__ */ new Map();
     for (const area of impact.areas) {
       if (!groups.has(area.note_id)) groups.set(area.note_id, []);
@@ -4520,7 +4649,6 @@ ${hints.join("\n")}}`);
         for (const item of items) add(block2, el("h4", item.id + ": " + item.title), p(item.description), item.impact ? p(item.impact) : null);
         body.append(block2);
       }
-      body.append(renderImpact(doc.change_impact, index));
       return body;
     }
     const data = specData(doc, id === "@common" ? null : id), requirement = data.requirement;
@@ -4562,8 +4690,14 @@ ${hints.join("\n")}}`);
     add(body, p(overview.connection, "muted"), section("\uC2E4\uC81C\uB85C\uB294 \uC774\uB807\uAC8C \uC0AC\uC6A9\uD569\uB2C8\uB2E4", p(overview.example.situation), p(overview.example.outcome, "example")), section("\uB0A8\uC740 \uD310\uB2E8", p(overview.pending)));
     return body;
   }
-  function renderReference(doc, id, index) {
+  function renderReference(doc, id, index, options = {}) {
     const body = el("article", null, "record-body");
+    if (id === "@changes") {
+      const impact = renderImpact(doc.change_impact, index, options);
+      add(body, el("h2", "\uC124\uACC4 \uBCC0\uACBD \uAE30\uB85D"), p("\uC2A4\uD399\uACFC \uBAA8\uB378\uC5D0\uB294 \uCD5C\uC2E0 \uC124\uACC4\uB97C \uD45C\uC2DC\uD569\uB2C8\uB2E4. \uC774\uACF3\uC5D0\uC11C\uB294 \uAE30\uC900 \uC124\uACC4\uC640 \uC774\uBC88 \uC124\uACC4\uC758 \uCC28\uC774\xB7\uC601\uD5A5\uC744 \uD655\uC778\uD569\uB2C8\uB2E4. \uBAA8\uB4E0 \uBC84\uC804\uC758 \uB204\uC801 \uC774\uB825\uC740 \uC544\uB2D9\uB2C8\uB2E4.", "muted"), impact);
+      body.dataset.searchText = impact.dataset.searchText || "";
+      return body;
+    }
     if (id === "@process") {
       add(body, el("h2", "\uC81C\uC791 \uACFC\uC815"), section("\uC0AC\uC6A9\uD55C \uC2A4\uD0AC\uACFC \uC808\uCC28", p(doc.document.process.skill), bullets(doc.document.process.steps)), section("\uD655\uC778\uD55C \uBC94\uC704", p(doc.document.process.scope)));
       return body;
@@ -4974,7 +5108,7 @@ ${hints.join("\n")}}`);
         collection.replaceChildren(renderOverview(doc, engine, signal));
         return;
       }
-      const items = s2.tab === "spec" ? [{ id: "@scope", title: "\uBC94\uC704\uC640 \uC804\uC81C" }, { id: "@common", title: "\uACF5\uD1B5 \uC124\uACC4 \uD310\uB2E8" }, ...doc.requirements] : [...doc.sources, { id: "@process", title: "\uC81C\uC791 \uACFC\uC815" }, { id: "@glossary", title: "\uC6A9\uC5B4 \uC548\uB0B4" }];
+      const items = s2.tab === "spec" ? [{ id: "@scope", title: "\uBC94\uC704\uC640 \uC804\uC81C" }, { id: "@common", title: "\uACF5\uD1B5 \uC124\uACC4 \uD310\uB2E8" }, ...doc.requirements] : [...doc.sources, { id: "@changes", title: "\uC124\uACC4 \uBCC0\uACBD \uAE30\uB85D" }, { id: "@process", title: "\uC81C\uC791 \uACFC\uC815" }, { id: "@glossary", title: "\uC6A9\uC5B4 \uC548\uB0B4" }];
       const key2 = s2.tab + ":" + (tabRecords[s2.tab] || s2.recordId || items[0].id);
       if (lastRecord === key2) return;
       lastRecord = key2;
@@ -4987,7 +5121,7 @@ ${hints.join("\n")}}`);
       add(list, search, itemsHost);
       listKeys(itemsHost);
       let selected = null;
-      const bodies = new Map(items.map((item) => [item.id, s2.tab === "spec" ? renderSpec(doc, item.id, index) : renderReference(doc, item.id, index)]));
+      const bodies = new Map(items.map((item) => [item.id, s2.tab === "spec" ? renderSpec(doc, item.id, index) : renderReference(doc, item.id, index, { selectedId: s2.changeId, onSelect: (id) => state.update({ changeId: id }) })]));
       const selectRecord = (item) => {
         if (selected?.id === item?.id) return;
         if (selected && lastRecord) recordScroll.set(lastRecord, detail.scrollTop);
@@ -5004,12 +5138,12 @@ ${hints.join("\n")}}`);
         }
       };
       for (const item of items) {
-        const b2 = button(["@scope", "@common", "@process", "@glossary"].includes(item.id) ? item.title : index.label(item.id), () => {
+        const b2 = button(["@scope", "@common", "@process", "@glossary", "@changes"].includes(item.id) ? item.title : index.label(item.id), () => {
           recordListScroll[s2.tab] = itemsHost.scrollTop;
           selectRecord(item);
         }, "navigation-item");
         b2.dataset.record = item.id;
-        b2.dataset.search = b2.textContent + " " + bodies.get(item.id).textContent;
+        b2.dataset.search = b2.textContent + " " + bodies.get(item.id).textContent + " " + (bodies.get(item.id).dataset.searchText || "");
         b2.setAttribute("aria-pressed", "false");
         itemsHost.append(b2);
       }
@@ -5098,7 +5232,9 @@ ${hints.join("\n")}}`);
   }
 
   // dev/viewer/errors.js
-  var fieldNames = { description: "\uC124\uBA85", title: "\uC81C\uBAA9", name: "\uC774\uB984", label: "\uD45C\uC2DC \uC774\uB984", type: "\uC800\uC7A5 \uD615\uC2DD", required: "\uD544\uC218 \uC785\uB825 \uC5EC\uBD80", id: "\uC2DD\uBCC4 \uCF54\uB4DC", version: "\uBB38\uC11C \uD615\uC2DD \uBC84\uC804", primary_key: "\uAD6C\uBD84 \uAC12(PK)", entity_ids: "\uC5F0\uACB0 \uBAA8\uB378", requirement_ids: "\uC5F0\uACB0 \uC694\uAD6C\uC0AC\uD56D", attributes: "\uAE30\uB85D\uD560 \uC18D\uC131", status: "\uC0C1\uD0DC", before: "\uBCC0\uACBD \uC804 \uAC12", after: "\uBCC0\uACBD \uD6C4 \uAC12" };
+  var fieldNames = { description: "\uC124\uBA85", title: "\uC81C\uBAA9", name: "\uC774\uB984", label: "\uD45C\uC2DC \uC774\uB984", type: "\uC800\uC7A5 \uD615\uC2DD", required: "\uD544\uC218 \uC785\uB825 \uC5EC\uBD80", id: "\uC2DD\uBCC4 \uCF54\uB4DC", version: "\uBB38\uC11C \uD615\uC2DD \uBC84\uC804", primary_key: "\uAD6C\uBD84 \uAC12(PK)", entity_ids: "\uC5F0\uACB0 \uBAA8\uB378", requirement_ids: "\uC5F0\uACB0 \uC694\uAD6C\uC0AC\uD56D", attributes: "\uAE30\uB85D\uD560 \uC18D\uC131", status: "\uC0C1\uD0DC", before: "\uBCC0\uACBD \uC804 \uAC12", after: "\uBCC0\uACBD \uD6C4 \uAC12", role: "\uBAA8\uB378 \uC5ED\uD560", design_status: "\uC124\uACC4 \uBC18\uC601 \uC0C1\uD0DC", agreement_status: "\uC5C5\uBB34 \uD569\uC758 \uC0C1\uD0DC", target_type: "\uBCC0\uACBD \uB300\uC0C1 \uC885\uB958", change: "\uBCC0\uACBD \uC885\uB958", area: "\uC601\uD5A5 \uC5C5\uBB34", cardinality: "\uC5F0\uACB0 \uAC00\uB2A5\uD55C \uAC1C\uC218", method: "\uD655\uC778 \uBC29\uBC95", kind: "\uC885\uB958", topic: "\uC5C5\uBB34 \uADDC\uCE59\uC758 \uC8FC\uC81C" };
+  var choiceNames = { core: "\uC5C5\uBB34 \uD575\uC2EC", supporting: "\uADFC\uAC70\xB7\uC6B4\uC601 \uC9C0\uC6D0", optional: "\uC870\uAC74\uBD80 \uD655\uC7A5", modeled: "\uC124\uACC4\uC5D0 \uBC18\uC601", unmodeled: "\uC544\uC9C1 \uBBF8\uBC18\uC601", excluded: "\uBC94\uC704 \uC81C\uC678", not_applicable: "\uD574\uB2F9 \uC5C6\uC74C", proposed: "\uC81C\uC548", agreed: "\uD569\uC758", open: "\uBBF8\uACB0", affected: "\uC601\uD5A5 \uC788\uC74C", unaffected: "\uC601\uD5A5 \uC5C6\uC74C\uC73C\uB85C \uAC80\uD1A0", unknown: "\uBBF8\uD655\uC778", added: "\uCD94\uAC00", modified: "\uBCC0\uACBD", removed: "\uC81C\uC678", entity: "\uBAA8\uB378", attribute: "\uC18D\uC131", relationship: "\uAD00\uACC4", sample: "\uC0D8\uD50C \uB300\uC870", simulation: "\uAC00\uC815 \uC2DC\uBBAC\uB808\uC774\uC158", implementation: "\uB300\uC0C1 \uAD6C\uD604 \uD655\uC778", manual: "\uC218\uB3D9 \uAC80\uD1A0", pass: "\uD655\uC778", fail: "\uC608\uC0C1\uACFC \uB2E4\uB984" };
+  var choiceLabel = (value) => typeof value === "string" && Object.hasOwn(choiceNames, value) ? choiceNames[value] + " (" + value + ")" : JSON.stringify(value);
   var collectionNames = { document: "\uBB38\uC11C \uC815\uBCF4", model: "\uBAA8\uB378", entities: "\uBAA8\uB378 \uBAA9\uB85D", relationships: "\uAD00\uACC4 \uBAA9\uB85D", domains: "\uC5C5\uBB34 \uC601\uC5ED", attributes: "\uC18D\uC131 \uBAA9\uB85D", requirements: "\uC694\uAD6C\uC0AC\uD56D", rules: "\uC5C5\uBB34 \uADDC\uCE59", decisions: "\uC124\uACC4 \uD310\uB2E8", issues: "\uB0A8\uC740 \uC7C1\uC810", sources: "\uCC38\uC870 \uC790\uB8CC", assumptions: "\uAC00\uC815", limitations: "\uC81C\uD55C", samples: "\uC0D8\uD50C", scenarios: "\uD655\uC778 \uC0AC\uD56D", datasets: "\uB370\uC774\uD130\uC14B", observations: "\uD655\uC778 \uACB0\uACFC", change_impact: "\uBCC0\uACBD \uC601\uD5A5", baseline: "\uBE44\uAD50 \uAE30\uC900", changes: "\uBCC0\uACBD \uD56D\uBAA9", areas: "\uC5C5\uBB34 \uC601\uD5A5", rows: "\uC0D8\uD50C \uD589" };
   var short = (value) => String(value).slice(0, 100);
   var label = (field) => Object.hasOwn(fieldNames, field) ? fieldNames[field] + " (" + field + ")" : Object.hasOwn(collectionNames, field) ? collectionNames[field] : short(field);
@@ -5184,14 +5320,20 @@ ${hints.join("\n")}}`);
       if (keyword === "required") instruction = label(params.missingProperty) + " \uD56D\uBAA9\uC774 \uBE60\uC84C\uC2B5\uB2C8\uB2E4. \uD574\uB2F9 \uD56D\uBAA9\uC744 \uCC44\uC6CC \uC8FC\uC138\uC694.";
       else if (keyword === "type") instruction = "\uAC12\uC758 \uD615\uC2DD\uC774 \uB2E4\uB985\uB2C8\uB2E4. " + ({ object: "\uD56D\uBAA9 \uBB36\uC74C(\uAC1D\uCCB4)", array: "\uBAA9\uB85D(\uBC30\uC5F4)", string: "\uBB38\uC790\uC5F4", boolean: "true \uB610\uB294 false", number: "\uC22B\uC790", integer: "\uC815\uC218", null: "null" }[params.type] || "\uC815\uD574\uC9C4 \uD615\uC2DD") + "\uC73C\uB85C \uC368 \uC8FC\uC138\uC694.";
       else if (keyword === "additionalProperties") instruction = "\uC815\uC758\uB418\uC9C0 \uC54A\uC740 \uD56D\uBAA9 " + label(params.additionalProperty) + "\uC774 \uC788\uC2B5\uB2C8\uB2E4. \uC624\uD0C0\uB97C \uACE0\uCE58\uAC70\uB098 \uD604\uC7AC \uBB38\uC11C \uD615\uC2DD\uC5D0 \uC5C6\uB294 \uD56D\uBAA9\uC744 \uC81C\uAC70\uD574 \uC8FC\uC138\uC694.";
-      else if (keyword === "enum" || keyword === "const") instruction = "\uD5C8\uC6A9\uB41C \uAC12\uACFC \uB2E4\uB985\uB2C8\uB2E4. \uC2A4\uD0AC\uC758 \uD604\uC7AC \uC608\uC81C\uC640 JSON Schema\uC5D0 \uC815\uC758\uB41C \uAC12\uC744 \uC368 \uC8FC\uC138\uC694.";
-      else if (["minLength", "pattern"].includes(keyword)) instruction = "\uB0B4\uC6A9\uC774 \uBE44\uC5B4 \uC788\uAC70\uB098 \uC815\uD574\uC9C4 \uD45C\uAE30\uC640 \uB2E4\uB985\uB2C8\uB2E4. \uC758\uBBF8 \uC788\uB294 \uB0B4\uC6A9\uACFC \uD56D\uBAA9\uBCC4 \uD615\uC2DD\uC744 \uD655\uC778\uD574 \uC8FC\uC138\uC694.";
+      else if (keyword === "enum" || keyword === "const") {
+        const values = keyword === "enum" ? params.allowedValues : Object.hasOwn(params, "allowedValue") ? [params.allowedValue] : [];
+        instruction = "\uD5C8\uC6A9\uB41C \uAC12\uACFC \uB2E4\uB985\uB2C8\uB2E4. " + (values?.length ? "\uB2E4\uC74C \uC911 \uD558\uB098\uB97C \uC368 \uC8FC\uC138\uC694: " + values.map(choiceLabel).join(" / ") : "\uC2A4\uD0AC\uC758 \uD604\uC7AC \uC608\uC81C\uC640 JSON Schema\uC5D0 \uC815\uC758\uB41C \uAC12\uC744 \uC368 \uC8FC\uC138\uC694.");
+      } else if (["minLength", "pattern"].includes(keyword)) instruction = "\uB0B4\uC6A9\uC774 \uBE44\uC5B4 \uC788\uAC70\uB098 \uC815\uD574\uC9C4 \uD45C\uAE30\uC640 \uB2E4\uB985\uB2C8\uB2E4. \uC758\uBBF8 \uC788\uB294 \uB0B4\uC6A9\uACFC \uD56D\uBAA9\uBCC4 \uD615\uC2DD\uC744 \uD655\uC778\uD574 \uC8FC\uC138\uC694.";
       else if (keyword === "minItems") instruction = "\uBAA9\uB85D \uD56D\uBAA9\uC774 \uBD80\uC871\uD569\uB2C8\uB2E4. \uCD5C\uC18C " + params.limit + "\uAC1C\uB97C \uCC44\uC6CC \uC8FC\uC138\uC694.";
       else instruction = "\uD604\uC7AC \uBB38\uC11C \uD615\uC2DD\uACFC \uB9DE\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uD574\uB2F9 \uD56D\uBAA9\uC744 \uC2A4\uD0AC\uC758 \uC608\uC81C\xB7JSON Schema\uC640 \uBE44\uAD50\uD574 \uACE0\uCCD0 \uC8FC\uC138\uC694.";
       const field = keyword === "required" ? "/" + params.missingProperty.replace(/~/g, "~0").replace(/\//g, "~1") : "";
       return location + ": " + instruction + " (\uC704\uCE58: " + path.replace(/\/$/, "") + field + ")";
     }
     if (Object.hasOwn(repairs, code)) return repairs[code] + (error.path && !["depth", "file_size"].includes(code) ? " (\uB300\uC0C1: " + semanticLocation(doc, error.path) + ")" : "");
+    if (code === "json_syntax" && error.details?.reason) {
+      const { reason, line, column, duplicateKey } = error.details;
+      return "JSON \uBB38\uBC95 \uC624\uB958 \xB7 " + line + "\uD589 " + column + "\uC5F4: " + reason + (duplicateKey !== void 0 ? " (\uC911\uBCF5 \uD56D\uBAA9: " + duplicateKey + ")" : "") + " \uC218\uC815\uD55C \uB4A4 \uB2E4\uC2DC \uAC00\uC838\uC640 \uC8FC\uC138\uC694.";
+    }
     if (code === "json_syntax" || error.name === "SyntaxError") return "JSON \uBB38\uBC95\uC744 \uC77D\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4. \uB530\uC634\uD45C\xB7\uC27C\uD45C\xB7\uAD04\uD638\uC640 \uC911\uBCF5 \uD56D\uBAA9 \uC774\uB984\uC744 \uD655\uC778\uD55C \uB4A4 UTF-8 JSON \uD30C\uC77C\uB85C \uB2E4\uC2DC \uC800\uC7A5\uD574 \uC8FC\uC138\uC694.";
     if (code === "file_read") return "\uD30C\uC77C\uC744 \uC77D\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4. \uD30C\uC77C\uC774 \uC774\uB3D9\xB7\uC0AD\uC81C\uB418\uC9C0 \uC54A\uC558\uB294\uC9C0 \uD655\uC778\uD558\uACE0 \uB2E4\uC2DC \uC120\uD0DD\uD574 \uC8FC\uC138\uC694.";
     return "\uD30C\uC77C\uC744 \uC77D\uAC70\uB098 \uD654\uBA74\uC744 \uC900\uBE44\uD558\uB294 \uC911 \uBB38\uC81C\uAC00 \uC0DD\uACBC\uC2B5\uB2C8\uB2E4. \uD30C\uC77C\uC744 \uB2E4\uC2DC \uC120\uD0DD\uD574 \uC8FC\uC138\uC694. \uACC4\uC18D\uB418\uBA74 \uC2A4\uD0AC\uC5D0\uC11C JSON\uC744 \uAC80\uC0AC\uD574 \uC8FC\uC138\uC694.";

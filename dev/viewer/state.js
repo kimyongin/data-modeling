@@ -1,6 +1,6 @@
 /* Ephemeral UI state; never serialized into the model document. */
 function createState(document) {
-  let state = { tab: "model", nav: "domains", scope: { kind: "all" }, datasetId: document.samples.datasets[0].id, entityId: document.model.entities[0].id, detail: "attributes", recordId: null };
+  let state = { tab: "model", nav: "domains", scope: { kind: "all" }, datasetId: document.samples.datasets[0].id, entityId: document.model.entities[0].id, detail: "attributes", recordId: null, changeId: document.change_impact.changes[0]?.id || null };
   const subscribers = /* @__PURE__ */ new Set();
   return {
     get: () => state,

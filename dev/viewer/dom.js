@@ -41,7 +41,7 @@ function table(headers, rows) {
   head.append(tr);
   for (const row of rows) {
     const tr2 = el("tr");
-    for (const value of row) tr2.append(el("td", text(value)));
+    for (const value of row) tr2.append(value instanceof Node ? add(el("td"), value) : el("td", text(value)));
     body.append(tr2);
   }
   if (!rows.length) {

@@ -1,5 +1,7 @@
 /* User guidance is separate from validator codes, which remain stable for CLI parity. */
-const fieldNames = { description: "설명", title: "제목", name: "이름", label: "표시 이름", type: "저장 형식", required: "필수 입력 여부", id: "식별 코드", version: "문서 형식 버전", primary_key: "구분 값(PK)", entity_ids: "연결 모델", requirement_ids: "연결 요구사항", attributes: "기록할 속성", status: "상태", before: "변경 전 값", after: "변경 후 값" };
+const fieldNames = { description: "설명", title: "제목", name: "이름", label: "표시 이름", type: "저장 형식", required: "필수 입력 여부", id: "식별 코드", version: "문서 형식 버전", primary_key: "구분 값(PK)", entity_ids: "연결 모델", requirement_ids: "연결 요구사항", attributes: "기록할 속성", status: "상태", before: "변경 전 값", after: "변경 후 값", role: "모델 역할", design_status: "설계 반영 상태", agreement_status: "업무 합의 상태", target_type: "변경 대상 종류", change: "변경 종류", area: "영향 업무", cardinality: "연결 가능한 개수", method: "확인 방법", kind: "종류", topic: "업무 규칙의 주제" };
+const choiceNames = { core: "업무 핵심", supporting: "근거·운영 지원", optional: "조건부 확장", modeled: "설계에 반영", unmodeled: "아직 미반영", excluded: "범위 제외", not_applicable: "해당 없음", proposed: "제안", agreed: "합의", open: "미결", affected: "영향 있음", unaffected: "영향 없음으로 검토", unknown: "미확인", added: "추가", modified: "변경", removed: "제외", entity: "모델", attribute: "속성", relationship: "관계", sample: "샘플 대조", simulation: "가정 시뮬레이션", implementation: "대상 구현 확인", manual: "수동 검토", pass: "확인", fail: "예상과 다름" };
+const choiceLabel = (value) => typeof value === "string" && Object.hasOwn(choiceNames, value) ? choiceNames[value] + " (" + value + ")" : JSON.stringify(value);
 const collectionNames = { document: "문서 정보", model: "모델", entities: "모델 목록", relationships: "관계 목록", domains: "업무 영역", attributes: "속성 목록", requirements: "요구사항", rules: "업무 규칙", decisions: "설계 판단", issues: "남은 쟁점", sources: "참조 자료", assumptions: "가정", limitations: "제한", samples: "샘플", scenarios: "확인 사항", datasets: "데이터셋", observations: "확인 결과", change_impact: "변경 영향", baseline: "비교 기준", changes: "변경 항목", areas: "업무 영향", rows: "샘플 행" };
 const short = (value) => String(value).slice(0, 100);
 const label = (field) => Object.hasOwn(fieldNames, field) ? fieldNames[field] + " (" + field + ")" : Object.hasOwn(collectionNames, field) ? collectionNames[field] : short(field);
@@ -85,7 +87,10 @@ function describeError(error, doc) {
     if (keyword === "required") instruction = label(params.missingProperty) + " 항목이 빠졌습니다. 해당 항목을 채워 주세요.";
     else if (keyword === "type") instruction = "값의 형식이 다릅니다. " + ({ object: "항목 묶음(객체)", array: "목록(배열)", string: "문자열", boolean: "true 또는 false", number: "숫자", integer: "정수", null: "null" }[params.type] || "정해진 형식") + "으로 써 주세요.";
     else if (keyword === "additionalProperties") instruction = "정의되지 않은 항목 " + label(params.additionalProperty) + "이 있습니다. 오타를 고치거나 현재 문서 형식에 없는 항목을 제거해 주세요.";
-    else if (keyword === "enum" || keyword === "const") instruction = "허용된 값과 다릅니다. 스킬의 현재 예제와 JSON Schema에 정의된 값을 써 주세요.";
+    else if (keyword === "enum" || keyword === "const") {
+      const values = keyword === "enum" ? params.allowedValues : Object.hasOwn(params, "allowedValue") ? [params.allowedValue] : [];
+      instruction = "허용된 값과 다릅니다. " + (values?.length ? "다음 중 하나를 써 주세요: " + values.map(choiceLabel).join(" / ") : "스킬의 현재 예제와 JSON Schema에 정의된 값을 써 주세요.");
+    }
     else if (["minLength", "pattern"].includes(keyword)) instruction = "내용이 비어 있거나 정해진 표기와 다릅니다. 의미 있는 내용과 항목별 형식을 확인해 주세요.";
     else if (keyword === "minItems") instruction = "목록 항목이 부족합니다. 최소 " + params.limit + "개를 채워 주세요.";
     else instruction = "현재 문서 형식과 맞지 않습니다. 해당 항목을 스킬의 예제·JSON Schema와 비교해 고쳐 주세요.";
@@ -93,6 +98,10 @@ function describeError(error, doc) {
     return location + ": " + instruction + " (위치: " + path.replace(/\/$/, "") + field + ")";
   }
   if (Object.hasOwn(repairs, code)) return repairs[code] + (error.path && !["depth", "file_size"].includes(code) ? " (대상: " + semanticLocation(doc, error.path) + ")" : "");
+  if (code === "json_syntax" && error.details?.reason) {
+    const { reason, line, column, duplicateKey } = error.details;
+    return "JSON 문법 오류 · " + line + "행 " + column + "열: " + reason + (duplicateKey !== undefined ? " (중복 항목: " + duplicateKey + ")" : "") + " 수정한 뒤 다시 가져와 주세요.";
+  }
   if (code === "json_syntax" || error.name === "SyntaxError") return "JSON 문법을 읽을 수 없습니다. 따옴표·쉼표·괄호와 중복 항목 이름을 확인한 뒤 UTF-8 JSON 파일로 다시 저장해 주세요.";
   if (code === "file_read") return "파일을 읽을 수 없습니다. 파일이 이동·삭제되지 않았는지 확인하고 다시 선택해 주세요.";
   return "파일을 읽거나 화면을 준비하는 중 문제가 생겼습니다. 파일을 다시 선택해 주세요. 계속되면 스킬에서 JSON을 검사해 주세요.";

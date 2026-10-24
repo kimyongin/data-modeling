@@ -43,7 +43,6 @@ function renderSpec(doc, id, index) {
       for (const item of items) add(block2, el("h4", item.id + ": " + item.title), p(item.description), item.impact ? p(item.impact) : null);
       body.append(block2);
     }
-    body.append(renderImpact(doc.change_impact, index));
     return body;
   }
   const data = specData(doc, id === "@common" ? null : id), requirement = data.requirement;
@@ -85,8 +84,14 @@ function renderOverview(doc, engine, signal) {
   add(body, p(overview.connection, "muted"), section("실제로는 이렇게 사용합니다", p(overview.example.situation), p(overview.example.outcome, "example")), section("남은 판단", p(overview.pending)));
   return body;
 }
-function renderReference(doc, id, index) {
+function renderReference(doc, id, index, options = {}) {
   const body = el("article", null, "record-body");
+  if (id === "@changes") {
+    const impact = renderImpact(doc.change_impact, index, options);
+    add(body, el("h2", "설계 변경 기록"), p("스펙과 모델에는 최신 설계를 표시합니다. 이곳에서는 기준 설계와 이번 설계의 차이·영향을 확인합니다. 모든 버전의 누적 이력은 아닙니다.", "muted"), impact);
+    body.dataset.searchText = impact.dataset.searchText || "";
+    return body;
+  }
   if (id === "@process") {
     add(body, el("h2", "제작 과정"), section("사용한 스킬과 절차", p(doc.document.process.skill), bullets(doc.document.process.steps)), section("확인한 범위", p(doc.document.process.scope)));
     return body;

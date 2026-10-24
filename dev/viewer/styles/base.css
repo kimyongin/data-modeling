@@ -59,3 +59,14 @@ tr.evidence td { background: #fff6da; }
 .impact-area > .badge { margin-left: 10px; }
 .impact-area[data-status=unknown] > .badge { background: #fff2d8; color: #805b1c; }
 .impact-area[data-status=affected] > .badge { background: #e8f1fb; color: #205b8e; }
+.comparison-table tr[data-state=changed] > td:first-child, .comparison-table tr[data-state=reordered] > td:first-child { border-left: 3px solid #bd8d37; background: #fff8e9; }
+.comparison-table tr[data-state=added] > td:first-child { border-left: 3px solid #398260; }
+.comparison-table tr[data-state=removed] > td:first-child { border-left: 3px solid #b95656; }
+.comparison-table .comparison-values { margin: 0; padding-left: 20px; }
+.comparison-values > li { padding: 3px 5px; }
+.comparison-values .badge { margin-left: 6px; }
+.comparison-added { background: #eaf5ee; }
+.comparison-removed { background: #fceeee; }
+.comparison-table td:first-child .badge { margin-top: 5px; }
+.change-picker { display: grid; gap: 6px; margin-top: 18px; font-size: 12px; color: var(--muted); }
+.change-picker select { width: 100%; min-width: 0; padding: 8px; font: inherit; color: #25394d; background: white; border: 1px solid var(--line); border-radius: 5px; }

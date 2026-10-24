@@ -9,6 +9,7 @@ import { graphScope } from "../viewer/state.js";
 import { runRegressions } from "./workspace-regressions.mjs";
 import { runExploratoryRegressions } from "./exploratory-regressions.mjs";
 import { runReviewRegressions } from "./review-regressions.mjs";
+import { runChangeHardeningRegressions } from "./change-hardening-regressions.mjs";
 const [manifestFile, output] = process.argv.slice(2), manifest = JSON.parse(fs.readFileSync(manifestFile, "utf8")), checks = [];
 const dom = installDOM();
 const button = (root, label) => root.querySelectorAll("button").find((b) => b.textContent === label);
@@ -103,6 +104,7 @@ await check("entity selection preserves zoom and position; explicit fit resets v
 await runRegressions(check, dom, manifest);
 await runExploratoryRegressions(check, dom, manifest);
 await runReviewRegressions(check, dom, manifest);
+await runChangeHardeningRegressions(check, dom);
 const report = { scope: "Direct module execution with minimal DOM fixture; includes UI regression behaviors, not browser CSS/layout validation", passed: checks.filter((c) => c.status === "pass").length, failed: checks.filter((c) => c.status === "fail").length, checks };
 fs.writeFileSync(output, JSON.stringify(report, null, 2) + "\n");
 console.log(JSON.stringify({ passed: report.passed, failed: report.failed }));
