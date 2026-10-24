@@ -25,8 +25,23 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
   add(minimap, miniButton, surface);
   add(canvas, stage, hint, legend, minimap);
   const zoomLabel = el("span", "100%", "zoom-label");
-  let scope = null, active = null, view = null, miniOpen = false, drag = null, suppress = false, sequence = 0;
+  let scope = null, active = null, view = null, miniOpen = false, drag = null, suppress = false, sequence = 0, obscuredBottom = 0;
   const cache = /* @__PURE__ */ new Map(), views = /* @__PURE__ */ new Map();
+  const visibleHeight = () => Math.max(1, canvas.clientHeight - obscuredBottom);
+  function refresh() {
+    minimap.style.bottom = obscuredBottom + 10 + "px";
+    const height = Math.max(24, Math.min(140, visibleHeight() - 56));
+    surface.style.height = height + "px";
+    surface.style.width = Math.max(84, Math.min(210, height * 1.5)) + "px";
+    hint.style.bottom = obscuredBottom + 9 + "px";
+    hint.hidden = visibleHeight() < 160;
+    legend.hidden = visibleHeight() < 160;
+    updateMini();
+  }
+  function setObscuredBottom(height) {
+    obscuredBottom = Math.max(0, Math.min(Math.max(0, canvas.clientHeight - 80), height));
+    refresh();
+  }
   const apply = () => {
     if (!view) return;
     stage.style.transform = `translate(${view.x}px,${view.y}px) scale(${view.zoom})`;
@@ -36,12 +51,14 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
   function fit() {
     if (!active || !view) return;
     const box = active.viewBox.baseVal;
-    view.zoom = Math.max(0.01, Math.min(1, (canvas.clientWidth - 48) / box.width, (canvas.clientHeight - 48) / box.height));
+    const top = legend.hidden ? 24 : Math.max(24, (legend.offsetHeight || 0) + 16);
+    const height = Math.max(1, visibleHeight() - top - 24);
+    view.zoom = Math.max(0.01, Math.min(1, (canvas.clientWidth - 48) / box.width, height / box.height));
     view.x = (canvas.clientWidth - box.width * view.zoom) / 2 - box.x * view.zoom;
-    view.y = (canvas.clientHeight - box.height * view.zoom) / 2 - box.y * view.zoom;
+    view.y = top + (height - box.height * view.zoom) / 2 - box.y * view.zoom;
     apply();
   }
-  function zoom(value, x = canvas.clientWidth / 2, y = canvas.clientHeight / 2) {
+  function zoom(value, x = canvas.clientWidth / 2, y = visibleHeight() / 2) {
     if (!view) return;
     const old = view.zoom, next = Math.max(0.01, Math.min(3, value));
     view.x = x - (x - view.x) * next / old;
@@ -54,6 +71,7 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
     surface.hidden = !miniOpen;
     miniButton.textContent = miniOpen ? "미니맵 닫기" : "미니맵 열기";
     miniButton.setAttribute("aria-expanded", String(miniOpen));
+    refresh();
     syncMini();
   }
   function syncMini() {
@@ -75,7 +93,7 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
     viewport.setAttribute("x", x);
     viewport.setAttribute("y", y);
     viewport.setAttribute("width", Math.max(0, Math.min(box.x + box.width, (canvas.clientWidth - view.x) / view.zoom) - x));
-    viewport.setAttribute("height", Math.max(0, Math.min(box.y + box.height, (canvas.clientHeight - view.y) / view.zoom) - y));
+    viewport.setAttribute("height", Math.max(0, Math.min(box.y + box.height, (visibleHeight() - view.y) / view.zoom) - y));
   }
   function moveFromMini(event) {
     event.stopPropagation();
@@ -88,7 +106,7 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
     if (!matrix) return;
     const pos = point.matrixTransform(matrix.inverse());
     view.x = canvas.clientWidth / 2 - pos.x * view.zoom;
-    view.y = canvas.clientHeight / 2 - pos.y * view.zoom;
+    view.y = visibleHeight() / 2 - pos.y * view.zoom;
     apply();
   }
   surface.addEventListener("pointerdown", moveFromMini, { signal });
@@ -106,7 +124,7 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
       if (!active || !view) return;
       const b = active.viewBox.baseVal;
       view.x = canvas.clientWidth / 2 - (b.x + b.width / 2) * view.zoom;
-      view.y = canvas.clientHeight / 2 - (b.y + b.height / 2) * view.zoom;
+      view.y = visibleHeight() / 2 - (b.y + b.height / 2) * view.zoom;
       apply();
     }
   }, { signal });
@@ -177,7 +195,7 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
       try {
         const viz = await engine;
         if (signal.aborted || token !== sequence) return;
-        cache.set(next.key, layout(viz, next, Math.max(1, canvas.clientWidth - 48), Math.max(1, canvas.clientHeight - 48)));
+        cache.set(next.key, layout(viz, next, Math.max(1, canvas.clientWidth - 48), Math.max(1, visibleHeight() - 48)));
       } catch (error) {
         if (!signal.aborted && token === sequence) stage.replaceChildren(p("ERD 배치 실패: " + error.message, "notice"));
         return;
@@ -186,7 +204,8 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
     if (signal.aborted || token !== sequence) return;
     const svg = cache.get(next.key), changed = active !== svg;
     active = svg;
-    if (changed) stage.replaceChildren(svg);
+    // A loading/error message may have detached the cached SVG without changing active.
+    if (changed || svg.parentElement !== stage) stage.replaceChildren(svg);
     svg.style.width = svg.viewBox.baseVal.width + "px";
     svg.style.height = svg.viewBox.baseVal.height + "px";
     svg.setAttribute("role", "group");
@@ -235,7 +254,7 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
     highlight(selected, next.scenario?.entity_ids || []);
     if (changed) syncMini();
   }
-  return { canvas, zoomLabel, show, fit, zoomIn: () => zoom((view?.zoom || 1) * 1.2), zoomOut: () => zoom((view?.zoom || 1) / 1.2), refresh: updateMini };
+  return { canvas, zoomLabel, show, fit, zoomIn: () => zoom((view?.zoom || 1) * 1.2), zoomOut: () => zoom((view?.zoom || 1) / 1.2), refresh, setObscuredBottom };
 }
 export {
   createGraph

@@ -38,8 +38,8 @@ a { color: var(--blue); }
 .facts dt { color: var(--muted); font-size: 12px; }
 .facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .facts ul { margin: 0; }
-.rule-card, .decision-card, .issue-card, .relationship-card, .attribute-card { padding: 16px 0; border-bottom: 1px dashed var(--line); }
-.rule-card > h4, .decision-card > h4, .issue-card > h4, .relationship-card > h4, .attribute-card > h4 { margin-bottom: 8px; }
+.rule-card, .decision-card, .issue-card, .relationship-card, .relationship-condition, .attribute-card { padding: 16px 0; border-bottom: 1px dashed var(--line); }
+.rule-card > h4, .decision-card > h4, .issue-card > h4, .relationship-card > h4, .relationship-condition > h4, .attribute-card > h4 { margin-bottom: 8px; }
 .rule-card .badge { margin: 8px 0; }
 .choices { list-style: none; padding: 0 !important; }
 .choices > li { padding: 12px 14px; background: #f7f9fc; border-left: 3px solid #d4e0eb; }
@@ -69,6 +69,10 @@ tr.evidence td { background: #fff6da; }
 .app:not([data-tab=model]) .workspace > :not(.collection) { display: none; }
 .navigator, .inspector { min-width: 0; min-height: 0; background: #fff; overflow: hidden; }
 .navigator { display: grid; grid-template-rows: auto minmax(0, 1fr); padding: 12px 9px; gap: 10px; }
+.navigator[data-mode=checks] { grid-template-rows: auto auto minmax(0, 1fr); }
+.check-filters { display: grid; gap: 6px; }
+.check-filters input, .check-filters select { width: 100%; min-width: 0; padding: 6px 7px; border: 1px solid var(--line); border-radius: 5px; font: inherit; background: #fff; }
+.check-filters .caption { font-size: 11px; }
 .navigator .tabs button { flex: 1; padding: 6px; font-size: 12px; }
 .nav-list { overflow: auto; min-height: 0; scrollbar-gutter: stable; }
 .navigation-item { display: block; width: 100%; text-align: left; padding: 11px 9px; margin-bottom: 5px; border-color: transparent; background: transparent; overflow-wrap: anywhere; }
@@ -80,6 +84,8 @@ tr.evidence td { background: #fff6da; }
 .inspector-body .facts { grid-template-columns: 80px minmax(0, 1fr); }
 .inspector-body .content-section { margin-top: 18px; padding-top: 16px; }
 .inspector-body .content-section:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+.model-rules > li { padding-bottom: 10px; }
+.model-rules .badge { margin-top: 5px; }
 .panel-resizer { cursor: col-resize; touch-action: none; position: relative; background: #e9eff6; }
 .panel-resizer::after { content: ''; position: absolute; width: 3px; height: 34px; left: 3.5px; top: calc(50% - 17px); border-radius: 3px; background: #9cb1c5; }
 .panel-resizer:hover, .panel-resizer.dragging { background: #cbdceb; }
@@ -145,14 +151,16 @@ tr.evidence td { background: #fff6da; }
 .drawer-resizer { cursor: row-resize; touch-action: none; background: #e9f0f7; position: relative; }
 .drawer-resizer::after { content: ''; display: block; width: 45px; height: 3px; position: absolute; top: 3px; left: calc(50% - 22px); background: #9cb1c5; border-radius: 2px; }
 .drawer-resizer:hover, .drawer-resizer.dragging { background: #cbdceb; }
-.drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+.drawer-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 8px 12px; border-bottom: 1px solid var(--line); }
 .drawer-head h3 { font-size: 13px; }
+.dataset-control { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; font-size: 11px; min-width: 0; }
+.dataset-control select { max-width: 220px; min-width: 0; font: inherit; padding: 3px 5px; border: 1px solid var(--line); border-radius: 4px; background: #fff; }
 .drawer-head button { font-size: 11px; padding: 3px 7px; }
 .sample-body { min-height: 0; overflow: hidden; }
 .sample-content { height: 100%; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); }
 .sample-content > .caption { padding: 6px 12px; }
 .sample-grid { height: 100%; }
-</style></head><body><div id="app"></div><noscript>JavaScript를 활성화해 모델을 검토하세요.</noscript><script type="application/json" id="viewer-data">{"version": "2.1.0", "document_version": "2.0.0", "development": false, "notices": {"AJV-LICENSE.txt": "The MIT License (MIT)\n\nCopyright (c) 2015-2021 Evgeny Poberezkin\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n", "EXPAT-LICENSE.txt": "Copyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2001-2025 Expat maintainers\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be included\nin all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.\nIN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,\nTORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE\nSOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n", "GRAPHVIZ-LICENSE.txt": "Eclipse Public License - v 2.0\n\n    THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE\n    PUBLIC LICENSE (\"AGREEMENT\"). ANY USE, REPRODUCTION OR DISTRIBUTION\n    OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.\n\n1. DEFINITIONS\n\n\"Contribution\" means:\n\n  a) in the case of the initial Contributor, the initial content\n     Distributed under this Agreement, and\n\n  b) in the case of each subsequent Contributor:\n     i) changes to the Program, and\n     ii) additions to the Program;\n  where such changes and/or additions to the Program originate from\n  and are Distributed by that particular Contributor. A Contribution\n  \"originates\" from a Contributor if it was added to the Program by\n  such Contributor itself or anyone acting on such Contributor's behalf.\n  Contributions do not include changes or additions to the Program that\n  are not Modified Works.\n\n\"Contributor\" means any person or entity that Distributes the Program.\n\n\"Licensed Patents\" mean patent claims licensable by a Contributor which\nare necessarily infringed by the use or sale of its Contribution alone\nor when combined with the Program.\n\n\"Program\" means the Contributions Distributed in accordance with this\nAgreement.\n\n\"Recipient\" means anyone who receives the Program under this Agreement\nor any Secondary License (as applicable), including Contributors.\n\n\"Derivative Works\" shall mean any work, whether in Source Code or other\nform, that is based on (or derived from) the Program and for which the\neditorial revisions, annotations, elaborations, or other modifications\nrepresent, as a whole, an original work of authorship.\n\n\"Modified Works\" shall mean any work in Source Code or other form that\nresults from an addition to, deletion from, or modification of the\ncontents of the Program, including, for purposes of clarity any new file\nin Source Code form that contains any contents of the Program. Modified\nWorks shall not include works that contain only declarations,\ninterfaces, types, classes, structures, or files of the Program solely\nin each case in order to link to, bind by name, or subclass the Program\nor Modified Works thereof.\n\n\"Distribute\" means the acts of a) distributing or b) making available\nin any manner that enables the transfer of a copy.\n\n\"Source Code\" means the form of a Program preferred for making\nmodifications, including but not limited to software source code,\ndocumentation source, and configuration files.\n\n\"Secondary License\" means either the GNU General Public License,\nVersion 2.0, or any later versions of that license, including any\nexceptions or additional permissions as identified by the initial\nContributor.\n\n2. GRANT OF RIGHTS\n\n  a) Subject to the terms of this Agreement, each Contributor hereby\n  grants Recipient a non-exclusive, worldwide, royalty-free copyright\n  license to reproduce, prepare Derivative Works of, publicly display,\n  publicly perform, Distribute and sublicense the Contribution of such\n  Contributor, if any, and such Derivative Works.\n\n  b) Subject to the terms of this Agreement, each Contributor hereby\n  grants Recipient a non-exclusive, worldwide, royalty-free patent\n  license under Licensed Patents to make, use, sell, offer to sell,\n  import and otherwise transfer the Contribution of such Contributor,\n  if any, in Source Code or other form. This patent license shall\n  apply to the combination of the Contribution and the Program if, at\n  the time the Contribution is added by the Contributor, such addition\n  of the Contribution causes such combination to be covered by the\n  Licensed Patents. The patent license shall not apply to any other\n  combinations which include the Contribution. No hardware per se is\n  licensed hereunder.\n\n  c) Recipient understands that although each Contributor grants the\n  licenses to its Contributions set forth herein, no assurances are\n  provided by any Contributor that the Program does not infringe the\n  patent or other intellectual property rights of any other entity.\n  Each Contributor disclaims any liability to Recipient for claims\n  brought by any other entity based on infringement of intellectual\n  property rights or otherwise. As a condition to exercising the\n  rights and licenses granted hereunder, each Recipient hereby\n  assumes sole responsibility to secure any other intellectual\n  property rights needed, if any. For example, if a third party\n  patent license is required to allow Recipient to Distribute the\n  Program, it is Recipient's responsibility to acquire that license\n  before distributing the Program.\n\n  d) Each Contributor represents that to its knowledge it has\n  sufficient copyright rights in its Contribution, if any, to grant\n  the copyright license set forth in this Agreement.\n\n  e) Notwithstanding the terms of any Secondary License, no\n  Contributor makes additional grants to any Recipient (other than\n  those set forth in this Agreement) as a result of such Recipient's\n  receipt of the Program under the terms of a Secondary License\n  (if permitted under the terms of Section 3).\n\n3. REQUIREMENTS\n\n3.1 If a Contributor Distributes the Program in any form, then:\n\n  a) the Program must also be made available as Source Code, in\n  accordance with section 3.2, and the Contributor must accompany\n  the Program with a statement that the Source Code for the Program\n  is available under this Agreement, and informs Recipients how to\n  obtain it in a reasonable manner on or through a medium customarily\n  used for software exchange; and\n\n  b) the Contributor may Distribute the Program under a license\n  different than this Agreement, provided that such license:\n     i) effectively disclaims on behalf of all other Contributors all\n     warranties and conditions, express and implied, including\n     warranties or conditions of title and non-infringement, and\n     implied warranties or conditions of merchantability and fitness\n     for a particular purpose;\n\n     ii) effectively excludes on behalf of all other Contributors all\n     liability for damages, including direct, indirect, special,\n     incidental and consequential damages, such as lost profits;\n\n     iii) does not attempt to limit or alter the recipients' rights\n     in the Source Code under section 3.2; and\n\n     iv) requires any subsequent distribution of the Program by any\n     party to be under a license that satisfies the requirements\n     of this section 3.\n\n3.2 When the Program is Distributed as Source Code:\n\n  a) it must be made available under this Agreement, or if the\n  Program (i) is combined with other material in a separate file or\n  files made available under a Secondary License, and (ii) the initial\n  Contributor attached to the Source Code the notice described in\n  Exhibit A of this Agreement, then the Program may be made available\n  under the terms of such Secondary Licenses, and\n\n  b) a copy of this Agreement must be included with each copy of\n  the Program.\n\n3.3 Contributors may not remove or alter any copyright, patent,\ntrademark, attribution notices, disclaimers of warranty, or limitations\nof liability (\"notices\") contained within the Program from any copy of\nthe Program which they Distribute, provided that Contributors may add\ntheir own appropriate notices.\n\n4. COMMERCIAL DISTRIBUTION\n\nCommercial distributors of software may accept certain responsibilities\nwith respect to end users, business partners and the like. While this\nlicense is intended to facilitate the commercial use of the Program,\nthe Contributor who includes the Program in a commercial product\noffering should do so in a manner which does not create potential\nliability for other Contributors. Therefore, if a Contributor includes\nthe Program in a commercial product offering, such Contributor\n(\"Commercial Contributor\") hereby agrees to defend and indemnify every\nother Contributor (\"Indemnified Contributor\") against any losses,\ndamages and costs (collectively \"Losses\") arising from claims, lawsuits\nand other legal actions brought by a third party against the Indemnified\nContributor to the extent caused by the acts or omissions of such\nCommercial Contributor in connection with its distribution of the Program\nin a commercial product offering. The obligations in this section do not\napply to any claims or Losses relating to any actual or alleged\nintellectual property infringement. In order to qualify, an Indemnified\nContributor must: a) promptly notify the Commercial Contributor in\nwriting of such claim, and b) allow the Commercial Contributor to control,\nand cooperate with the Commercial Contributor in, the defense and any\nrelated settlement negotiations. The Indemnified Contributor may\nparticipate in any such claim at its own expense.\n\nFor example, a Contributor might include the Program in a commercial\nproduct offering, Product X. That Contributor is then a Commercial\nContributor. If that Commercial Contributor then makes performance\nclaims, or offers warranties related to Product X, those performance\nclaims and warranties are such Commercial Contributor's responsibility\nalone. Under this section, the Commercial Contributor would have to\ndefend claims against the other Contributors related to those performance\nclaims and warranties, and if a court requires any other Contributor to\npay any damages as a result, the Commercial Contributor must pay\nthose damages.\n\n5. NO WARRANTY\n\nEXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, AND TO THE EXTENT\nPERMITTED BY APPLICABLE LAW, THE PROGRAM IS PROVIDED ON AN \"AS IS\"\nBASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR\nIMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS OF\nTITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR\nPURPOSE. Each Recipient is solely responsible for determining the\nappropriateness of using and distributing the Program and assumes all\nrisks associated with its exercise of rights under this Agreement,\nincluding but not limited to the risks and costs of program errors,\ncompliance with applicable laws, damage to or loss of data, programs\nor equipment, and unavailability or interruption of operations.\n\n6. DISCLAIMER OF LIABILITY\n\nEXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, AND TO THE EXTENT\nPERMITTED BY APPLICABLE LAW, NEITHER RECIPIENT NOR ANY CONTRIBUTORS\nSHALL HAVE ANY LIABILITY FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,\nEXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING WITHOUT LIMITATION LOST\nPROFITS), HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN\nCONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\nARISING IN ANY WAY OUT OF THE USE OR DISTRIBUTION OF THE PROGRAM OR THE\nEXERCISE OF ANY RIGHTS GRANTED HEREUNDER, EVEN IF ADVISED OF THE\nPOSSIBILITY OF SUCH DAMAGES.\n\n7. GENERAL\n\nIf any provision of this Agreement is invalid or unenforceable under\napplicable law, it shall not affect the validity or enforceability of\nthe remainder of the terms of this Agreement, and without further\naction by the parties hereto, such provision shall be reformed to the\nminimum extent necessary to make such provision valid and enforceable.\n\nIf Recipient institutes patent litigation against any entity\n(including a cross-claim or counterclaim in a lawsuit) alleging that the\nProgram itself (excluding combinations of the Program with other software\nor hardware) infringes such Recipient's patent(s), then such Recipient's\nrights granted under Section 2(b) shall terminate as of the date such\nlitigation is filed.\n\nAll Recipient's rights under this Agreement shall terminate if it\nfails to comply with any of the material terms or conditions of this\nAgreement and does not cure such failure in a reasonable period of\ntime after becoming aware of such noncompliance. If all Recipient's\nrights under this Agreement terminate, Recipient agrees to cease use\nand distribution of the Program as soon as reasonably practicable.\nHowever, Recipient's obligations under this Agreement and any licenses\ngranted by Recipient relating to the Program shall continue and survive.\n\nEveryone is permitted to copy and distribute copies of this Agreement,\nbut in order to avoid inconsistency the Agreement is copyrighted and\nmay only be modified in the following manner. The Agreement Steward\nreserves the right to publish new versions (including revisions) of\nthis Agreement from time to time. No one other than the Agreement\nSteward has the right to modify this Agreement. The Eclipse Foundation\nis the initial Agreement Steward. The Eclipse Foundation may assign the\nresponsibility to serve as the Agreement Steward to a suitable separate\nentity. Each new version of the Agreement will be given a distinguishing\nversion number. The Program (including Contributions) may always be\nDistributed subject to the version of the Agreement under which it was\nreceived. In addition, after a new version of the Agreement is published,\nContributor may elect to Distribute the Program (including its\nContributions) under the new version.\n\nExcept as expressly stated in Sections 2(a) and 2(b) above, Recipient\nreceives no rights or licenses to the intellectual property of any\nContributor under this Agreement, whether expressly, by implication,\nestoppel or otherwise. All rights in the Program not expressly granted\nunder this Agreement are reserved. Nothing in this Agreement is intended\nto be enforceable by any entity that is not a Contributor or Recipient.\nNo third-party beneficiary rights are created under this Agreement.\n\nExhibit A - Form of Secondary Licenses Notice\n\n\"This Source Code may also be made available under the following \nSecondary Licenses when the conditions for such availability set forth \nin the Eclipse Public License, v. 2.0 are satisfied: {name license(s),\nversion(s), and exceptions or additional permissions here}.\"\n\n  Simply including a copy of this Agreement, including this Exhibit A\n  is not sufficient to license the Source Code under Secondary Licenses.\n\n  If it is not possible or desirable to put the notice in a particular\n  file, then You may include the notice in a location (such as a LICENSE\n  file in a relevant directory) where a recipient would be likely to\n  look for such a notice.\n\n  You may add additional accurate notices of copyright ownership.", "NOTICE.txt": "Vendored, unmodified @viz-js/viz 3.25.0 (viz-global.js), Copyright Michael Daines, MIT.\nSource: https://github.com/mdaines/viz-js/tree/v3\nContains Graphviz 14.1.3, Eclipse Public License 2.0; corresponding source:\nhttps://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/14.1.3/graphviz-14.1.3.tar.gz\nContains Expat 2.7.4, MIT; corresponding source:\nhttps://github.com/libexpat/libexpat/releases/download/R_2_7_4/expat-2.7.4.tar.gz\nFull license notices accompany this file and are embedded in generated HTML.\nThe skill's review.js, CSS and renderer are separate original code.\n\nSharing-file validation uses Ajv 8.17.1 standalone generated code and its\nucs2length runtime helper (MIT; see AJV-LICENSE.txt). The schema is compiled\nat maintenance time and bundled with esbuild 0.25.12; neither tool is loaded\nfrom the network when the report is generated or opened.\n", "VIZ-LICENSE.txt": "MIT License\n\nCopyright (c) Michael Daines\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n"}}</script><script>/*!
+</style></head><body><div id="app"></div><noscript>JavaScript를 활성화해 모델을 검토하세요.</noscript><script type="application/json" id="viewer-data">{"version": "2.2.0", "document_version": "2.0.0", "development": false, "notices": {"AJV-LICENSE.txt": "The MIT License (MIT)\n\nCopyright (c) 2015-2021 Evgeny Poberezkin\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n", "EXPAT-LICENSE.txt": "Copyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper\nCopyright (c) 2001-2025 Expat maintainers\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be included\nin all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.\nIN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,\nTORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE\nSOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n", "GRAPHVIZ-LICENSE.txt": "Eclipse Public License - v 2.0\n\n    THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE\n    PUBLIC LICENSE (\"AGREEMENT\"). ANY USE, REPRODUCTION OR DISTRIBUTION\n    OF THE PROGRAM CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.\n\n1. DEFINITIONS\n\n\"Contribution\" means:\n\n  a) in the case of the initial Contributor, the initial content\n     Distributed under this Agreement, and\n\n  b) in the case of each subsequent Contributor:\n     i) changes to the Program, and\n     ii) additions to the Program;\n  where such changes and/or additions to the Program originate from\n  and are Distributed by that particular Contributor. A Contribution\n  \"originates\" from a Contributor if it was added to the Program by\n  such Contributor itself or anyone acting on such Contributor's behalf.\n  Contributions do not include changes or additions to the Program that\n  are not Modified Works.\n\n\"Contributor\" means any person or entity that Distributes the Program.\n\n\"Licensed Patents\" mean patent claims licensable by a Contributor which\nare necessarily infringed by the use or sale of its Contribution alone\nor when combined with the Program.\n\n\"Program\" means the Contributions Distributed in accordance with this\nAgreement.\n\n\"Recipient\" means anyone who receives the Program under this Agreement\nor any Secondary License (as applicable), including Contributors.\n\n\"Derivative Works\" shall mean any work, whether in Source Code or other\nform, that is based on (or derived from) the Program and for which the\neditorial revisions, annotations, elaborations, or other modifications\nrepresent, as a whole, an original work of authorship.\n\n\"Modified Works\" shall mean any work in Source Code or other form that\nresults from an addition to, deletion from, or modification of the\ncontents of the Program, including, for purposes of clarity any new file\nin Source Code form that contains any contents of the Program. Modified\nWorks shall not include works that contain only declarations,\ninterfaces, types, classes, structures, or files of the Program solely\nin each case in order to link to, bind by name, or subclass the Program\nor Modified Works thereof.\n\n\"Distribute\" means the acts of a) distributing or b) making available\nin any manner that enables the transfer of a copy.\n\n\"Source Code\" means the form of a Program preferred for making\nmodifications, including but not limited to software source code,\ndocumentation source, and configuration files.\n\n\"Secondary License\" means either the GNU General Public License,\nVersion 2.0, or any later versions of that license, including any\nexceptions or additional permissions as identified by the initial\nContributor.\n\n2. GRANT OF RIGHTS\n\n  a) Subject to the terms of this Agreement, each Contributor hereby\n  grants Recipient a non-exclusive, worldwide, royalty-free copyright\n  license to reproduce, prepare Derivative Works of, publicly display,\n  publicly perform, Distribute and sublicense the Contribution of such\n  Contributor, if any, and such Derivative Works.\n\n  b) Subject to the terms of this Agreement, each Contributor hereby\n  grants Recipient a non-exclusive, worldwide, royalty-free patent\n  license under Licensed Patents to make, use, sell, offer to sell,\n  import and otherwise transfer the Contribution of such Contributor,\n  if any, in Source Code or other form. This patent license shall\n  apply to the combination of the Contribution and the Program if, at\n  the time the Contribution is added by the Contributor, such addition\n  of the Contribution causes such combination to be covered by the\n  Licensed Patents. The patent license shall not apply to any other\n  combinations which include the Contribution. No hardware per se is\n  licensed hereunder.\n\n  c) Recipient understands that although each Contributor grants the\n  licenses to its Contributions set forth herein, no assurances are\n  provided by any Contributor that the Program does not infringe the\n  patent or other intellectual property rights of any other entity.\n  Each Contributor disclaims any liability to Recipient for claims\n  brought by any other entity based on infringement of intellectual\n  property rights or otherwise. As a condition to exercising the\n  rights and licenses granted hereunder, each Recipient hereby\n  assumes sole responsibility to secure any other intellectual\n  property rights needed, if any. For example, if a third party\n  patent license is required to allow Recipient to Distribute the\n  Program, it is Recipient's responsibility to acquire that license\n  before distributing the Program.\n\n  d) Each Contributor represents that to its knowledge it has\n  sufficient copyright rights in its Contribution, if any, to grant\n  the copyright license set forth in this Agreement.\n\n  e) Notwithstanding the terms of any Secondary License, no\n  Contributor makes additional grants to any Recipient (other than\n  those set forth in this Agreement) as a result of such Recipient's\n  receipt of the Program under the terms of a Secondary License\n  (if permitted under the terms of Section 3).\n\n3. REQUIREMENTS\n\n3.1 If a Contributor Distributes the Program in any form, then:\n\n  a) the Program must also be made available as Source Code, in\n  accordance with section 3.2, and the Contributor must accompany\n  the Program with a statement that the Source Code for the Program\n  is available under this Agreement, and informs Recipients how to\n  obtain it in a reasonable manner on or through a medium customarily\n  used for software exchange; and\n\n  b) the Contributor may Distribute the Program under a license\n  different than this Agreement, provided that such license:\n     i) effectively disclaims on behalf of all other Contributors all\n     warranties and conditions, express and implied, including\n     warranties or conditions of title and non-infringement, and\n     implied warranties or conditions of merchantability and fitness\n     for a particular purpose;\n\n     ii) effectively excludes on behalf of all other Contributors all\n     liability for damages, including direct, indirect, special,\n     incidental and consequential damages, such as lost profits;\n\n     iii) does not attempt to limit or alter the recipients' rights\n     in the Source Code under section 3.2; and\n\n     iv) requires any subsequent distribution of the Program by any\n     party to be under a license that satisfies the requirements\n     of this section 3.\n\n3.2 When the Program is Distributed as Source Code:\n\n  a) it must be made available under this Agreement, or if the\n  Program (i) is combined with other material in a separate file or\n  files made available under a Secondary License, and (ii) the initial\n  Contributor attached to the Source Code the notice described in\n  Exhibit A of this Agreement, then the Program may be made available\n  under the terms of such Secondary Licenses, and\n\n  b) a copy of this Agreement must be included with each copy of\n  the Program.\n\n3.3 Contributors may not remove or alter any copyright, patent,\ntrademark, attribution notices, disclaimers of warranty, or limitations\nof liability (\"notices\") contained within the Program from any copy of\nthe Program which they Distribute, provided that Contributors may add\ntheir own appropriate notices.\n\n4. COMMERCIAL DISTRIBUTION\n\nCommercial distributors of software may accept certain responsibilities\nwith respect to end users, business partners and the like. While this\nlicense is intended to facilitate the commercial use of the Program,\nthe Contributor who includes the Program in a commercial product\noffering should do so in a manner which does not create potential\nliability for other Contributors. Therefore, if a Contributor includes\nthe Program in a commercial product offering, such Contributor\n(\"Commercial Contributor\") hereby agrees to defend and indemnify every\nother Contributor (\"Indemnified Contributor\") against any losses,\ndamages and costs (collectively \"Losses\") arising from claims, lawsuits\nand other legal actions brought by a third party against the Indemnified\nContributor to the extent caused by the acts or omissions of such\nCommercial Contributor in connection with its distribution of the Program\nin a commercial product offering. The obligations in this section do not\napply to any claims or Losses relating to any actual or alleged\nintellectual property infringement. In order to qualify, an Indemnified\nContributor must: a) promptly notify the Commercial Contributor in\nwriting of such claim, and b) allow the Commercial Contributor to control,\nand cooperate with the Commercial Contributor in, the defense and any\nrelated settlement negotiations. The Indemnified Contributor may\nparticipate in any such claim at its own expense.\n\nFor example, a Contributor might include the Program in a commercial\nproduct offering, Product X. That Contributor is then a Commercial\nContributor. If that Commercial Contributor then makes performance\nclaims, or offers warranties related to Product X, those performance\nclaims and warranties are such Commercial Contributor's responsibility\nalone. Under this section, the Commercial Contributor would have to\ndefend claims against the other Contributors related to those performance\nclaims and warranties, and if a court requires any other Contributor to\npay any damages as a result, the Commercial Contributor must pay\nthose damages.\n\n5. NO WARRANTY\n\nEXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, AND TO THE EXTENT\nPERMITTED BY APPLICABLE LAW, THE PROGRAM IS PROVIDED ON AN \"AS IS\"\nBASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR\nIMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS OF\nTITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR\nPURPOSE. Each Recipient is solely responsible for determining the\nappropriateness of using and distributing the Program and assumes all\nrisks associated with its exercise of rights under this Agreement,\nincluding but not limited to the risks and costs of program errors,\ncompliance with applicable laws, damage to or loss of data, programs\nor equipment, and unavailability or interruption of operations.\n\n6. DISCLAIMER OF LIABILITY\n\nEXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, AND TO THE EXTENT\nPERMITTED BY APPLICABLE LAW, NEITHER RECIPIENT NOR ANY CONTRIBUTORS\nSHALL HAVE ANY LIABILITY FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,\nEXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING WITHOUT LIMITATION LOST\nPROFITS), HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN\nCONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\nARISING IN ANY WAY OUT OF THE USE OR DISTRIBUTION OF THE PROGRAM OR THE\nEXERCISE OF ANY RIGHTS GRANTED HEREUNDER, EVEN IF ADVISED OF THE\nPOSSIBILITY OF SUCH DAMAGES.\n\n7. GENERAL\n\nIf any provision of this Agreement is invalid or unenforceable under\napplicable law, it shall not affect the validity or enforceability of\nthe remainder of the terms of this Agreement, and without further\naction by the parties hereto, such provision shall be reformed to the\nminimum extent necessary to make such provision valid and enforceable.\n\nIf Recipient institutes patent litigation against any entity\n(including a cross-claim or counterclaim in a lawsuit) alleging that the\nProgram itself (excluding combinations of the Program with other software\nor hardware) infringes such Recipient's patent(s), then such Recipient's\nrights granted under Section 2(b) shall terminate as of the date such\nlitigation is filed.\n\nAll Recipient's rights under this Agreement shall terminate if it\nfails to comply with any of the material terms or conditions of this\nAgreement and does not cure such failure in a reasonable period of\ntime after becoming aware of such noncompliance. If all Recipient's\nrights under this Agreement terminate, Recipient agrees to cease use\nand distribution of the Program as soon as reasonably practicable.\nHowever, Recipient's obligations under this Agreement and any licenses\ngranted by Recipient relating to the Program shall continue and survive.\n\nEveryone is permitted to copy and distribute copies of this Agreement,\nbut in order to avoid inconsistency the Agreement is copyrighted and\nmay only be modified in the following manner. The Agreement Steward\nreserves the right to publish new versions (including revisions) of\nthis Agreement from time to time. No one other than the Agreement\nSteward has the right to modify this Agreement. The Eclipse Foundation\nis the initial Agreement Steward. The Eclipse Foundation may assign the\nresponsibility to serve as the Agreement Steward to a suitable separate\nentity. Each new version of the Agreement will be given a distinguishing\nversion number. The Program (including Contributions) may always be\nDistributed subject to the version of the Agreement under which it was\nreceived. In addition, after a new version of the Agreement is published,\nContributor may elect to Distribute the Program (including its\nContributions) under the new version.\n\nExcept as expressly stated in Sections 2(a) and 2(b) above, Recipient\nreceives no rights or licenses to the intellectual property of any\nContributor under this Agreement, whether expressly, by implication,\nestoppel or otherwise. All rights in the Program not expressly granted\nunder this Agreement are reserved. Nothing in this Agreement is intended\nto be enforceable by any entity that is not a Contributor or Recipient.\nNo third-party beneficiary rights are created under this Agreement.\n\nExhibit A - Form of Secondary Licenses Notice\n\n\"This Source Code may also be made available under the following \nSecondary Licenses when the conditions for such availability set forth \nin the Eclipse Public License, v. 2.0 are satisfied: {name license(s),\nversion(s), and exceptions or additional permissions here}.\"\n\n  Simply including a copy of this Agreement, including this Exhibit A\n  is not sufficient to license the Source Code under Secondary Licenses.\n\n  If it is not possible or desirable to put the notice in a particular\n  file, then You may include the notice in a location (such as a LICENSE\n  file in a relevant directory) where a recipient would be likely to\n  look for such a notice.\n\n  You may add additional accurate notices of copyright ownership.", "NOTICE.txt": "Vendored, unmodified @viz-js/viz 3.25.0 (viz-global.js), Copyright Michael Daines, MIT.\nSource: https://github.com/mdaines/viz-js/tree/v3\nContains Graphviz 14.1.3, Eclipse Public License 2.0; corresponding source:\nhttps://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/14.1.3/graphviz-14.1.3.tar.gz\nContains Expat 2.7.4, MIT; corresponding source:\nhttps://github.com/libexpat/libexpat/releases/download/R_2_7_4/expat-2.7.4.tar.gz\nFull license notices accompany this file and are embedded in generated HTML.\nThe skill's review.js, CSS and renderer are separate original code.\n\nSharing-file validation uses Ajv 8.17.1 standalone generated code and its\nucs2length runtime helper (MIT; see AJV-LICENSE.txt). The schema is compiled\nat maintenance time and bundled with esbuild 0.25.12; neither tool is loaded\nfrom the network when the report is generated or opened.\n", "VIZ-LICENSE.txt": "MIT License\n\nCopyright (c) Michael Daines\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n"}}</script><script>/*!
 Viz.js 3.25.0
 Copyright (c) Michael Daines
 
@@ -3830,7 +3838,7 @@ Expat https://libexpat.github.io
 
   // dev/viewer/state.js
   function createState(document2) {
-    let state = { tab: "model", nav: "domains", scope: { kind: "all" }, entityId: document2.model.entities[0].id, detail: "attributes", recordId: null };
+    let state = { tab: "model", nav: "domains", scope: { kind: "all" }, datasetId: document2.samples.datasets[0].id, entityId: document2.model.entities[0].id, detail: "attributes", recordId: null };
     const subscribers = /* @__PURE__ */ new Set();
     return {
       get: () => state,
@@ -4046,8 +4054,23 @@ ${hints.join("\n")}}`);
     add(minimap, miniButton, surface);
     add(canvas, stage, hint, legend, minimap);
     const zoomLabel = el("span", "100%", "zoom-label");
-    let scope = null, active = null, view = null, miniOpen = false, drag = null, suppress = false, sequence = 0;
+    let scope = null, active = null, view = null, miniOpen = false, drag = null, suppress = false, sequence = 0, obscuredBottom = 0;
     const cache = /* @__PURE__ */ new Map(), views = /* @__PURE__ */ new Map();
+    const visibleHeight = () => Math.max(1, canvas.clientHeight - obscuredBottom);
+    function refresh() {
+      minimap.style.bottom = obscuredBottom + 10 + "px";
+      const height = Math.max(24, Math.min(140, visibleHeight() - 56));
+      surface.style.height = height + "px";
+      surface.style.width = Math.max(84, Math.min(210, height * 1.5)) + "px";
+      hint.style.bottom = obscuredBottom + 9 + "px";
+      hint.hidden = visibleHeight() < 160;
+      legend.hidden = visibleHeight() < 160;
+      updateMini();
+    }
+    function setObscuredBottom(height) {
+      obscuredBottom = Math.max(0, Math.min(Math.max(0, canvas.clientHeight - 80), height));
+      refresh();
+    }
     const apply = () => {
       if (!view) return;
       stage.style.transform = `translate(${view.x}px,${view.y}px) scale(${view.zoom})`;
@@ -4057,12 +4080,14 @@ ${hints.join("\n")}}`);
     function fit() {
       if (!active || !view) return;
       const box = active.viewBox.baseVal;
-      view.zoom = Math.max(0.01, Math.min(1, (canvas.clientWidth - 48) / box.width, (canvas.clientHeight - 48) / box.height));
+      const top = legend.hidden ? 24 : Math.max(24, (legend.offsetHeight || 0) + 16);
+      const height = Math.max(1, visibleHeight() - top - 24);
+      view.zoom = Math.max(0.01, Math.min(1, (canvas.clientWidth - 48) / box.width, height / box.height));
       view.x = (canvas.clientWidth - box.width * view.zoom) / 2 - box.x * view.zoom;
-      view.y = (canvas.clientHeight - box.height * view.zoom) / 2 - box.y * view.zoom;
+      view.y = top + (height - box.height * view.zoom) / 2 - box.y * view.zoom;
       apply();
     }
-    function zoom(value, x = canvas.clientWidth / 2, y = canvas.clientHeight / 2) {
+    function zoom(value, x = canvas.clientWidth / 2, y = visibleHeight() / 2) {
       if (!view) return;
       const old = view.zoom, next = Math.max(0.01, Math.min(3, value));
       view.x = x - (x - view.x) * next / old;
@@ -4075,6 +4100,7 @@ ${hints.join("\n")}}`);
       surface.hidden = !miniOpen;
       miniButton.textContent = miniOpen ? "\uBBF8\uB2C8\uB9F5 \uB2EB\uAE30" : "\uBBF8\uB2C8\uB9F5 \uC5F4\uAE30";
       miniButton.setAttribute("aria-expanded", String(miniOpen));
+      refresh();
       syncMini();
     }
     function syncMini() {
@@ -4096,7 +4122,7 @@ ${hints.join("\n")}}`);
       viewport.setAttribute("x", x);
       viewport.setAttribute("y", y);
       viewport.setAttribute("width", Math.max(0, Math.min(box.x + box.width, (canvas.clientWidth - view.x) / view.zoom) - x));
-      viewport.setAttribute("height", Math.max(0, Math.min(box.y + box.height, (canvas.clientHeight - view.y) / view.zoom) - y));
+      viewport.setAttribute("height", Math.max(0, Math.min(box.y + box.height, (visibleHeight() - view.y) / view.zoom) - y));
     }
     function moveFromMini(event) {
       event.stopPropagation();
@@ -4109,7 +4135,7 @@ ${hints.join("\n")}}`);
       if (!matrix) return;
       const pos = point.matrixTransform(matrix.inverse());
       view.x = canvas.clientWidth / 2 - pos.x * view.zoom;
-      view.y = canvas.clientHeight / 2 - pos.y * view.zoom;
+      view.y = visibleHeight() / 2 - pos.y * view.zoom;
       apply();
     }
     surface.addEventListener("pointerdown", moveFromMini, { signal });
@@ -4127,7 +4153,7 @@ ${hints.join("\n")}}`);
         if (!active || !view) return;
         const b2 = active.viewBox.baseVal;
         view.x = canvas.clientWidth / 2 - (b2.x + b2.width / 2) * view.zoom;
-        view.y = canvas.clientHeight / 2 - (b2.y + b2.height / 2) * view.zoom;
+        view.y = visibleHeight() / 2 - (b2.y + b2.height / 2) * view.zoom;
         apply();
       }
     }, { signal });
@@ -4198,7 +4224,7 @@ ${hints.join("\n")}}`);
         try {
           const viz = await engine;
           if (signal.aborted || token !== sequence) return;
-          cache.set(next.key, layout(viz, next, Math.max(1, canvas.clientWidth - 48), Math.max(1, canvas.clientHeight - 48)));
+          cache.set(next.key, layout(viz, next, Math.max(1, canvas.clientWidth - 48), Math.max(1, visibleHeight() - 48)));
         } catch (error) {
           if (!signal.aborted && token === sequence) stage.replaceChildren(p("ERD \uBC30\uCE58 \uC2E4\uD328: " + error.message, "notice"));
           return;
@@ -4207,7 +4233,7 @@ ${hints.join("\n")}}`);
       if (signal.aborted || token !== sequence) return;
       const svg = cache.get(next.key), changed = active !== svg;
       active = svg;
-      if (changed) stage.replaceChildren(svg);
+      if (changed || svg.parentElement !== stage) stage.replaceChildren(svg);
       svg.style.width = svg.viewBox.baseVal.width + "px";
       svg.style.height = svg.viewBox.baseVal.height + "px";
       svg.setAttribute("role", "group");
@@ -4256,7 +4282,7 @@ ${hints.join("\n")}}`);
       highlight(selected, next.scenario?.entity_ids || []);
       if (changed) syncMini();
     }
-    return { canvas, zoomLabel, show, fit, zoomIn: () => zoom((view?.zoom || 1) * 1.2), zoomOut: () => zoom((view?.zoom || 1) / 1.2), refresh: updateMini };
+    return { canvas, zoomLabel, show, fit, zoomIn: () => zoom((view?.zoom || 1) * 1.2), zoomOut: () => zoom((view?.zoom || 1) / 1.2), refresh, setObscuredBottom };
   }
 
   // dev/viewer/resize.js
@@ -4340,6 +4366,11 @@ ${hints.join("\n")}}`);
       issues: document2.issues.filter((q) => q.entity_ids.includes(entityId))
     };
   }
+  function checkMatches(scenario, observation, query, status) {
+    if (status === "recorded" && !observation || status === "unconfirmed" && observation) return false;
+    const content = [scenario.id, scenario.title, scenario.situation, scenario.expected_behavior, scenario.why_it_matters, scenario.sample_note || ""].join(" ").toLocaleLowerCase();
+    return query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean).every((word) => content.includes(word));
+  }
   var statusLabels = { modeled: "\uC124\uACC4\uC5D0 \uBC18\uC601", unmodeled: "\uC544\uC9C1 \uBBF8\uBC18\uC601", excluded: "\uBC94\uC704 \uC81C\uC678", not_applicable: "\uD574\uB2F9 \uC5C6\uC74C", proposed: "\uC81C\uC548", agreed: "\uD569\uC758", open: "\uBBF8\uACB0", pass: "\uD655\uC778", fail: "\uC608\uC0C1\uACFC \uB2E4\uB984" };
 
   // dev/viewer/samples.js
@@ -4371,10 +4402,15 @@ ${hints.join("\n")}}`);
 
   // dev/viewer/content.js
   var methodLabels = { sample: "\uC0D8\uD50C \uB300\uC870", simulation: "\uAC00\uC815 \uC2DC\uBBAC\uB808\uC774\uC158", implementation: "\uB300\uC0C1 \uAD6C\uD604 \uD655\uC778", manual: "\uC218\uB3D9 \uAC80\uD1A0" };
-  function decisionCard(decision) {
+  function decisionCard(decision, compact = false) {
     const card = el("article", null, "decision-card");
     card.dataset.record = decision.id;
     add(card, el("h4", decision.id + ": " + decision.title), p(statusLabels[decision.status], "badge"), p(decision.rationale));
+    if (compact) {
+      const selected = decision.choices.find((choice) => choice.id === decision.selected_choice);
+      add(card, facts([["\uC120\uD0DD\uD55C \uC548", selected?.title || "\uC544\uC9C1 \uC815\uD558\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4."], ["\uD568\uAED8 \uAC10\uC218\uD560 \uC810", selected?.cost]]));
+      return card;
+    }
     const choices = el("ul", null, "choices");
     for (const choice of decision.choices) {
       const item = el("li", null, choice.id === decision.selected_choice ? "selected-choice" : "");
@@ -4495,38 +4531,58 @@ ${hints.join("\n")}}`);
       if (entity.unique_keys.length) body.append(section("\uC911\uBCF5\uC744 \uB9C9\uB294 \uBC94\uC704", bullets(entity.unique_keys.map((fields) => fields.map((f) => entity.attributes.find((a2) => a2.name === f)?.label || f).join(" + ")))));
       if (entity.constraints?.length) body.append(section("\uCD94\uAC00 \uC81C\uC57D", bullets(entity.constraints)));
       if (entity.indexes?.length) body.append(section("\uC870\uD68C \uC778\uB371\uC2A4", bullets(entity.indexes)));
+      if (relationships.length) {
+        const conditions = section("\uC5F0\uACB0 \uC870\uAC74");
+        for (const r of relationships) conditions.append(add(el("article", null, "relationship-condition"), el("h4", index.label(r.id)), facts([["\uC9C0\uCF1C\uC57C \uD560 \uC870\uAC74", r.rule], ["\uBCF4\uC7A5\uD558\uB294 \uC704\uCE58", r.enforcement]])));
+        body.append(conditions);
+      }
     } else {
       if (scope.scenario) body.append(observationCard(doc, scope.scenario.id));
       body.append(section("\uC774 \uBAA8\uB378\uC774 \uD544\uC694\uD55C \uC774\uC720", p(entity.description), entity.example ? p(entity.example, "example") : null));
-      for (const decision of decisions) body.append(section("\uC124\uACC4 \uC120\uD0DD", decisionCard(decision)));
+      const applies = (item) => !scope.scenario || !item.requirement_ids.length || item.requirement_ids.some((id) => scope.scenario.requirement_ids.includes(id));
+      const relevantDecisions = decisions.filter(applies);
+      if (relevantDecisions.length) {
+        const choices = section("\uC124\uACC4 \uC120\uD0DD\uACFC \uB300\uAC00");
+        for (const decision of relevantDecisions) choices.append(decisionCard(decision, true));
+        body.append(choices);
+      }
       if (entity.tradeoff) body.append(section("\uC120\uD0DD\uC758 \uB300\uAC00", p(entity.tradeoff)));
-      if (rules.length) {
-        const block = section("\uC801\uC6A9\uD55C \uC5C5\uBB34 \uADDC\uCE59");
-        for (const rule of rules) block.append(ruleCard(rule, index));
+      const relevantRules = scope.scenario ? rules.filter((rule) => rule.scenario_ids.includes(scope.scenario.id)) : rules;
+      if (relevantRules.length) {
+        const block = section(scope.scenario ? "\uC774\uBC88 \uD655\uC778\uC5D0 \uC801\uC6A9\uD55C \uADDC\uCE59" : "\uC801\uC6A9\uD55C \uC5C5\uBB34 \uADDC\uCE59");
+        const list = el("ul", null, "model-rules");
+        for (const rule of relevantRules) {
+          const item = add(el("li"), el("strong", index.label(rule.id)), p(rule.statement), p(statusLabels[rule.design_status] + " \xB7 " + statusLabels[rule.agreement_status], "badge"));
+          if (rule.reason) item.append(p(rule.reason, "muted"));
+          list.append(item);
+        }
+        block.append(list);
         body.append(block);
       }
-      if (relationships.length) {
-        const block = section("\uAD00\uACC4\uB97C \uB9CC\uB4E0 \uC774\uC720");
-        for (const r of [...relationships].sort((a2, b2) => Number(b2.id === focusedRelationship) - Number(a2.id === focusedRelationship))) {
-          const card = add(el("article", null, "relationship-card"), el("h4", index.label(r.id)), p(r.description), facts([["\uC9C0\uCF1C\uC57C \uD560 \uC870\uAC74", r.rule], ["\uBCF4\uC7A5\uD558\uB294 \uC704\uCE58", r.enforcement]]));
+      const visibleRelationships = relationships.filter((r) => scope.relationships.some((visible) => visible.id === r.id));
+      if (visibleRelationships.length) {
+        const block = section("\uC774 \uD654\uBA74\uC758 \uAD00\uACC4\uB97C \uB9CC\uB4E0 \uC774\uC720");
+        for (const r of [...visibleRelationships].sort((a2, b2) => Number(b2.id === focusedRelationship) - Number(a2.id === focusedRelationship))) {
+          const card = add(el("article", null, "relationship-card"), el("h4", index.label(r.id)), p(r.description));
           card.dataset.relationship = r.id;
           block.append(card);
         }
         body.append(block);
       }
-      if (issues.length || entity.risk || entity.question) {
+      const relevantIssues = issues.filter(applies);
+      if (relevantIssues.length || entity.risk || entity.question) {
         const block = section("\uB0A8\uC740 \uD310\uB2E8");
         if (entity.risk) block.append(p(entity.risk));
         if (entity.question) block.append(p(entity.question));
-        for (const q of issues) block.append(issueCard(q));
+        for (const q of relevantIssues) block.append(issueCard(q));
         body.append(block);
       }
       if (entity.source_ids.length) body.append(section("\uD310\uB2E8\uC5D0 \uC0AC\uC6A9\uD55C \uADFC\uAC70", references(entity.source_ids, index)));
     }
     return body;
   }
-  function renderSamples(doc, entityId, scenarioId) {
-    const entity = doc.model.entities.find((e) => e.id === entityId), scenario = doc.samples.scenarios.find((s2) => s2.id === scenarioId), dataset = doc.samples.datasets.find((d) => d.id === scenario?.dataset_id) || doc.samples.datasets[0];
+  function renderSamples(doc, entityId, scenarioId, datasetId) {
+    const entity = doc.model.entities.find((e) => e.id === entityId), scenario = doc.samples.scenarios.find((s2) => s2.id === scenarioId), dataset = doc.samples.datasets.find((d) => d.id === (datasetId || scenario?.dataset_id)) || doc.samples.datasets[0];
     const body = el("div", null, "sample-content");
     if (!entity) return body;
     add(body, p(dataset.title + " \xB7 " + entity.name + " \xB7 " + (dataset.rows[entityId]?.length || 0) + "\uD589", "caption"));
@@ -4535,7 +4591,7 @@ ${hints.join("\n")}}`);
     grid.tabIndex = 0;
     grid.setAttribute("role", "region");
     grid.setAttribute("aria-label", entity.name + " \uC804\uCCB4 \uC0D8\uD50C \uB370\uC774\uD130. \uC704\uC544\uB798 \uBC0F \uC88C\uC6B0\uB85C \uC2A4\uD06C\uB864");
-    const refs = scenario?.sample_refs.filter((r) => r.entity_id === entityId) || [];
+    const refs = scenario?.dataset_id === dataset.id ? scenario.sample_refs.filter((r) => r.entity_id === entityId) : [];
     if (refs.length) {
       const rows = grid.querySelectorAll("tbody tr");
       (dataset.rows[entityId] || []).forEach((row, i) => {
@@ -4608,7 +4664,30 @@ ${hints.join("\n")}}`);
     navList.id = "model-navigation-panel";
     navList.setAttribute("role", "tabpanel");
     navigator.setAttribute("aria-label", "\uC5C5\uBB34 \uC601\uC5ED\uACFC \uD655\uC778 \uC0AC\uD56D");
-    add(navigator, navTabs, navList);
+    const navFilters = el("div", null, "check-filters"), checkSearch = el("input"), checkStatus = el("select"), checkCount = p("", "caption"), navEmpty = p("\uAC80\uC0C9 \uACB0\uACFC\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.", "empty");
+    let checkQuery = "", checkStatusValue = "all";
+    checkSearch.type = "search";
+    checkSearch.placeholder = "\uC81C\uBAA9\xB7\uC0C1\uD669 \uAC80\uC0C9";
+    checkSearch.setAttribute("aria-label", "\uD655\uC778 \uC0AC\uD56D \uAC80\uC0C9");
+    checkStatus.setAttribute("aria-label", "\uD655\uC778 \uC0AC\uD56D \uAE30\uB85D \uC0C1\uD0DC");
+    for (const [value, title] of [["all", "\uC804\uCCB4 \uC0C1\uD0DC"], ["recorded", "\uD655\uC778 \uAE30\uB85D \uC788\uC74C"], ["unconfirmed", "\uBBF8\uD655\uC778"]]) {
+      const option = el("option", title);
+      option.value = value;
+      checkStatus.append(option);
+    }
+    checkStatus.value = "all";
+    checkCount.setAttribute("role", "status");
+    checkSearch.addEventListener("input", () => {
+      checkQuery = checkSearch.value;
+      filterChecks();
+    }, { signal });
+    checkStatus.addEventListener("change", () => {
+      checkStatusValue = checkStatus.value;
+      filterChecks();
+    }, { signal });
+    navFilters.hidden = true;
+    add(navFilters, checkSearch, checkStatus, checkCount);
+    add(navigator, navTabs, navFilters, navList);
     const toolbar = el("div", null, "diagram-toolbar"), graphTitle = el("h2"), tools = el("div", null, "tools");
     let active = false, relationshipId = null, lastRecord = null, drawerOpen = false, leftWidth = 220, rightWidth = 400, drawerHeight = 340;
     let preferredLeft = 220, preferredRight = 400, preferredDrawer = null, resetExplanation = false, inspectorVisible = false, samplesVisible = false;
@@ -4625,7 +4704,23 @@ ${hints.join("\n")}}`);
     const sampleToggle = button("\uC0D8\uD50C \uB370\uC774\uD130 \uBCF4\uAE30", () => setDrawer(!drawerOpen));
     sampleToggle.setAttribute("aria-controls", drawer.id);
     sampleToggle.setAttribute("aria-expanded", "false");
-    add(drawerHead, drawerTitle, button("\uB2EB\uAE30", () => setDrawer(false)));
+    const datasetControl = el("label", null, "dataset-control"), datasetLabel = el("span", "\uC608\uC2DC \uB370\uC774\uD130"), datasetSelect = el("select");
+    datasetSelect.setAttribute("aria-label", "\uC0D8\uD50C \uB370\uC774\uD130\uC14B");
+    for (const dataset of doc.samples.datasets) {
+      const option = el("option", dataset.title);
+      option.value = dataset.id;
+      datasetSelect.append(option);
+    }
+    datasetControl.hidden = doc.samples.datasets.length < 2;
+    datasetSelect.addEventListener("change", () => {
+      if (state.get().scope.kind === "scenario" || !doc.samples.datasets.some((d) => d.id === datasetSelect.value)) {
+        datasetSelect.value = state.get().datasetId;
+        return;
+      }
+      state.update({ datasetId: datasetSelect.value });
+    }, { signal });
+    add(datasetControl, datasetLabel, datasetSelect);
+    add(drawerHead, drawerTitle, datasetControl, button("\uB2EB\uAE30", () => setDrawer(false)));
     add(drawer, drawerHandle, drawerHead, sampleBody);
     add(tools, sampleToggle, button("\u2212", graph.zoomOut), graph.zoomLabel, button("+", graph.zoomIn), button("\uD654\uBA74 \uB9DE\uCDA4", graph.fit), button("\uC804\uCCB4 \uBAA8\uB378", () => chooseScope({ kind: "all" })));
     add(toolbar, graphTitle, tools);
@@ -4648,6 +4743,7 @@ ${hints.join("\n")}}`);
       const bounds = drawerBounds();
       drawerHeight = Math.max(bounds.min, Math.min(bounds.max, preferredDrawer ?? Math.min(340, graph.canvas.clientHeight * 0.48)));
       drawer.style.height = drawerHeight + "px";
+      graph.setObscuredBottom(drawerOpen ? drawerHeight : 0);
       leftResize.sync();
       rightResize.sync();
       sampleResize.sync();
@@ -4686,8 +4782,9 @@ ${hints.join("\n")}}`);
       sampleToggle.setAttribute("aria-expanded", String(open));
       if (open) {
         drawSamples(false);
-        syncSizes();
-      } else if (drawer.contains(document.activeElement)) sampleToggle.focus();
+      }
+      syncSizes();
+      if (!open && drawer.contains(document.activeElement)) sampleToggle.focus();
     }
     drawer.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
@@ -4701,10 +4798,13 @@ ${hints.join("\n")}}`);
       if (grid && samplesVisible && drawerOpen && state.get().tab === "model") sampleScroll.set(sampleBody.dataset.key, [grid.scrollLeft, grid.scrollTop]);
     }
     function drawSamples(save = true) {
-      const s2 = state.get(), key2 = s2.entityId + "/" + (s2.scope.kind === "scenario" ? s2.scope.id : "base");
+      const s2 = state.get(), key2 = s2.entityId + "/" + s2.datasetId;
       if (save) saveSamples();
       sampleBody.dataset.key = key2;
-      sampleBody.replaceChildren(renderSamples(doc, s2.entityId, s2.scope.kind === "scenario" ? s2.scope.id : null));
+      sampleBody.replaceChildren(renderSamples(doc, s2.entityId, s2.scope.kind === "scenario" ? s2.scope.id : null, s2.datasetId));
+      datasetSelect.value = s2.datasetId;
+      datasetSelect.disabled = s2.scope.kind === "scenario";
+      datasetLabel.textContent = datasetSelect.disabled ? "\uD655\uC778 \uC0AC\uD56D\uC758 \uC608\uC2DC" : "\uC608\uC2DC \uB370\uC774\uD130";
       samplesVisible = drawerOpen && s2.tab === "model";
       const grid = sampleBody.querySelector(".sample-grid"), position = sampleScroll.get(key2);
       if (grid && position) {
@@ -4717,10 +4817,25 @@ ${hints.join("\n")}}`);
       relationshipId = null;
       const scope = graphScope(doc, selection), s2 = state.get();
       resetExplanation = selection.kind === "scenario" && (s2.scope.kind !== "scenario" || s2.scope.id !== selection.id);
-      state.update({ scope: selection, entityId: scope.focus.has(s2.entityId) ? s2.entityId : scope.entities.find((e) => scope.focus.has(e.id))?.id || scope.entities[0]?.id, detail: selection.kind === "scenario" ? "explanation" : s2.detail });
+      state.update({ scope: selection, datasetId: scope.scenario?.dataset_id || s2.datasetId, entityId: scope.focus.has(s2.entityId) ? s2.entityId : scope.entities.find((e) => scope.focus.has(e.id))?.id || scope.entities[0]?.id, detail: selection.kind === "scenario" ? "explanation" : s2.detail });
+    }
+    function filterChecks() {
+      if (state.get().nav !== "checks") return;
+      let visible = 0, selectedHidden = false;
+      for (const b2 of navList.querySelectorAll("button")) {
+        const scenario = doc.samples.scenarios.find((s2) => s2.id === b2.dataset.item);
+        const observation = doc.observations.find((o) => o.scenario_id === scenario.id);
+        b2.hidden = !checkMatches(scenario, observation, checkQuery, checkStatusValue);
+        if (!b2.hidden) visible++;
+        if (b2.hidden && state.get().scope.id === scenario.id) selectedHidden = true;
+      }
+      navEmpty.hidden = visible > 0;
+      checkCount.textContent = visible + " / " + doc.samples.scenarios.length + "\uAC1C" + (selectedHidden ? " \xB7 \uC120\uD0DD\uD55C \uD56D\uBAA9\uC740 \uAC80\uC0C9 \uBC16\uC5D0 \uC788\uC2B5\uB2C8\uB2E4." : "");
     }
     function drawNav() {
       const s2 = state.get();
+      navigator.dataset.mode = s2.nav;
+      navFilters.hidden = s2.nav !== "checks";
       const scroll = navList.scrollTop, focused = navList.contains(document.activeElement) ? document.activeElement?.dataset.item : null;
       navTabs.replaceChildren(tabs([["domains", "\uC5C5\uBB34 \uC601\uC5ED"], ["checks", "\uD655\uC778 \uC0AC\uD56D"]], s2.nav, (id) => {
         navScroll[s2.nav] = navList.scrollTop;
@@ -4741,6 +4856,10 @@ ${hints.join("\n")}}`);
         }
         b2.setAttribute("aria-pressed", String(s2.scope.kind === "all" ? item.id === "all" : s2.scope.id === item.id));
         navList.append(b2);
+      }
+      if (s2.nav === "checks") {
+        navList.append(navEmpty);
+        filterChecks();
       }
       navList.scrollTop = scroll;
       if (focused) navList.querySelector(`[data-item="${focused}"]`)?.focus({ preventScroll: true });

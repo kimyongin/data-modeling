@@ -31,6 +31,8 @@ python dev/tools/check.py --node node --development --output /tmp/data-modeling-
 
 `check_workspace.mjs`는 `workspace-regressions.mjs`를 함께 실행한다. 세 예제에서 전체 본문 검색/빈 결과, 확인 사항 설명의 시작 위치, 양쪽 패널·드로어 선호 크기 복원, 내부 스크롤, 키보드 포커스와 탭 연결을 확인한다. 명시적 업무 식별 속성과 전체 FK 조합, 미제공/빈 문자열/NULL, ERD 관계 강조·배율 유지·미니맵 좌표 계산도 검사한다. 이 검사는 패키징에서도 실행한다. 실제 CSS와 브라우저 SVG 좌표의 정확성을 증명하지는 않는다.
 
+`exploratory-regressions.mjs`도 같은 관문에서 실행한다. 세 예제의 빠른 범위 왕복과 오류 복구, 현재 선택을 보존하는 확인 사항 검색, 설명의 관련성 및 스펙의 전체 대안을 확인한다. 다중 데이터셋의 영역/전체 보기 전환과 명시적 선택, 드로어가 차지한 영역을 뺀 맞춤·미니맵 좌표도 검사한다. 이는 DOM 상태·좌표 계산 검사이며 실제 화면의 픽셀 배치 검사는 아니다.
+
 `check_examples.py`는 비품·예약·오픈마켓의 명시한 합성 샘플만 대조한다. 실제 결과를 다시 기록할 때만 `--record-observations`를 명시한다. 스키마 통과나 화면 작동을 실제 API/DB/동시성 검증으로 기록하지 않는다.
 
 브라우저가 허용된 환경에서는 [UI 계약](viewer/UI.md)의 데스크톱 배치·오버플로·패널 드래그·미니맵 클릭·표 스크롤을 별도로 확인한다. Node와 최소 DOM fixture는 실제 CSS 배치 검사가 아니다. 브라우저 접근 정책을 다른 API나 localhost로 우회하지 않는다.
@@ -46,7 +48,7 @@ python dev/tools/check.py --node node --development --output /tmp/data-modeling-
 소스·스키마 검사기·개발 검사를 갱신한 뒤 새 뷰어 버전을 봉인한다. 봉인한 명세를 덮어쓰지 않는다.
 
 ```bash
-python dev/tools/release_viewer.py --version 2.1.0 --notes '변경 이유'
+python dev/tools/release_viewer.py --version 2.2.0 --notes '변경 이유'
 python dev/tools/build_viewer.py --node node
 python dev/tools/check.py --node node --output /tmp/data-modeling-release-check
 python dev/tools/package_skill.py --node node --output /tmp/data-modeling.zip --release

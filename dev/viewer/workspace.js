@@ -3,6 +3,7 @@ import { createState, graphScope } from "./state.js";
 import { createGraph } from "./graph.js";
 import { resizer } from "./resize.js";
 import { renderOverview, renderSpec, renderReference, renderInspector, renderSamples } from "./content.js";
+import { checkMatches } from "./view-data.js";
 const tabDefs = [["overview", "개요"], ["spec", "스펙"], ["model", "모델"], ["sources", "참조"]];
 const guides = { overview: "해결할 문제와 정보가 연결되는 큰 그림을 살펴봅니다.", spec: "요구사항별 규칙·설계 선택과 남은 결정을 읽습니다.", model: "ERD·속성·설명·샘플을 연결해 업무 동작을 검토합니다.", sources: "설계 근거와 한계, 제작 과정, 용어를 확인합니다." };
 function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersion, filename }) {
@@ -52,7 +53,24 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
   navList.id = "model-navigation-panel";
   navList.setAttribute("role", "tabpanel");
   navigator.setAttribute("aria-label", "업무 영역과 확인 사항");
-  add(navigator, navTabs, navList);
+  const navFilters = el("div", null, "check-filters"), checkSearch = el("input"), checkStatus = el("select"), checkCount = p("", "caption"), navEmpty = p("검색 결과가 없습니다.", "empty");
+  let checkQuery = "", checkStatusValue = "all";
+  checkSearch.type = "search";
+  checkSearch.placeholder = "제목·상황 검색";
+  checkSearch.setAttribute("aria-label", "확인 사항 검색");
+  checkStatus.setAttribute("aria-label", "확인 사항 기록 상태");
+  for (const [value, title] of [["all", "전체 상태"], ["recorded", "확인 기록 있음"], ["unconfirmed", "미확인"]]) {
+    const option = el("option", title);
+    option.value = value;
+    checkStatus.append(option);
+  }
+  checkStatus.value = "all";
+  checkCount.setAttribute("role", "status");
+  checkSearch.addEventListener("input", () => { checkQuery = checkSearch.value; filterChecks(); }, { signal });
+  checkStatus.addEventListener("change", () => { checkStatusValue = checkStatus.value; filterChecks(); }, { signal });
+  navFilters.hidden = true;
+  add(navFilters, checkSearch, checkStatus, checkCount);
+  add(navigator, navTabs, navFilters, navList);
   const toolbar = el("div", null, "diagram-toolbar"), graphTitle = el("h2"), tools = el("div", null, "tools");
   let active = false, relationshipId = null, lastRecord = null, drawerOpen = false, leftWidth = 220, rightWidth = 400, drawerHeight = 340;
   let preferredLeft = 220, preferredRight = 400, preferredDrawer = null, resetExplanation = false, inspectorVisible = false, samplesVisible = false;
@@ -69,7 +87,23 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
   const sampleToggle = button("샘플 데이터 보기", () => setDrawer(!drawerOpen));
   sampleToggle.setAttribute("aria-controls", drawer.id);
   sampleToggle.setAttribute("aria-expanded", "false");
-  add(drawerHead, drawerTitle, button("닫기", () => setDrawer(false)));
+  const datasetControl = el("label", null, "dataset-control"), datasetLabel = el("span", "예시 데이터"), datasetSelect = el("select");
+  datasetSelect.setAttribute("aria-label", "샘플 데이터셋");
+  for (const dataset of doc.samples.datasets) {
+    const option = el("option", dataset.title);
+    option.value = dataset.id;
+    datasetSelect.append(option);
+  }
+  datasetControl.hidden = doc.samples.datasets.length < 2;
+  datasetSelect.addEventListener("change", () => {
+    if (state.get().scope.kind === "scenario" || !doc.samples.datasets.some((d) => d.id === datasetSelect.value)) {
+      datasetSelect.value = state.get().datasetId;
+      return;
+    }
+    state.update({ datasetId: datasetSelect.value });
+  }, { signal });
+  add(datasetControl, datasetLabel, datasetSelect);
+  add(drawerHead, drawerTitle, datasetControl, button("닫기", () => setDrawer(false)));
   add(drawer, drawerHandle, drawerHead, sampleBody);
   add(tools, sampleToggle, button("−", graph.zoomOut), graph.zoomLabel, button("+", graph.zoomIn), button("화면 맞춤", graph.fit), button("전체 모델", () => chooseScope({ kind: "all" })));
   add(toolbar, graphTitle, tools);
@@ -92,6 +126,7 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
     const bounds = drawerBounds();
     drawerHeight = Math.max(bounds.min, Math.min(bounds.max, preferredDrawer ?? Math.min(340, graph.canvas.clientHeight * 0.48)));
     drawer.style.height = drawerHeight + "px";
+    graph.setObscuredBottom(drawerOpen ? drawerHeight : 0);
     leftResize.sync();
     rightResize.sync();
     sampleResize.sync();
@@ -130,8 +165,9 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
     sampleToggle.setAttribute("aria-expanded", String(open));
     if (open) {
       drawSamples(false);
-      syncSizes();
-    } else if (drawer.contains(document.activeElement)) sampleToggle.focus();
+    }
+    syncSizes();
+    if (!open && drawer.contains(document.activeElement)) sampleToggle.focus();
   }
   drawer.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
@@ -145,10 +181,13 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
     if (grid && samplesVisible && drawerOpen && state.get().tab === "model") sampleScroll.set(sampleBody.dataset.key, [grid.scrollLeft, grid.scrollTop]);
   }
   function drawSamples(save = true) {
-    const s = state.get(), key = s.entityId + "/" + (s.scope.kind === "scenario" ? s.scope.id : "base");
+    const s = state.get(), key = s.entityId + "/" + s.datasetId;
     if (save) saveSamples();
     sampleBody.dataset.key = key;
-    sampleBody.replaceChildren(renderSamples(doc, s.entityId, s.scope.kind === "scenario" ? s.scope.id : null));
+    sampleBody.replaceChildren(renderSamples(doc, s.entityId, s.scope.kind === "scenario" ? s.scope.id : null, s.datasetId));
+    datasetSelect.value = s.datasetId;
+    datasetSelect.disabled = s.scope.kind === "scenario";
+    datasetLabel.textContent = datasetSelect.disabled ? "확인 사항의 예시" : "예시 데이터";
     samplesVisible = drawerOpen && s.tab === "model";
     const grid = sampleBody.querySelector(".sample-grid"), position = sampleScroll.get(key);
     if (grid && position) {
@@ -161,10 +200,25 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
     relationshipId = null;
     const scope = graphScope(doc, selection), s = state.get();
     resetExplanation = selection.kind === "scenario" && (s.scope.kind !== "scenario" || s.scope.id !== selection.id);
-    state.update({ scope: selection, entityId: scope.focus.has(s.entityId) ? s.entityId : scope.entities.find((e) => scope.focus.has(e.id))?.id || scope.entities[0]?.id, detail: selection.kind === "scenario" ? "explanation" : s.detail });
+    state.update({ scope: selection, datasetId: scope.scenario?.dataset_id || s.datasetId, entityId: scope.focus.has(s.entityId) ? s.entityId : scope.entities.find((e) => scope.focus.has(e.id))?.id || scope.entities[0]?.id, detail: selection.kind === "scenario" ? "explanation" : s.detail });
+  }
+  function filterChecks() {
+    if (state.get().nav !== "checks") return;
+    let visible = 0, selectedHidden = false;
+    for (const b of navList.querySelectorAll("button")) {
+      const scenario = doc.samples.scenarios.find((s) => s.id === b.dataset.item);
+      const observation = doc.observations.find((o) => o.scenario_id === scenario.id);
+      b.hidden = !checkMatches(scenario, observation, checkQuery, checkStatusValue);
+      if (!b.hidden) visible++;
+      if (b.hidden && state.get().scope.id === scenario.id) selectedHidden = true;
+    }
+    navEmpty.hidden = visible > 0;
+    checkCount.textContent = visible + " / " + doc.samples.scenarios.length + "개" + (selectedHidden ? " · 선택한 항목은 검색 밖에 있습니다." : "");
   }
   function drawNav() {
     const s = state.get();
+    navigator.dataset.mode = s.nav;
+    navFilters.hidden = s.nav !== "checks";
     const scroll = navList.scrollTop, focused = navList.contains(document.activeElement) ? document.activeElement?.dataset.item : null;
     navTabs.replaceChildren(tabs([["domains", "업무 영역"], ["checks", "확인 사항"]], s.nav, (id) => {
       navScroll[s.nav] = navList.scrollTop;
@@ -185,6 +239,10 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
       }
       b.setAttribute("aria-pressed", String(s.scope.kind === "all" ? item.id === "all" : s.scope.id === item.id));
       navList.append(b);
+    }
+    if (s.nav === "checks") {
+      navList.append(navEmpty);
+      filterChecks();
     }
     navList.scrollTop = scroll;
     if (focused) navList.querySelector(`[data-item="${focused}"]`)?.focus({ preventScroll: true });

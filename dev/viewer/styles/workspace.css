@@ -14,6 +14,10 @@
 .app:not([data-tab=model]) .workspace > :not(.collection) { display: none; }
 .navigator, .inspector { min-width: 0; min-height: 0; background: #fff; overflow: hidden; }
 .navigator { display: grid; grid-template-rows: auto minmax(0, 1fr); padding: 12px 9px; gap: 10px; }
+.navigator[data-mode=checks] { grid-template-rows: auto auto minmax(0, 1fr); }
+.check-filters { display: grid; gap: 6px; }
+.check-filters input, .check-filters select { width: 100%; min-width: 0; padding: 6px 7px; border: 1px solid var(--line); border-radius: 5px; font: inherit; background: #fff; }
+.check-filters .caption { font-size: 11px; }
 .navigator .tabs button { flex: 1; padding: 6px; font-size: 12px; }
 .nav-list { overflow: auto; min-height: 0; scrollbar-gutter: stable; }
 .navigation-item { display: block; width: 100%; text-align: left; padding: 11px 9px; margin-bottom: 5px; border-color: transparent; background: transparent; overflow-wrap: anywhere; }
@@ -25,6 +29,8 @@
 .inspector-body .facts { grid-template-columns: 80px minmax(0, 1fr); }
 .inspector-body .content-section { margin-top: 18px; padding-top: 16px; }
 .inspector-body .content-section:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+.model-rules > li { padding-bottom: 10px; }
+.model-rules .badge { margin-top: 5px; }
 .panel-resizer { cursor: col-resize; touch-action: none; position: relative; background: #e9eff6; }
 .panel-resizer::after { content: ''; position: absolute; width: 3px; height: 34px; left: 3.5px; top: calc(50% - 17px); border-radius: 3px; background: #9cb1c5; }
 .panel-resizer:hover, .panel-resizer.dragging { background: #cbdceb; }

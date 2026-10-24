@@ -3,10 +3,15 @@ import { specData, scenarioData, entityData, statusLabels } from "./view-data.js
 import { quote } from "./layout.js";
 import { sampleValue, referenceRow, sampleLabel } from "./samples.js";
 const methodLabels = { sample: "샘플 대조", simulation: "가정 시뮬레이션", implementation: "대상 구현 확인", manual: "수동 검토" };
-function decisionCard(decision) {
+function decisionCard(decision, compact = false) {
   const card = el("article", null, "decision-card");
   card.dataset.record = decision.id;
   add(card, el("h4", decision.id + ": " + decision.title), p(statusLabels[decision.status], "badge"), p(decision.rationale));
+  if (compact) {
+    const selected = decision.choices.find((choice) => choice.id === decision.selected_choice);
+    add(card, facts([["선택한 안", selected?.title || "아직 정하지 않았습니다."], ["함께 감수할 점", selected?.cost]]));
+    return card;
+  }
   const choices = el("ul", null, "choices");
   for (const choice of decision.choices) {
     const item = el("li", null, choice.id === decision.selected_choice ? "selected-choice" : "");
@@ -127,38 +132,58 @@ function renderInspector(doc, entityId, detail, scope, index, focusedRelationshi
     if (entity.unique_keys.length) body.append(section("중복을 막는 범위", bullets(entity.unique_keys.map((fields) => fields.map((f) => entity.attributes.find((a) => a.name === f)?.label || f).join(" + ")))));
     if (entity.constraints?.length) body.append(section("추가 제약", bullets(entity.constraints)));
     if (entity.indexes?.length) body.append(section("조회 인덱스", bullets(entity.indexes)));
+    if (relationships.length) {
+      const conditions = section("연결 조건");
+      for (const r of relationships) conditions.append(add(el("article", null, "relationship-condition"), el("h4", index.label(r.id)), facts([["지켜야 할 조건", r.rule], ["보장하는 위치", r.enforcement]])));
+      body.append(conditions);
+    }
   } else {
     if (scope.scenario) body.append(observationCard(doc, scope.scenario.id));
     body.append(section("이 모델이 필요한 이유", p(entity.description), entity.example ? p(entity.example, "example") : null));
-    for (const decision of decisions) body.append(section("설계 선택", decisionCard(decision)));
+    const applies = (item) => !scope.scenario || !item.requirement_ids.length || item.requirement_ids.some((id) => scope.scenario.requirement_ids.includes(id));
+    const relevantDecisions = decisions.filter(applies);
+    if (relevantDecisions.length) {
+      const choices = section("설계 선택과 대가");
+      for (const decision of relevantDecisions) choices.append(decisionCard(decision, true));
+      body.append(choices);
+    }
     if (entity.tradeoff) body.append(section("선택의 대가", p(entity.tradeoff)));
-    if (rules.length) {
-      const block = section("적용한 업무 규칙");
-      for (const rule of rules) block.append(ruleCard(rule, index));
+    const relevantRules = scope.scenario ? rules.filter((rule) => rule.scenario_ids.includes(scope.scenario.id)) : rules;
+    if (relevantRules.length) {
+      const block = section(scope.scenario ? "이번 확인에 적용한 규칙" : "적용한 업무 규칙");
+      const list = el("ul", null, "model-rules");
+      for (const rule of relevantRules) {
+        const item = add(el("li"), el("strong", index.label(rule.id)), p(rule.statement), p(statusLabels[rule.design_status] + " · " + statusLabels[rule.agreement_status], "badge"));
+        if (rule.reason) item.append(p(rule.reason, "muted"));
+        list.append(item);
+      }
+      block.append(list);
       body.append(block);
     }
-    if (relationships.length) {
-      const block = section("관계를 만든 이유");
-      for (const r of [...relationships].sort((a, b) => Number(b.id === focusedRelationship) - Number(a.id === focusedRelationship))) {
-        const card = add(el("article", null, "relationship-card"), el("h4", index.label(r.id)), p(r.description), facts([["지켜야 할 조건", r.rule], ["보장하는 위치", r.enforcement]]));
+    const visibleRelationships = relationships.filter((r) => scope.relationships.some((visible) => visible.id === r.id));
+    if (visibleRelationships.length) {
+      const block = section("이 화면의 관계를 만든 이유");
+      for (const r of [...visibleRelationships].sort((a, b) => Number(b.id === focusedRelationship) - Number(a.id === focusedRelationship))) {
+        const card = add(el("article", null, "relationship-card"), el("h4", index.label(r.id)), p(r.description));
         card.dataset.relationship = r.id;
         block.append(card);
       }
       body.append(block);
     }
-    if (issues.length || entity.risk || entity.question) {
+    const relevantIssues = issues.filter(applies);
+    if (relevantIssues.length || entity.risk || entity.question) {
       const block = section("남은 판단");
       if (entity.risk) block.append(p(entity.risk));
       if (entity.question) block.append(p(entity.question));
-      for (const q of issues) block.append(issueCard(q));
+      for (const q of relevantIssues) block.append(issueCard(q));
       body.append(block);
     }
     if (entity.source_ids.length) body.append(section("판단에 사용한 근거", references(entity.source_ids, index)));
   }
   return body;
 }
-function renderSamples(doc, entityId, scenarioId) {
-  const entity = doc.model.entities.find((e) => e.id === entityId), scenario = doc.samples.scenarios.find((s) => s.id === scenarioId), dataset = doc.samples.datasets.find((d) => d.id === scenario?.dataset_id) || doc.samples.datasets[0];
+function renderSamples(doc, entityId, scenarioId, datasetId) {
+  const entity = doc.model.entities.find((e) => e.id === entityId), scenario = doc.samples.scenarios.find((s) => s.id === scenarioId), dataset = doc.samples.datasets.find((d) => d.id === (datasetId || scenario?.dataset_id)) || doc.samples.datasets[0];
   const body = el("div", null, "sample-content");
   if (!entity) return body;
   add(body, p(dataset.title + " · " + entity.name + " · " + (dataset.rows[entityId]?.length || 0) + "행", "caption"));
@@ -167,7 +192,7 @@ function renderSamples(doc, entityId, scenarioId) {
   grid.tabIndex = 0;
   grid.setAttribute("role", "region");
   grid.setAttribute("aria-label", entity.name + " 전체 샘플 데이터. 위아래 및 좌우로 스크롤");
-  const refs = scenario?.sample_refs.filter((r) => r.entity_id === entityId) || [];
+  const refs = scenario?.dataset_id === dataset.id ? scenario.sample_refs.filter((r) => r.entity_id === entityId) : [];
   if (refs.length) {
     const rows = grid.querySelectorAll("tbody tr");
     (dataset.rows[entityId] || []).forEach((row, i) => {

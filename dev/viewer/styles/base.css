@@ -38,8 +38,8 @@ a { color: var(--blue); }
 .facts dt { color: var(--muted); font-size: 12px; }
 .facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .facts ul { margin: 0; }
-.rule-card, .decision-card, .issue-card, .relationship-card, .attribute-card { padding: 16px 0; border-bottom: 1px dashed var(--line); }
-.rule-card > h4, .decision-card > h4, .issue-card > h4, .relationship-card > h4, .attribute-card > h4 { margin-bottom: 8px; }
+.rule-card, .decision-card, .issue-card, .relationship-card, .relationship-condition, .attribute-card { padding: 16px 0; border-bottom: 1px dashed var(--line); }
+.rule-card > h4, .decision-card > h4, .issue-card > h4, .relationship-card > h4, .relationship-condition > h4, .attribute-card > h4 { margin-bottom: 8px; }
 .rule-card .badge { margin: 8px 0; }
 .choices { list-style: none; padding: 0 !important; }
 .choices > li { padding: 12px 14px; background: #f7f9fc; border-left: 3px solid #d4e0eb; }
