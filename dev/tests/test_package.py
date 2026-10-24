@@ -62,6 +62,13 @@ def main():
                 result=subprocess.run([sys.executable,str(REPO/'dev/tools/build_viewer.py'),'--node',args.node,'--check'],cwd=tmp,capture_output=True,text=True)
                 self.assertEqual(result.returncode,0,result.stderr)
 
+        def test_package_is_independent_of_working_directory(self):
+            with tempfile.TemporaryDirectory() as tmp:
+                output=Path(tmp)/'skill.zip'
+                result=subprocess.run([sys.executable,str(REPO/'dev/tools/package_skill.py'),'--node',args.node,'--output',str(output)],cwd=tmp,capture_output=True,text=True)
+                self.assertEqual(result.returncode,0,result.stderr)
+                self.assertTrue(zipfile.is_zipfile(output))
+
         def test_skill_version_does_not_change_json_receipt(self):
             with tempfile.TemporaryDirectory() as tmp:
                 folder=Path(tmp);skill=folder/'skill';shutil.copytree(package_skill.SKILL,skill,ignore=shutil.ignore_patterns('__pycache__'));shutil.rmtree(skill/'assets')

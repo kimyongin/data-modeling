@@ -1,13 +1,13 @@
 .app { height: 100dvh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; }
-.app-header { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 22px; min-width: 0; padding: 12px 20px; border-bottom: 1px solid var(--line); background: #fff; }
+.app-header { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 22px; min-width: 0; padding: 12px 20px; border-bottom: 1px solid var(--line); background: #fff; }
 .brand { min-width: 0; flex: 1; }
 .tab-guide { font-size: 12px; color: var(--muted); margin-top: 5px; }
 .app-header > div:has(> .tabs) { flex: 0 0 auto; }
 .head-actions { display: flex; gap: 7px; flex-shrink: 0; }
-.transfer-notice { position: absolute; z-index: 30; right: 16px; top: calc(100% + 6px); max-width: min(680px, 90vw); padding: 14px; background: #fff; border: 1px solid #adc7df; border-radius: 8px; box-shadow: 0 6px 25px #18365022; }
-.transfer-notice[data-error=true] { border-color: #c77c80; }
-.transfer-notice { max-height: min(360px, 60vh); overflow: auto; overscroll-behavior: contain; }
-.transfer-notice button { margin-top: 10px; }
+.transfer-notice { flex: 1 0 100%; min-width: 0; display: flex; align-items: flex-start; gap: 8px 14px; padding: 8px 12px; background: #f2f7fc; border: 1px solid #adc7df; border-radius: 6px; max-height: min(240px, 30vh); overflow: auto; overscroll-behavior: contain; font-size: 12px; }
+.transfer-notice[data-error=true] { border-color: #c77c80; background: #fff7f7; }
+.transfer-notice > :first-child { flex: 1; min-width: 0; white-space: pre-line; }
+.transfer-notice button { flex: 0 0 auto; padding: 2px 7px; font-size: 12px; }
 .workspace { --left-width: 220px; --right-width: 400px; min-width: 0; min-height: 0; overflow: hidden; }
 .app[data-tab=model] .workspace { display: grid; grid-template-columns: var(--left-width) 10px minmax(320px, 1fr) 10px var(--right-width); }
 .app:not([data-tab=model]) .workspace { display: block; }
@@ -52,7 +52,7 @@
 .empty-view h2 { font-size: 28px; margin-bottom: 18px; }
 .empty-view .steps { white-space: pre-line; margin: 24px 0; line-height: 2; }
 @media (max-width: 1250px) {
-  .app-header { gap: 12px; padding: 10px 14px; }
+  .app-header { gap: 8px 12px; padding: 10px 14px; }
   .app-header .tabs button { padding: 6px 8px; }
   .head-actions { gap: 4px; }
   .record-detail { padding: 22px 26px; }

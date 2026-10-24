@@ -18,21 +18,21 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
   surface.id = "model-minimap";
   miniButton.setAttribute("aria-controls", surface.id);
   miniButton.setAttribute("aria-expanded", "false");
-  surface.setAttribute("aria-label", "미니맵. 클릭한 위치로 이동, Enter로 중앙 이동");
+  surface.setAttribute("aria-label", "미니맵. 클릭하거나 드래그로 이동, 방향키로 조정, Enter 또는 Space로 중앙 이동");
   const miniSvg = svgNode("svg", { "aria-hidden": "true" }), miniContent = svgNode("g"), viewport = svgNode("rect", { "class": "minimap-viewport" });
   miniSvg.append(miniContent, viewport);
   surface.append(miniSvg);
   add(minimap, miniButton, surface);
   add(canvas, stage, hint, legend, minimap);
   const zoomLabel = el("span", "100%", "zoom-label");
-  let scope = null, active = null, view = null, miniOpen = false, drag = null, suppress = false, sequence = 0, obscuredBottom = 0;
+  let scope = null, active = null, view = null, miniOpen = false, drag = null, miniDrag = null, suppress = false, sequence = 0, obscuredBottom = 0;
   const cache = /* @__PURE__ */ new Map(), views = /* @__PURE__ */ new Map();
   const visibleHeight = () => Math.max(1, canvas.clientHeight - obscuredBottom);
   function refresh() {
     minimap.style.bottom = obscuredBottom + 10 + "px";
-    const height = Math.max(24, Math.min(140, visibleHeight() - 56));
+    const height = Math.max(24, Math.min(200, canvas.clientWidth * 0.1, visibleHeight() * 0.22, visibleHeight() - 56));
     surface.style.height = height + "px";
-    surface.style.width = Math.max(84, Math.min(210, height * 1.5)) + "px";
+    surface.style.width = Math.max(64, height * 1.6) + "px";
     hint.style.bottom = obscuredBottom + 9 + "px";
     hint.hidden = visibleHeight() < 160;
     legend.hidden = visibleHeight() < 160;
@@ -68,6 +68,10 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
   }
   function toggleMini() {
     miniOpen = !miniOpen;
+    if (!miniOpen) {
+      endMini();
+      if (surface.contains(document.activeElement)) miniButton.focus({ preventScroll: true });
+    }
     surface.hidden = !miniOpen;
     miniButton.textContent = miniOpen ? "미니맵 닫기" : "미니맵 열기";
     miniButton.setAttribute("aria-expanded", String(miniOpen));
@@ -104,12 +108,34 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
     point.y = event.clientY;
     const matrix = miniSvg.getScreenCTM();
     if (!matrix) return;
-    const pos = point.matrixTransform(matrix.inverse());
-    view.x = canvas.clientWidth / 2 - pos.x * view.zoom;
-    view.y = visibleHeight() / 2 - pos.y * view.zoom;
+    const pos = point.matrixTransform(matrix.inverse()), box = active.viewBox.baseVal;
+    // Letterboxing and captured drags outside the map must stay at the graph boundary.
+    const x = Math.max(box.x, Math.min(box.x + box.width, pos.x));
+    const y = Math.max(box.y, Math.min(box.y + box.height, pos.y));
+    view.x = canvas.clientWidth / 2 - x * view.zoom;
+    view.y = visibleHeight() / 2 - y * view.zoom;
     apply();
   }
-  surface.addEventListener("pointerdown", moveFromMini, { signal });
+  function endMini(event) {
+    if (!miniDrag || event && event.pointerId !== miniDrag.id) return;
+    const old = miniDrag;
+    miniDrag = null;
+    event?.stopPropagation();
+    surface.classList.remove("dragging");
+    if (surface.hasPointerCapture(old.id)) surface.releasePointerCapture(old.id);
+  }
+  surface.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || event.isPrimary === false || miniDrag || !active || !view) return;
+    surface.focus({ preventScroll: true });
+    miniDrag = { id: event.pointerId };
+    surface.setPointerCapture(event.pointerId);
+    surface.classList.add("dragging");
+    moveFromMini(event);
+  }, { signal });
+  surface.addEventListener("pointermove", (event) => {
+    if (miniDrag?.id === event.pointerId) moveFromMini(event);
+  }, { signal });
+  for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) surface.addEventListener(type, endMini, { signal });
   surface.addEventListener("keydown", (event) => {
     const delta = { ArrowLeft: [40, 0], ArrowRight: [-40, 0], ArrowUp: [0, 40], ArrowDown: [0, -40] }[event.key];
     if (delta && view) {
@@ -119,7 +145,7 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
       apply();
       return;
     }
-    if (event.key === "Enter") {
+    if (["Enter", " "].includes(event.key)) {
       event.preventDefault();
       if (!active || !view) return;
       const b = active.viewBox.baseVal;
@@ -130,14 +156,16 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
   }, { signal });
   for (const type of ["selectstart", "dragstart"]) canvas.addEventListener(type, (event) => event.preventDefault(), { signal });
   canvas.addEventListener("pointerdown", (event) => {
-    if (event.button !== 0 || event.target.closest(".minimap")) return;
+    if (event.button !== 0 || event.isPrimary === false || drag || event.target.closest(".minimap")) return;
     event.preventDefault();
+    (event.target.closest(".node") || event.target.closest(".edge") || canvas).focus({ preventScroll: true });
     drag = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
   }, { signal });
   canvas.addEventListener("pointermove", (event) => {
     if (!drag || drag.id !== event.pointerId || !view) return;
     const dx = event.clientX - drag.x, dy = event.clientY - drag.y;
     if (!drag.moved && Math.abs(dx) + Math.abs(dy) < 4) return;
+    if (!drag.moved) canvas.focus({ preventScroll: true });
     drag.moved = true;
     canvas.setPointerCapture(event.pointerId);
     canvas.classList.add("dragging");
@@ -148,7 +176,7 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
     apply();
   }, { signal });
   const end = (event) => {
-    if (!drag) return;
+    if (!drag || drag.id !== event.pointerId) return;
     suppress = drag.moved;
     drag = null;
     canvas.classList.remove("dragging");
@@ -158,6 +186,10 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
     }, 80);
   };
   for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) canvas.addEventListener(type, end, { signal });
+  signal.addEventListener("abort", () => {
+    endMini();
+    if (drag) end({ pointerId: drag.id });
+  }, { once: true });
   canvas.addEventListener("wheel", (event) => {
     if (event.target.closest(".minimap")) return;
     event.preventDefault();
@@ -188,6 +220,10 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
     }
   }
   async function show(next, selected) {
+    if (scope?.key !== next.key) {
+      endMini();
+      if (drag) end({ pointerId: drag.id });
+    }
     scope = next;
     const token = ++sequence;
     if (!cache.has(next.key)) {
@@ -252,7 +288,7 @@ function createGraph({ engine, onEntity, onRelationship, signal, layout = render
     if (first) fit();
     else apply();
     highlight(selected, next.scenario?.entity_ids || []);
-    if (changed) syncMini();
+    syncMini();
   }
   return { canvas, zoomLabel, show, fit, zoomIn: () => zoom((view?.zoom || 1) * 1.2), zoomOut: () => zoom((view?.zoom || 1) / 1.2), refresh, setObscuredBottom };
 }

@@ -64,6 +64,23 @@ async function runAppRegressions(check, html, manifest) {
     });
     for (const item of manifest) {
       const doc = JSON.parse(fs.readFileSync(item.input, "utf8"));
+      await check(item.name + " shipped app clipboard import uses validation and preserves text-field paste", async () => {
+        const before = host.firstChild;
+        const pasted = dom.body.emit("paste", { clipboardData: { getData: () => JSON.stringify(doc) } });
+        assert(pasted.defaultPrevented);
+        await until(() => host.firstChild !== before && host.querySelector("h1").textContent === doc.document.title);
+        assert(host.querySelector(".app-footer").textContent.includes("붙여넣은 모델.json"));
+        click("스펙");
+        const search = host.querySelector(".record-list").querySelector("input"), current = host.firstChild;
+        const searchPaste = dom.body.emit("paste", { target: search, clipboardData: { getData: () => JSON.stringify(doc) } });
+        assert(!searchPaste.defaultPrevented);
+        assert(host.firstChild === current);
+        assert(!dom.body.emit("paste", { clipboardData: { getData: () => "ordinary text" } }).defaultPrevented);
+        dom.body.emit("paste", { clipboardData: { getData: () => '{"broken": nope' } });
+        await until(() => host.querySelector(".transfer-notice").dataset.error === "true");
+        assert(host.firstChild === current);
+        assert(host.querySelector(".transfer-notice").textContent.includes("JSON 문법"));
+      });
       await check(item.name + " shipped app file import, multiword search, sample drawer and exact Blob export", async () => {
         await load(doc, item.name + ".model.json");
         click("스펙");

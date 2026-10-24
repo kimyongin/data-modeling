@@ -57,8 +57,14 @@ function tabs(items, current, select, label, { prefix, panelId } = {}) {
   const nav = el("nav", null, "tabs");
   nav.setAttribute("role", "tablist");
   nav.setAttribute("aria-label", label);
+  const activate = (id) => {
+    // Selection can synchronously replace this entire tablist. Focus its live replacement.
+    const parent = nav.parentElement;
+    select(id);
+    parent?.querySelector(`[data-tab="${id}"]`)?.focus({ preventScroll: true });
+  };
   items.forEach(([id, title], i) => {
-    const b = button(title, () => select(id));
+    const b = button(title, () => activate(id));
     b.dataset.tab = id;
     b.setAttribute("role", "tab");
     b.setAttribute("aria-selected", String(id === current));
@@ -69,9 +75,7 @@ function tabs(items, current, select, label, { prefix, panelId } = {}) {
       if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
       event.preventDefault();
       const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1 : (i + (event.key === "ArrowRight" ? 1 : -1) + items.length) % items.length;
-      const parent = nav.parentElement;
-      select(items[next][0]);
-      parent?.querySelector(`[data-tab="${items[next][0]}"]`)?.focus();
+      activate(items[next][0]);
     });
     nav.append(b);
   });

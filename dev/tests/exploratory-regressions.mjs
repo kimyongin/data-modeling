@@ -194,7 +194,8 @@ async function runExploratoryRegressions(check, dom, manifest) {
       const surface = graph.canvas.querySelector(".minimap-surface"), svg = surface.querySelector("svg");
       svg.createSVGPoint = () => ({ x: 0, y: 0, matrixTransform() { return { x: this.x, y: this.y }; } });
       svg.getScreenCTM = () => ({ inverse: () => ({}) });
-      surface.emit("pointerdown", { clientX: 100, clientY: 80 });
+      surface.emit("pointerdown", { button: 0, pointerId: 1, clientX: 100, clientY: 80 });
+      surface.emit("pointerup", { pointerId: 1 });
       assert.deepEqual(transform(stage), [graph.canvas.clientWidth / 2 - 100 * zoom, height / 2 - 80 * zoom, zoom]);
       const moved = stage.style.transform;
       graph.setObscuredBottom(0);

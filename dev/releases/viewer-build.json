@@ -1,9 +1,9 @@
 {
   "kind": "bundled-viewer",
-  "viewer_version": "2.4.0",
+  "viewer_version": "2.5.3",
   "document_version": "2.0.0",
   "development": false,
-  "source_sha256": "6e9f2471267ca40eed0b2012c080dc31994fd02d4448cc716fcf787b05374104",
-  "output_sha256": "8da4b001c5f9856c39edbbcddb03162cd55fec39c93f813fad600278120f184a",
+  "source_sha256": "1c37b29c13bf29d65501bdd2448894197328213ba5a5abb6f4061e57fbe1bfe7",
+  "output_sha256": "4f502b288d379ace55e201f36892338f09fca762cde102280c776b7099177e9d",
   "empty_data": true
 }

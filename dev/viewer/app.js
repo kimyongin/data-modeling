@@ -32,6 +32,14 @@ function startViewer() {
     notify: (message, error) => current.notify(message, error),
     describeError
   });
+  document.body.addEventListener("paste", (event) => {
+    const target = event.target;
+    if (target.closest("input") || target.closest("textarea") || target.closest("[contenteditable]")) return;
+    const raw = event.clipboardData?.getData("text/plain") || "";
+    if (!raw.trimStart().startsWith("{")) return;
+    event.preventDefault();
+    importer({ name: "붙여넣은 모델.json", size: new TextEncoder().encode(raw).byteLength, text: async () => raw });
+  });
   async function exportDocument(doc) {
     try {
       await validateDocument(doc);
@@ -66,7 +74,7 @@ function startViewer() {
     notice.setAttribute("role", "status");
     notice.hidden = true;
     header.append(notice);
-    const body = add(el("section", null, "empty-view"), el("h2", "작성한 JSON으로 모델을 검토하세요"), p("요구사항·규칙·모델·샘플을 직접 작성하거나 데이터 모델링 스킬로 생성하세요. 동료에게 받은 JSON도 같은 뷰어에서 엽니다."), p("① 모델 JSON 2.0을 준비합니다.\n② 가져오기에서 파일을 선택합니다.\n③ 스펙·ERD·설명·샘플을 검토합니다.", "steps"), p("스킬의 references/example-model.json을 직접 작성의 시작점으로 사용할 수 있습니다.", "muted"));
+    const body = add(el("section", null, "empty-view"), el("h2", "작성한 JSON으로 모델을 검토하세요"), p("요구사항·규칙·모델·샘플을 직접 작성하거나 데이터 모델링 스킬로 생성하세요. 동료에게 받은 JSON도 같은 뷰어에서 엽니다."), p("① 모델 JSON 2.0을 준비합니다.\n② 가져오기에서 파일을 선택하거나, 복사한 JSON을 이 화면에 붙여넣습니다.\n③ 스펙·ERD·설명·샘플을 검토합니다.", "steps"), p("스킬의 references/example-model.json을 직접 작성의 시작점으로 사용할 수 있습니다.", "muted"));
     add(root, header, body, add(el("footer", null, "app-footer"), p("인터넷 없이 사용 · 업무 데이터 자동 저장 없음"), p("뷰어 " + metadata.version + " · 문서 형식 2.0.0")));
     return { root, activate() {
     }, dispose() {

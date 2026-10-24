@@ -106,7 +106,12 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
   add(datasetControl, datasetLabel, datasetSelect);
   add(drawerHead, drawerTitle, datasetControl, button("닫기", () => setDrawer(false)));
   add(drawer, drawerHandle, drawerHead, sampleBody);
-  add(tools, sampleToggle, button("−", graph.zoomOut), graph.zoomLabel, button("+", graph.zoomIn), button("화면 맞춤", graph.fit), button("전체 모델", () => chooseScope({ kind: "all" })));
+  const zoomOut = button("−", graph.zoomOut), zoomIn = button("+", graph.zoomIn);
+  for (const [control, label] of [[zoomOut, "ERD 축소"], [zoomIn, "ERD 확대"]]) {
+    control.setAttribute("aria-label", label);
+    control.title = label;
+  }
+  add(tools, sampleToggle, zoomOut, graph.zoomLabel, zoomIn, button("화면 맞춤", graph.fit), button("전체 모델", () => chooseScope({ kind: "all" })));
   add(toolbar, graphTitle, tools);
   add(diagram, toolbar, graph.canvas, drawer);
   add(workspace, navigator, leftHandle, diagram, rightHandle, inspector, collection);
@@ -343,6 +348,8 @@ function createWorkspace(doc, report, { engine, onImport, onExport, viewerVersio
       recordListScroll[s.tab] = itemsHost.scrollTop;
     }, { signal });
     collection.replaceChildren(list, detail);
+    // Detached elements cannot restore a nonzero scroll position in the browser.
+    if (selected) detail.scrollTop = recordScroll.get(lastRecord) || 0;
     itemsHost.scrollTop = recordListScroll[s.tab];
   }
   function render() {

@@ -29,7 +29,7 @@ def package_bytes(node='node'):
         raise ValueError('package_viewer: missing, damaged or stale viewer; rebuild first')
     with tempfile.TemporaryDirectory(prefix='model-package-check-') as tmp:
         result=Path(tmp)/'bundle.json'
-        check=subprocess.run([node,str(REPO/'dev/tests/check_bundle.mjs'),str(viewer),str(REPO/'examples/test-manifest.json'),str(result)],capture_output=True,text=True)
+        check=subprocess.run([node,str(REPO/'dev/tests/check_bundle.mjs'),str(viewer),str(REPO/'examples/test-manifest.json'),str(result)],cwd=REPO,capture_output=True,text=True)
         if check.returncode or not result.exists():
             raise ValueError('package_bundle: '+check.stdout+' '+check.stderr)
         if json.loads(result.read_text())['failed']:

@@ -98,6 +98,29 @@ async function runRegressions(check, dom, manifest) {
       input.value = "";
     }));
 
+    await check(item.name + " record scroll restores after attachment when detached elements clamp scrolling", async () => {
+      const original = Object.getOwnPropertyDescriptor(Element.prototype, "scrollTop"), positions = new WeakMap();
+      Object.defineProperty(Element.prototype, "scrollTop", { configurable: true,
+        get() { return positions.get(this) || 0; },
+        set(value) { positions.set(this, this.className === "record-detail" && !dom.body.contains(this) ? 0 : value); }
+      });
+      try {
+        await withWorkspace((root) => {
+          click(root, "스펙");
+          root.querySelector(".record-detail").scrollTop = 190;
+          click(root, "참조");
+          root.querySelector(".record-detail").scrollTop = 260;
+          click(root, "스펙");
+          assert.equal(root.querySelector(".record-detail").scrollTop, 190);
+          click(root, "참조");
+          assert.equal(root.querySelector(".record-detail").scrollTop, 260);
+        });
+      } finally {
+        if (original) Object.defineProperty(Element.prototype, "scrollTop", original);
+        else delete Element.prototype.scrollTop;
+      }
+    });
+
     await check(item.name + " scenario changes start with the new explanation while same-scenario tab scroll restores", () => withWorkspace((root) => {
       click(root, "확인 사항");
       let choices = root.querySelector(".nav-list").querySelectorAll("button");
@@ -161,6 +184,25 @@ async function runRegressions(check, dom, manifest) {
           assert.equal(pane.getAttribute("role"), "tabpanel");
         }
       }
+    }));
+
+    await check(item.name + " clicking rebuilt tabs preserves focus for subsequent keyboard navigation", () => withWorkspace((root) => {
+      for (const labels of [["스펙", "모델"], ["확인 사항", "업무 영역"], ["설명", "속성"]]) {
+        click(root, "모델");
+        for (const label of labels) {
+          const old = findButton(root, label);
+          old.focus();
+          old.click();
+          const selected = findButton(root, label);
+          assert(document.activeElement === selected, "Click must focus the live tab: " + label);
+          assert(root.contains(selected), "Focus must stay in the mounted workspace");
+          selected.emit("keydown", { key: "ArrowRight" });
+          assert(root.contains(document.activeElement));
+          assert.equal(document.activeElement.getAttribute("aria-selected"), "true");
+        }
+      }
+      assert.equal(findButton(root, "+").getAttribute("aria-label"), "ERD 확대");
+      assert.equal(findButton(root, "−").getAttribute("aria-label"), "ERD 축소");
     }));
   }
 
@@ -242,7 +284,8 @@ async function runRegressions(check, dom, manifest) {
       miniSvg.createSVGPoint = () => ({ x: 0, y: 0, matrixTransform(m) { return { x: this.x * m.a + m.e, y: this.y * m.d + m.f }; } });
       miniSvg.getScreenCTM = () => ({ inverse() { return { a: 2, d: 2, e: -20, f: -40 }; } });
       const view = before.match(/translate\(([-\d.]+)px,([-\d.]+)px\) scale\(([-\d.]+)\)/).slice(1).map(Number);
-      surface.emit("pointerdown", { clientX: 110, clientY: 70 });
+      surface.emit("pointerdown", { button: 0, pointerId: 1, clientX: 110, clientY: 70 });
+      surface.emit("pointerup", { pointerId: 1 });
       assert.equal(stage.style.transform, `translate(${graph.canvas.clientWidth / 2 - 200 * view[2]}px,${graph.canvas.clientHeight / 2 - 100 * view[2]}px) scale(${view[2]})`);
       const afterMove = stage.style.transform;
       click(graph.canvas, "미니맵 닫기"); click(graph.canvas, "미니맵 열기");
